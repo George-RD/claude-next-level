@@ -168,7 +168,7 @@ Before running any web searches in Phase 0, ask the user:
 
 **If user provides research:** Parse into Research Brief sections, run gap analysis, search only for missing data.
 
-**If no existing research:** Proceed with comprehensive web searches, fill Research Brief as data comes in.
+**When there's no existing research:** Proceed with comprehensive web searches, filling the Research Brief as data comes in.
 
 **If partial:** Fill what the user provides, gap-analyze, search for what's missing.
 

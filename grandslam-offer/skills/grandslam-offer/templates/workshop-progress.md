@@ -18,6 +18,7 @@
   - Phase scores where applicable (e.g., Starving Crowd 32/40)
   - Gate status (green/yellow/red)
   - Workshop start date (for days elapsed)
+  - Project name (for cross-linking to other HTML pages)
 
 ## HTML Structure
 
@@ -277,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         phase.style.cursor = 'pointer';
         phase.addEventListener('click', () => {
             const num = phase.dataset.phase;
+            if (!num) return;
             const section = document.querySelector(`.phase-section[data-phase="${num}"]`);
             if (section && !section.classList.contains('locked')) {
                 section.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -303,46 +303,56 @@ Apply these CSS rules inline in the `<style>` tag:
 ```javascript
 // Export offer as formatted text to clipboard
 function exportOffer() {
-    const offerName = document.querySelector('h1').textContent;
-    const pitch = document.querySelector('.elevator-pitch').textContent;
+    const h1 = document.querySelector('h1');
+    const pitchEl = document.querySelector('.elevator-pitch');
+    if (!h1 || !pitchEl) return;
 
     let output = `GRAND SLAM OFFER\n${'='.repeat(60)}\n\n`;
-    output += `${offerName}\n\n${pitch}\n\n${'='.repeat(60)}\n\n`;
+    output += `${h1.textContent}\n\n${pitchEl.textContent}\n\n${'='.repeat(60)}\n\n`;
 
     // Value Equation
     output += 'VALUE EQUATION\n';
     document.querySelectorAll('.equation-item').forEach(eq => {
-        output += `${eq.querySelector('.equation-name').textContent}: ${eq.querySelector('.equation-score').textContent}\n`;
+        const name = eq.querySelector('.equation-name');
+        const score = eq.querySelector('.equation-score');
+        if (name && score) output += `${name.textContent}: ${score.textContent}\n`;
     });
 
     // Stack
     output += `\n${'='.repeat(60)}\nTHE STACK\n\n`;
     document.querySelectorAll('.stack-item').forEach(item => {
-        const label = item.querySelector('.stack-label').textContent;
-        const desc = item.querySelector('.stack-description').textContent;
+        const label = item.querySelector('.stack-label');
+        const desc = item.querySelector('.stack-description');
+        if (!label || !desc) return;
         const value = item.querySelector('.stack-value');
-        output += `${label}${value ? ` — ${value.textContent}` : ''}\n${desc}\n\n`;
+        output += `${label.textContent}${value ? ` — ${value.textContent}` : ''}\n${desc.textContent}\n\n`;
     });
 
     // Summary
     document.querySelectorAll('.summary-row').forEach(row => {
         const spans = row.querySelectorAll('span');
-        output += `${spans[0].textContent}: ${spans[1].textContent}\n`;
+        if (spans.length >= 2) output += `${spans[0].textContent}: ${spans[1].textContent}\n`;
     });
 
     // Enhancement
     output += `\n${'='.repeat(60)}\nENHANCEMENT\n\n`;
     document.querySelectorAll('.enhancement-card').forEach(card => {
-        output += `${card.querySelector('h3').textContent}:\n${card.querySelector('p').textContent}\n\n`;
+        const h3 = card.querySelector('h3');
+        const p = card.querySelector('p');
+        if (h3 && p) output += `${h3.textContent}:\n${p.textContent}\n\n`;
     });
 
     // Agent Scores
     output += `${'='.repeat(60)}\nAGENT VALIDATION\n\n`;
     document.querySelectorAll('.score-card').forEach(card => {
-        output += `${card.querySelector('.score-label').textContent}: ${card.querySelector('.score-value').textContent}\n`;
+        const label = card.querySelector('.score-label');
+        const val = card.querySelector('.score-value');
+        if (label && val) output += `${label.textContent}: ${val.textContent}\n`;
     });
-    output += `\nOVERALL: ${document.querySelector('.overall-value').textContent}\n`;
-    output += `${document.querySelector('.overall-verdict').textContent}\n`;
+    const overallVal = document.querySelector('.overall-value');
+    const overallVerdict = document.querySelector('.overall-verdict');
+    if (overallVal) output += `\nOVERALL: ${overallVal.textContent}\n`;
+    if (overallVerdict) output += `${overallVerdict.textContent}\n`;
 
     navigator.clipboard.writeText(output).then(() => {
         const btn = document.querySelector('.export-btn');
@@ -351,6 +361,19 @@ function exportOffer() {
         btn.style.backgroundColor = '#22c55e';
         btn.style.color = '#0a0a0a';
         btn.style.borderColor = '#22c55e';
+        setTimeout(() => {
+            btn.textContent = original;
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = '#4a9eff';
+            btn.style.borderColor = '#4a9eff';
+        }, 2000);
+    }).catch(() => {
+        const btn = document.querySelector('.export-btn');
+        const original = btn.textContent;
+        btn.textContent = 'Export failed';
+        btn.style.backgroundColor = '#ef4444';
+        btn.style.color = '#0a0a0a';
+        btn.style.borderColor = '#ef4444';
         setTimeout(() => {
             btn.textContent = original;
             btn.style.backgroundColor = 'transparent';
@@ -373,7 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Persist checkbox state in localStorage
 document.querySelectorAll('.step-item input[type="checkbox"]').forEach(cb => {
     const key = `offer-step-${cb.id}`;
-    if (localStorage.getItem(key) === 'true') cb.checked = true;
-    cb.addEventListener('change', () => localStorage.setItem(key, cb.checked));
+    try {
+        if (localStorage.getItem(key) === 'true') cb.checked = true;
+        cb.addEventListener('change', () => localStorage.setItem(key, cb.checked));
+    } catch (_) {
+        // Storage may be unavailable in restricted environments; proceed without persistence
+    }
 });
 ```

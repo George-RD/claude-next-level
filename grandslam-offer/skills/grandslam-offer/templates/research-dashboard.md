@@ -215,28 +215,40 @@ Apply these CSS rules inline in the `<style>` tag:
 ```javascript
 // Copy research brief to clipboard as formatted text
 function copyResearchBrief() {
-    const businessName = document.querySelector('h1').textContent.replace('Research Dashboard — ', '');
+    const h1 = document.querySelector('h1');
+    if (!h1) return;
+    const businessName = h1.textContent.replace('Research Dashboard — ', '');
     let brief = `RESEARCH BRIEF — ${businessName}\n${'='.repeat(50)}\n\n`;
 
     // Market snapshot
     brief += 'MARKET SNAPSHOT\n';
     document.querySelectorAll('.snapshot-card').forEach(card => {
-        brief += `\n${card.querySelector('h3').textContent}:\n${card.querySelector('p').textContent}\n`;
+        const h3 = card.querySelector('h3');
+        const p = card.querySelector('p');
+        if (h3 && p) brief += `\n${h3.textContent}:\n${p.textContent}\n`;
     });
 
     // Personas
     brief += `\n${'='.repeat(50)}\nTARGET PERSONAS\n\n`;
     document.querySelectorAll('.persona-card').forEach(card => {
-        const name = card.querySelector('h3').textContent;
-        const snapshot = card.querySelector('.persona-snapshot').textContent;
-        brief += `${name}\n${snapshot}\n\n`;
+        const nameEl = card.querySelector('h3');
+        const snapshotEl = card.querySelector('.persona-snapshot');
+        if (nameEl && snapshotEl) brief += `${nameEl.textContent}\n${snapshotEl.textContent}\n\n`;
     });
 
     navigator.clipboard.writeText(brief).then(() => {
         const btn = document.querySelector('.copy-btn');
+        if (!btn) return;
         const original = btn.textContent;
         btn.textContent = 'Copied!';
         btn.style.backgroundColor = '#22c55e';
+        setTimeout(() => { btn.textContent = original; btn.style.backgroundColor = '#4a9eff'; }, 2000);
+    }).catch(() => {
+        const btn = document.querySelector('.copy-btn');
+        if (!btn) return;
+        const original = btn.textContent;
+        btn.textContent = 'Copy failed';
+        btn.style.backgroundColor = '#ef4444';
         setTimeout(() => { btn.textContent = original; btn.style.backgroundColor = '#4a9eff'; }, 2000);
     });
 }

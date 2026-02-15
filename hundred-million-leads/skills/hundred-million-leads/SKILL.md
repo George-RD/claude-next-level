@@ -358,7 +358,7 @@ Explain the optimization path:
 ### Adversarial Checkpoint
 
 **Growth Hacker:**
-> Channel recommendation: [PRIMARY] as primary, [SECONDARY] as secondary for [BUSINESS] targeting [AUDIENCE] with [CONSTRAINTS]. Challenge: Is this the fastest path to 100 qualified leads? What platform-specific data supports this choice? What's the current CPL benchmark for this channel + audience? What channel is being overlooked? Score the channel strategy 1-10.
+> Channel recommendation: [PRIMARY] as primary, [SECONDARY] as secondary for [BUSINESS] targeting [AUDIENCE] with [CONSTRAINTS]. Challenge: Is this the fastest path to 100 qualified leads? Which platform-specific data supports this choice? What's the current CPL benchmark for this channel + audience? Which channel is being overlooked? Score the channel strategy 1-10.
 
 **Business Strategist:**
 > Channel strategy: [PRIMARY + SECONDARY]. At the user's budget of $[X]/month and [Y] hours/day: What's the projected cost per lead? How many leads can this realistically produce in month 1? Month 3? What's the break-even timeline? Is the secondary channel worth splitting focus or a distraction? Score economic viability 1-10.
@@ -560,9 +560,9 @@ For ads:
 For content:
 > This shows up in your feed: "[CONTENT PIECE]". Your reaction:
 >
-> 1. Do you consume the whole thing?
-> 2. Do you engage (like/comment/share)?
-> 3. Do you check out their profile after?
+> 1. Will you consume the whole thing?
+> 2. Would you engage (like/comment/share)?
+> 3. Would you check out their profile after?
 > Rate: Consume likelihood (1-10), Engage likelihood (1-10), Follow likelihood (1-10)
 
 **Iteration rule:** Assets must average 7+/10 from personas on their primary metric (response for outreach, click for ads, engage for content). If below 7, revise and re-test.

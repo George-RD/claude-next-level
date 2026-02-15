@@ -236,7 +236,7 @@ Force the user to choose — there is no middle:
 | Position | Strategy | Risk |
 |----------|----------|------|
 | **Lowest Price Leader** | Compete on cost | Commodity trap, race to bottom |
-| **High Value Leader** | Compete on results | Requires proof & delivery (recommended) |
+| **High-Value Leader** | Compete on results | Requires proof & delivery (recommended) |
 
 ### Adversarial Checkpoint
 
@@ -267,7 +267,7 @@ Value = ────────────────────────
 
 - What is the vivid "after" state?
 - Make it specific and measurable
-- Bad: "Lose weight" → Good: "Drop 20lbs and fit your college jeans in 6 weeks"
+- Bad: "Lose weight" → Good: "Drop 20 lbs and fit your college jeans in 6 weeks"
 
 **Perceived Likelihood (↑ MAXIMIZE)**
 
@@ -307,7 +307,7 @@ Present all 20 tactics. User selects the strongest from each category.
 > Value equation for [OFFER]: Dream=[X], Proof=[Y], Speed=[Z], Effort=[W]. Which variable is weakest? Where does a competitor already beat this? What's the biggest "yeah right" objection a cold prospect would have? What's one change that would 2x the perceived value? Score overall value perception 1-10.
 
 **Business Strategist:**
-> To deliver [DREAM_OUTCOME] in [TIMEFRAME] at [EFFORT_LEVEL]: Is this operationally realistic? What breaks first at scale? What's the cost of delivering at this speed? What's the labor cost of the "low effort" experience? Where is the gap between the promise and your actual capacity? Score deliverability 1-10.
+> To deliver [DREAM_OUTCOME] in [TIMEFRAME] at [EFFORT_LEVEL]: Is this operationally realistic? What breaks first at scale? Estimate the cost of delivering at this speed. Calculate the labor cost of the "low effort" experience. Identify the gap between the promise and your actual capacity. Score deliverability 1-10.
 
 ---
 

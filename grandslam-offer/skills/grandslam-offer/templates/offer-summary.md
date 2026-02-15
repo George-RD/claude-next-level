@@ -354,32 +354,26 @@ function exportOffer() {
     if (overallVal) output += `\nOVERALL: ${overallVal.textContent}\n`;
     if (overallVerdict) output += `${overallVerdict.textContent}\n`;
 
+    const btn = document.querySelector('.export-btn');
+    const resetBtn = (text, bg, border) => {
+        if (!btn) return;
+        const original = btn.textContent;
+        btn.textContent = text;
+        btn.style.backgroundColor = bg;
+        btn.style.color = '#0a0a0a';
+        btn.style.borderColor = border;
+        setTimeout(() => {
+            btn.textContent = original;
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = '#4a9eff';
+            btn.style.borderColor = '#4a9eff';
+        }, 2000);
+    };
+
     navigator.clipboard.writeText(output).then(() => {
-        const btn = document.querySelector('.export-btn');
-        const original = btn.textContent;
-        btn.textContent = 'Exported!';
-        btn.style.backgroundColor = '#22c55e';
-        btn.style.color = '#0a0a0a';
-        btn.style.borderColor = '#22c55e';
-        setTimeout(() => {
-            btn.textContent = original;
-            btn.style.backgroundColor = 'transparent';
-            btn.style.color = '#4a9eff';
-            btn.style.borderColor = '#4a9eff';
-        }, 2000);
+        resetBtn('Exported!', '#22c55e', '#22c55e');
     }).catch(() => {
-        const btn = document.querySelector('.export-btn');
-        const original = btn.textContent;
-        btn.textContent = 'Export failed';
-        btn.style.backgroundColor = '#ef4444';
-        btn.style.color = '#0a0a0a';
-        btn.style.borderColor = '#ef4444';
-        setTimeout(() => {
-            btn.textContent = original;
-            btn.style.backgroundColor = 'transparent';
-            btn.style.color = '#4a9eff';
-            btn.style.borderColor = '#4a9eff';
-        }, 2000);
+        resetBtn('Export failed', '#ef4444', '#ef4444');
     });
 }
 

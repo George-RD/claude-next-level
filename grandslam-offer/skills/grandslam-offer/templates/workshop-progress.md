@@ -260,7 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Prevent locked phases from opening
     document.querySelectorAll('.phase-section.locked').forEach(phase => {
-        phase.querySelector('summary').addEventListener('click', e => {
+        const summary = phase.querySelector('summary');
+        if (!summary) return;
+        summary.addEventListener('click', e => {
             if (phase.classList.contains('locked')) e.preventDefault();
         });
     });

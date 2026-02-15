@@ -50,7 +50,7 @@ Key innovation: customer personas **receive outreach as real prospects** in Phas
 
 ## File Structure
 
-```
+```text
 hundred-million-leads/
   plugin.json
   skills/

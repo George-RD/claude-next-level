@@ -1,16 +1,9 @@
 {
-  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "hundred-million-leads",
   "description": "Lead generation workshop with adversarial agent teams. Builds a complete lead gen system using Alex Hormozi's $100M Leads methodology — lead magnets, Core Four channel strategy, outreach scripts, and Rule of 100 execution plans, all stress-tested by growth hacker, marketer, strategist, and customer persona agents.",
   "version": "1.0.0",
   "author": {
     "name": "George-RD"
   },
-  "skills": [
-    {
-      "name": "hundred-million-leads",
-      "path": "skills/hundred-million-leads/SKILL.md",
-      "description": "Multi-phase lead generation workshop with adversarial agent teams"
-    }
-  ]
+  "keywords": ["business", "leads", "hormozi", "marketing", "agent-teams"]
 }

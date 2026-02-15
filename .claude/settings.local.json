@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "WebFetch(domain:blog.emilburzo.com)",
+      "WebFetch(domain:www.agentic-engineer.com)",
+      "WebFetch(domain:claudefa.st)",
+      "WebFetch(domain:paddo.dev)",
+      "WebFetch(domain:www.joinformal.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:api.github.com)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  }
+}

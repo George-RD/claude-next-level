@@ -1,0 +1,34 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-next-level",
+  "description": "George's curated Claude Code plugins for automation, architecture, and workflow",
+  "owner": {
+    "name": "George-RD"
+  },
+  "plugins": [
+    {
+      "name": "nest-test",
+      "description": "Minimal test to verify claude -p can run from inside a hook",
+      "version": "0.1.0",
+      "author": { "name": "George-RD" },
+      "source": "./nest-test",
+      "category": "development"
+    },
+    {
+      "name": "grandslam-offer",
+      "description": "Grand Slam Offer workshop with adversarial agent teams. Builds irresistible offers using Hormozi's $100M Offers methodology, stress-tested by marketer, strategist, and customer persona agents.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./grandslam-offer",
+      "category": "business"
+    },
+    {
+      "name": "hundred-million-leads",
+      "description": "Lead generation workshop with adversarial agent teams. Builds complete lead gen systems using Hormozi's $100M Leads methodology — lead magnets, Core Four channels, outreach scripts, and Rule of 100 execution plans, stress-tested by growth hacker, marketer, strategist, and customer persona agents.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./hundred-million-leads",
+      "category": "business"
+    }
+  ]
+}

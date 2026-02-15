@@ -1,0 +1,6 @@
+{
+  "name": "nest-test",
+  "version": "0.1.0",
+  "description": "Validates that claude -p (headless mode) can be invoked from within an active Claude Code session hook. Tests nesting, stdout parsing, and timeout behavior.",
+  "author": { "name": "George-RD" }
+}

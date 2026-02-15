@@ -1,0 +1,9 @@
+{
+  "name": "next-level",
+  "description": "Workflow discipline for Claude Code: context monitoring, spec-driven development, TDD enforcement, and verification guards.",
+  "version": "0.1.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["workflow", "tdd", "spec", "context", "verification", "discipline"]
+}

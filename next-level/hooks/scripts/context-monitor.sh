@@ -96,8 +96,9 @@ EOF
   exit 2
 
 elif [[ "$pct" -ge 80 ]]; then
+  # At 80%, suggest omega checkpoint instead of continuation.md
   cat <<EOF
-{"result":"Context at ${pct}% (>=80%). Warning: approaching context limit. Prioritize completing current task. Consider writing a continuation plan."}
+{"result":"Context at ${pct}% (>=80%). Warning: approaching context limit. If omega memory is available, run omega_checkpoint() to save state. Otherwise write a continuation plan. Prioritize completing current task."}
 EOF
   exit 2
 fi

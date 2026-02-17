@@ -109,10 +109,43 @@ find_test_file() {
 }
 
 # Check transcript for test runner evidence
+# Detects language-specific test runner output patterns
 has_test_evidence() {
   local transcript_path="$1"
   if [[ ! -f "$transcript_path" ]]; then
     return 1
   fi
-  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|go test|✓|✗|Tests:)' "$transcript_path"
+  # Language-specific patterns:
+  # Python: pytest, unittest, "passed", "failed", "ERROR", "test session starts"
+  # JS/TS: jest, vitest, mocha, "Tests:", "Test Suites:", "PASS", "FAIL"
+  # Go: "go test", "ok ", "FAIL", "--- PASS", "--- FAIL"
+  # Rust: "cargo test", "test result:", "running N test"
+  # Swift: "swift test", "Test Suite", "Executed N test"
+  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok\s+[a-z]|Tests:|✓|✗)' "$transcript_path"
+}
+
+# Detect test runner command for a language
+detect_test_command() {
+  local ext="$1"
+  case "$ext" in
+    py)    echo "pytest" ;;
+    ts|tsx|js|jsx)
+      if [[ -f "package.json" ]]; then
+        # Check for vitest or jest in package.json
+        if grep -q '"vitest"' package.json 2>/dev/null; then
+          echo "npx vitest run"
+        elif grep -q '"jest"' package.json 2>/dev/null; then
+          echo "npx jest"
+        else
+          echo "npx vitest run"
+        fi
+      else
+        echo "npx vitest run"
+      fi
+      ;;
+    go)    echo "go test ./..." ;;
+    rs)    echo "cargo test" ;;
+    swift) echo "swift test" ;;
+    *)     echo "" ;;
+  esac
 }

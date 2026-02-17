@@ -1,0 +1,29 @@
+{
+  "lspServers": {
+    "basedpyright": {
+      "command": "basedpyright-langserver",
+      "args": ["--stdio"],
+      "languages": ["python"]
+    },
+    "vtsls": {
+      "command": "vtsls",
+      "args": ["--stdio"],
+      "languages": ["typescript", "javascript"]
+    },
+    "sourcekit-lsp": {
+      "command": "sourcekit-lsp",
+      "args": [],
+      "languages": ["swift"]
+    },
+    "rust-analyzer": {
+      "command": "rust-analyzer",
+      "args": [],
+      "languages": ["rust"]
+    },
+    "gopls": {
+      "command": "gopls",
+      "args": ["serve"],
+      "languages": ["go"]
+    }
+  }
+}

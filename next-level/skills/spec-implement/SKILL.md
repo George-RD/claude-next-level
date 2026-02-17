@@ -39,4 +39,8 @@ For plans with independent tasks, consider using superpowers:subagent-driven-dev
 ## On Completion
 
 Update spec JSON: `{"status": "COMPLETE"}`
+
+If omega memory is available, store a milestone:
+- Call `omega_store(implementation_summary, "milestone")` with a brief summary: what was built, key decisions made during implementation, any deviations from the plan.
+
 Then invoke /next-level:spec-verify.

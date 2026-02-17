@@ -48,7 +48,7 @@ For each fix:
 git commit -m "$(cat <<'EOF'
 Address lint findings: <brief summary>
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: {{MODEL_NAME}} <noreply@anthropic.com>
 EOF
 )"
 ```

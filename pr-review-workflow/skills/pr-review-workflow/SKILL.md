@@ -195,9 +195,13 @@ git push
 gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments/{{COMMENT_ID}}/replies \
   -f body="{{REPLY_TEXT}}"
 
-# Reply to a general issue comment
-gh api repos/{{OWNER}}/{{REPO}}/issues/comments/{{COMMENT_ID}} \
-  -X PATCH -f body="{{UPDATED_BODY}}"
+# Reply to a general PR comment (creates a new comment)
+gh api repos/{{OWNER}}/{{REPO}}/issues/{{PR_NUMBER}}/comments \
+  -f body="{{REPLY_TEXT}}"
+
+# Update an existing comment (e.g., your own previous comment)
+# gh api repos/{{OWNER}}/{{REPO}}/issues/comments/{{COMMENT_ID}} \
+#   -X PATCH -f body="{{UPDATED_BODY}}"
 ```
 
 ### 4D. Report Back
@@ -269,7 +273,7 @@ Consider:
 | Problem | Action |
 |---------|--------|
 | Agent stuck on lint | Check if lint finding is false positive; send agent guidance to skip with justification |
-| CI failing on unrelated test | Re-run CI: `gh pr checks {{PR}} --watch` or push empty commit |
+| CI failing on unrelated test | Re-run CI: `gh run rerun --failed` or push empty commit |
 | Merge conflict | Rebase agent's branch: send agent instructions to `git rebase main` |
 | CodeRabbit not reviewing | Check `.coderabbit.yaml` exists; may need to close/reopen PR |
 | Agent idle too long | Send a message to poke the agent; if 2+ stops, analyze feedback patterns |

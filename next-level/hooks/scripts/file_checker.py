@@ -13,7 +13,7 @@ import sys
 PLUGIN_ROOT = os.environ.get("CLAUDE_PLUGIN_ROOT", os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(PLUGIN_ROOT, "lib"))
 
-from checkers import check_file, should_skip
+from checkers import check_file
 
 
 def main() -> int:
@@ -51,7 +51,9 @@ def main() -> int:
     formatted = result.get("formatted", False)
     stripped = result.get("comments_stripped", 0)
 
-    if not findings and not formatted and not stripped:
+    length_warning = result.get("length_warning")
+
+    if not findings and not formatted and not stripped and not length_warning:
         return 0
 
     # Build feedback message
@@ -74,8 +76,6 @@ def main() -> int:
         if len(findings) > 10:
             parts.append(f"  ... and {len(findings) - 10} more")
 
-    # File length warnings
-    length_warning = result.get("length_warning")
     if length_warning:
         parts.append(length_warning)
 

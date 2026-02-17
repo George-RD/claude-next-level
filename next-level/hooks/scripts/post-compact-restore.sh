@@ -43,7 +43,5 @@ message="${message}\nContext was at: ${context_pct}%"
 # Clean up the snapshot (one-time use)
 rm -f "$SNAPSHOT_FILE"
 
-cat <<EOF
-{"result":"${message}"}
-EOF
+jq -n --arg msg "$message" '{"result":$msg}'
 exit 2

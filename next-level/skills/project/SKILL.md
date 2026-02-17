@@ -67,8 +67,9 @@ After user approval, create the tracking infrastructure:
 
 ### Create Milestones (one per epic)
 ```bash
-gh api repos/{owner}/{repo}/milestones -f title="Epic: <name>" -f description="<epic description>"
+gh api /repos/{owner}/{repo}/milestones -f title="Epic: <name>" -f description="<epic description>"
 ```
+Note: Capture the milestone number from the response for use in issue creation. You can also use the milestone title directly with `--milestone "Epic: <name>"` in `gh issue create`.
 
 ### Create Issues (one per task)
 ```bash

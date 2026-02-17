@@ -63,8 +63,8 @@ def check(filepath: str) -> dict[str, Any]:
                 cwd=module_root,
             )
             if proc.stderr:
-                basename = os.path.basename(filepath)
-                _parse_go_vet_output(proc.stderr, basename, result)
+                rel_path = os.path.relpath(os.path.abspath(filepath), module_root)
+                _parse_go_vet_output(proc.stderr, rel_path, result)
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
@@ -107,13 +107,13 @@ def _find_go_module_root(filepath: str) -> str | None:
     return None
 
 
-def _parse_go_vet_output(output: str, target_basename: str, result: dict[str, Any]) -> None:
+def _parse_go_vet_output(output: str, target_rel_path: str, result: dict[str, Any]) -> None:
     """Parse go vet stderr output for findings related to target file."""
     # Pattern: filepath.go:line:col: message
-    pattern = re.compile(r"([^:]+\.go):(\d+):(\d+): (.+)")
+    pattern = re.compile(r"(.+?\.go):(\d+):(\d+): (.+)")
     for match in pattern.finditer(output):
-        filename = os.path.basename(match.group(1))
-        if filename == target_basename:
+        file_path = match.group(1)
+        if file_path == target_rel_path or file_path.endswith("/" + target_rel_path):
             result["findings"].append({
                 "line": int(match.group(2)),
                 "column": int(match.group(3)),

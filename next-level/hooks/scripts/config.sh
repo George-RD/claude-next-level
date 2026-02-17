@@ -67,9 +67,16 @@ config_write() {
   local dir
   dir=$(dirname "$NEXT_LEVEL_CONFIG")
   mkdir -p "$dir"
+  # Validate JSON before writing
+  if ! echo "$json" | jq empty 2>/dev/null; then
+    echo "config_write: invalid JSON" >&2
+    return 1
+  fi
   local tmp
   tmp=$(mktemp "$dir/.config.XXXXXX")
+  trap 'rm -f "$tmp"' EXIT INT TERM
   echo "$json" > "$tmp"
   chmod 600 "$tmp"
   mv "$tmp" "$NEXT_LEVEL_CONFIG"
+  trap - EXIT INT TERM
 }

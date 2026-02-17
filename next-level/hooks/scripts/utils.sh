@@ -121,7 +121,7 @@ has_test_evidence() {
   # Go: "go test", "ok ", "FAIL", "--- PASS", "--- FAIL"
   # Rust: "cargo test", "test result:", "running N test"
   # Swift: "swift test", "Test Suite", "Executed N test"
-  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok\s+[a-z]|Tests:|✓|✗)' "$transcript_path"
+  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)' "$transcript_path"
 }
 
 # Detect test runner command for a language
@@ -133,14 +133,20 @@ detect_test_command() {
     py)    echo "pytest" ;;
     ts|tsx|js|jsx)
       # Walk up from file_dir to find package.json
-      local search_dir="$file_dir"
+      local search_dir
+      search_dir=$(cd "$file_dir" 2>/dev/null && pwd || echo "$file_dir")
       local pkg=""
-      while [[ "$search_dir" != "/" && "$search_dir" != "." ]]; do
+      while true; do
         if [[ -f "$search_dir/package.json" ]]; then
           pkg="$search_dir/package.json"
           break
         fi
-        search_dir=$(dirname "$search_dir")
+        local parent
+        parent=$(dirname "$search_dir")
+        if [[ "$parent" == "$search_dir" ]]; then
+          break
+        fi
+        search_dir="$parent"
       done
       if [[ -n "$pkg" ]]; then
         if grep -q '"vitest"' "$pkg" 2>/dev/null; then

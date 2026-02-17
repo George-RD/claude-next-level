@@ -42,19 +42,21 @@ After each task completes, dispatch the **checkpoint-reviewer** agent:
 
 #### Trust Escalation
 Review depth adjusts based on task position and track record:
-- **First 2-3 tasks**: Full review (code + tests + integration check)
+- **First 3 tasks**: Full review (code + tests + integration check)
 - **Middle tasks**: Medium review (tests pass + integration check)
 - **Final tasks**: Light review (tests pass, no regressions)
+
+The reviewer returns one of: **CONTINUE** (proceed to next task), **FLAG_FOR_HUMAN**, or **STOP**.
 
 If the reviewer returns a non-CONTINUE verdict:
 - **FLAG_FOR_HUMAN**: Pause and present findings to the user
 - **STOP**: Halt execution, report the issue
 
 ### 2d. Complete Task
-- Update GitHub issue: `gh issue edit <number> --remove-label "status:in-progress" --add-label "status:complete"` and close it
+- Update and close GitHub issue: `gh issue edit <number> --remove-label "status:in-progress" --add-label "status:complete"` then `gh issue close <number>`
 - Commit with message referencing the issue: `fixes #<number>`
 - If omega memory available: `omega_store(task_summary, "milestone")`
-- Call `omega_checkpoint()` if context is above 60% to ensure session continuity
+- Call `omega_checkpoint()` if context approaches 85% to ensure session continuity
 
 ## Phase 3: Multi-Epic Coordination
 

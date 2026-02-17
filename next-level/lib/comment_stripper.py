@@ -36,7 +36,7 @@ def strip_comments(filepath: str, language: str) -> dict[str, Any]:
         modified: bool — whether the file was changed
     """
     try:
-        with open(filepath) as f:
+        with open(filepath, encoding="utf-8") as f:
             original = f.read()
     except OSError:
         return {"stripped": 0, "modified": False}
@@ -44,18 +44,18 @@ def strip_comments(filepath: str, language: str) -> dict[str, Any]:
     if language == "python":
         result = _strip_python(filepath, original)
     elif language in ("typescript", "javascript"):
-        result = _strip_c_style(original, doc_prefix="/**", preserve_jsdoc=True)
+        result = _strip_c_style(original, doc_prefix="/**")
     elif language == "swift":
-        result = _strip_c_style(original, doc_prefix="///", preserve_jsdoc=True)
+        result = _strip_c_style(original, doc_prefix="///")
     elif language == "rust":
-        result = _strip_c_style(original, doc_prefix="///", preserve_jsdoc=True)
+        result = _strip_c_style(original, doc_prefix="///")
     elif language == "go":
         result = _strip_c_style(original, doc_prefix="//", preserve_godoc=True)
     else:
         return {"stripped": 0, "modified": False}
 
     if result["modified"]:
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(result["content"])
 
     return {"stripped": result["stripped"], "modified": result["modified"]}
@@ -104,6 +104,8 @@ def _strip_python(filepath: str, source: str) -> dict[str, Any]:
         stripped += 1
 
         # Check if the comment is the entire line (after stripping whitespace)
+        if line_no >= len(lines):
+            continue
         line = lines[line_no]
         stripped_line = line.lstrip()
         if stripped_line.startswith("#"):
@@ -114,7 +116,8 @@ def _strip_python(filepath: str, source: str) -> dict[str, Any]:
             col = tok.start[1]
             # Remove trailing whitespace before the comment too
             before = lines[line_no][:col].rstrip()
-            lines[line_no] = before + "\n"
+            newline = "\n" if line.endswith("\n") else ""
+            lines[line_no] = before + newline
 
     # Remove whole-line comments (iterate in reverse to preserve indices)
     new_lines = [line for i, line in enumerate(lines) if i not in remove_lines]
@@ -130,7 +133,6 @@ def _strip_python(filepath: str, source: str) -> dict[str, Any]:
 def _strip_c_style(
     source: str,
     doc_prefix: str = "/**",
-    preserve_jsdoc: bool = False,
     preserve_godoc: bool = False,
 ) -> dict[str, Any]:
     """Strip C-style comments (//, /* */) with language-specific preservation."""

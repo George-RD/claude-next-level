@@ -226,10 +226,13 @@ def detect_plugins() -> dict[str, bool]:
             if found:
                 break
             # Also check directory names
-            for entry in plugin_dir.iterdir():
-                if entry.is_dir() and marker in entry.name:
-                    found = True
-                    break
+            try:
+                for entry in plugin_dir.iterdir():
+                    if entry.is_dir() and marker in entry.name:
+                        found = True
+                        break
+            except PermissionError:
+                continue
             if found:
                 break
 

@@ -29,6 +29,14 @@
       "author": { "name": "George-RD" },
       "source": "./hundred-million-leads",
       "category": "business"
+    },
+    {
+      "name": "pr-review-workflow",
+      "description": "Team-based PR review workflow: parallel agents open PRs, run local lint + cloud review, iterate until clean. Includes agent prompt templates and monitoring loop patterns.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./pr-review-workflow",
+      "category": "development"
     }
   ]
 }

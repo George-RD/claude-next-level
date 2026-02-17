@@ -1,0 +1,9 @@
+{
+  "name": "pr-review-workflow",
+  "description": "Team-based PR review workflow: parallel agents open PRs, run local lint + cloud review, iterate until clean",
+  "version": "1.0.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["pr", "review", "workflow", "agent-teams", "code-review", "github"]
+}

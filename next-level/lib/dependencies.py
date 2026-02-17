@@ -216,7 +216,7 @@ def detect_plugins() -> dict[str, bool]:
             for entry in plugin_dir.rglob("plugin.json"):
                 try:
                     import json
-                    with open(entry) as f:
+                    with open(entry, encoding="utf-8") as f:
                         manifest = json.load(f)
                     if marker in manifest.get("name", ""):
                         found = True

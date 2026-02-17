@@ -37,13 +37,16 @@ fi
 # Check 2: Have tests been run recently in this session?
 # Look for test runner output patterns in the transcript
 STATE_DIR="${NEXT_LEVEL_STATE}/sessions/${SESSION_ID}"
-LAST_TEST_FILE="$STATE_DIR/last_test_run"
+mkdir -p "$STATE_DIR"
 
 # Track how many impl file edits since last test run
 EDIT_COUNT_FILE="$STATE_DIR/edits_since_test"
 edit_count=0
 if [[ -f "$EDIT_COUNT_FILE" ]]; then
-  edit_count=$(cat "$EDIT_COUNT_FILE")
+  raw=$(cat "$EDIT_COUNT_FILE")
+  if [[ "$raw" =~ ^[0-9]+$ ]]; then
+    edit_count=$raw
+  fi
 fi
 edit_count=$((edit_count + 1))
 
@@ -58,7 +61,6 @@ if [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]]; then
 fi
 
 # Save updated edit count
-mkdir -p "$STATE_DIR"
 echo "$edit_count" > "$EDIT_COUNT_FILE"
 
 # Only nag after 5+ impl edits without running tests

@@ -48,7 +48,5 @@ echo "$now" > "$ESCAPE_FILE"
 spec_list=$(printf ', %s' "${active_specs[@]}")
 spec_list="${spec_list:2}"  # Remove leading comma+space
 
-cat <<EOF
-{"result":"Active spec(s) in progress: ${spec_list}. Complete or pause the spec before stopping. To force exit, stop again within 60 seconds."}
-EOF
+jq -n --arg specs "$spec_list" '{"result":"Active spec(s) in progress: \($specs). Complete or pause the spec before stopping. To force exit, stop again within 60 seconds."}'
 exit 2

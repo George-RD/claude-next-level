@@ -71,7 +71,7 @@ def exists() -> bool:
 def read() -> dict[str, Any]:
     if not exists():
         return dict(DEFAULT_CONFIG)
-    with open(config_path()) as f:
+    with open(config_path(), encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -79,7 +79,7 @@ def write(config: dict[str, Any]) -> None:
     config["last_updated"] = datetime.now(timezone.utc).isoformat()
     path = config_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
         f.write("\n")
 
@@ -132,9 +132,10 @@ def checkpoint_depth_for_task(task_index: int, total_tasks: int) -> str:
         return "light"
 
     # balanced: auto-escalate
+    # For small epics (<=5 tasks), only use full and light
     if task_index < 3:
         return "full"
-    elif task_index >= total_tasks - 2:
+    elif total_tasks <= 5 or task_index >= total_tasks - 2:
         return "light"
     else:
         return "medium"

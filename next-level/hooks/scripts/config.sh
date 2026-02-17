@@ -26,7 +26,7 @@ config_setup_complete() {
   [[ "$val" == "true" ]]
 }
 
-# Get detected languages as space-separated list
+# Get detected languages (one per line)
 config_languages() {
   if ! config_exists; then
     return 1
@@ -41,7 +41,7 @@ config_feature_enabled() {
     return 1
   fi
   local val
-  val=$(jq -r ".features_enabled.\"$feature\" // false" "$NEXT_LEVEL_CONFIG")
+  val=$(jq -r --arg f "$feature" '.features_enabled[$f] // false' "$NEXT_LEVEL_CONFIG")
   [[ "$val" == "true" ]]
 }
 
@@ -52,7 +52,7 @@ config_plugin_available() {
     return 1
   fi
   local val
-  val=$(jq -r ".plugins_available.\"$plugin\" // false" "$NEXT_LEVEL_CONFIG")
+  val=$(jq -r --arg p "$plugin" '.plugins_available[$p] // false' "$NEXT_LEVEL_CONFIG")
   [[ "$val" == "true" ]]
 }
 
@@ -61,11 +61,15 @@ config_last_updated() {
   config_get "last_updated"
 }
 
-# Write a full config file
+# Write a full config file (atomic write with restrictive permissions)
 config_write() {
   local json="$1"
   local dir
   dir=$(dirname "$NEXT_LEVEL_CONFIG")
   mkdir -p "$dir"
-  echo "$json" > "$NEXT_LEVEL_CONFIG"
+  local tmp
+  tmp=$(mktemp "$dir/.config.XXXXXX")
+  echo "$json" > "$tmp"
+  chmod 600 "$tmp"
+  mv "$tmp" "$NEXT_LEVEL_CONFIG"
 }

@@ -39,16 +39,15 @@ if [[ -f "$STATE_DIR/context_state" ]]; then
   context_pct=$(cat "$STATE_DIR/context_state")
 fi
 
-# Write snapshot
-cat > "$SNAPSHOT_FILE" <<JSON
-{
-  "session_id": "$SESSION_ID",
-  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-  "context_pct": "${context_pct:-unknown}",
-  "working_directory": "$current_dir",
-  "recent_file": "$recent_file",
-  "active_specs": $active_specs
-}
-JSON
+# Write snapshot using jq for safe JSON construction
+jq -n \
+  --arg sid "$SESSION_ID" \
+  --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+  --arg ctx "${context_pct:-unknown}" \
+  --arg wd "$current_dir" \
+  --arg rf "$recent_file" \
+  --argjson specs "$active_specs" \
+  '{session_id: $sid, timestamp: $ts, context_pct: $ctx, working_directory: $wd, recent_file: $rf, active_specs: $specs}' \
+  > "$SNAPSHOT_FILE"
 
 exit 0

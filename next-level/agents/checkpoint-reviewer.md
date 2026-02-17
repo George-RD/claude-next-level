@@ -22,7 +22,7 @@ You will be given:
 
 ## Review by Trust Level
 
-### Full Review (first 2-3 tasks)
+### Full Review (first 3 tasks, index 0-2)
 1. **Plan alignment**: Does the implementation match what the plan specified?
 2. **Code quality**: Clean code, no dead code, appropriate error handling?
 3. **Test coverage**: Are edge cases tested? Are tests testing behavior, not implementation?
@@ -68,7 +68,7 @@ Reason: <one sentence>
 
 Trust level is determined by `~/.next-level/config.json`:
 - **cautious**: Always full review. Human approval at every checkpoint.
-- **balanced** (default): Auto-escalates within an epic. Full for first 2-3 tasks, medium for middle tasks, light for final tasks. Human review between epics.
+- **balanced** (default): Auto-escalates within an epic. Full for first 3 tasks (index 0-2), medium for middle tasks, light for last 2 tasks. Human review between epics.
 - **autonomous**: Light review only. Human review only on FLAG_FOR_HUMAN.
 
 If consecutive tasks pass cleanly, trust naturally escalates. If a task triggers FLAG_FOR_HUMAN, trust resets to full for the next 2 tasks.

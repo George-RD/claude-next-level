@@ -19,7 +19,7 @@ def check(filepath: str) -> dict[str, Any]:
 
     # File length check
     try:
-        with open(filepath) as f:
+        with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
         line_count = len(lines)
         if line_count > 500:
@@ -32,19 +32,22 @@ def check(filepath: str) -> dict[str, Any]:
     # Format with rustfmt
     if shutil.which("rustfmt"):
         try:
-            subprocess.run(
+            proc = subprocess.run(
                 ["rustfmt", filepath],
                 capture_output=True,
                 timeout=15,
             )
-            result["formatted"] = True
+            result["formatted"] = proc.returncode == 0
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
     # Strip unnecessary comments
-    from comment_stripper import strip_comments
-    strip_result = strip_comments(filepath, "rust")
-    result["comments_stripped"] = strip_result.get("stripped", 0)
+    try:
+        from comment_stripper import strip_comments
+        strip_result = strip_comments(filepath, "rust")
+        result["comments_stripped"] = strip_result.get("stripped", 0)
+    except (ImportError, Exception):
+        result["comments_stripped"] = 0
 
     # Lint with cargo clippy (project-level)
     # Find project root by looking for Cargo.toml

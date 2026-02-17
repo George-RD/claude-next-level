@@ -28,9 +28,7 @@ config_root=$(config_get "project_root")
 current_dir="$(pwd)"
 
 if [[ -n "$config_root" && "$config_root" != "$current_dir" ]]; then
-  cat <<EOF
-{"result":"next-level was configured for a different project ($config_root). Run /next-level:setup to reconfigure for this project."}
-EOF
+  jq -n --arg root "$config_root" '{"result":"next-level was configured for a different project (\($root)). Run /next-level:setup to reconfigure for this project."}'
   exit 2
 fi
 
@@ -44,7 +42,7 @@ for indicator in package.json tsconfig.json Cargo.toml Package.swift pyproject.t
   if [[ -f "$current_dir/$indicator" ]]; then
     case "$indicator" in
       package.json|tsconfig.json)
-        if ! echo "$config_langs" | jq -e 'index("typescript")' > /dev/null 2>&1; then
+        if ! echo "$config_langs" | jq -e 'index("typescript") or index("javascript")' > /dev/null 2>&1; then
           stale=true
         fi
         ;;

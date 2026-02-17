@@ -125,16 +125,27 @@ has_test_evidence() {
 }
 
 # Detect test runner command for a language
+# Usage: detect_test_command <ext> [file_dir]
 detect_test_command() {
   local ext="$1"
+  local file_dir="${2:-.}"
   case "$ext" in
     py)    echo "pytest" ;;
     ts|tsx|js|jsx)
-      if [[ -f "package.json" ]]; then
-        # Check for vitest or jest in package.json
-        if grep -q '"vitest"' package.json 2>/dev/null; then
+      # Walk up from file_dir to find package.json
+      local search_dir="$file_dir"
+      local pkg=""
+      while [[ "$search_dir" != "/" && "$search_dir" != "." ]]; do
+        if [[ -f "$search_dir/package.json" ]]; then
+          pkg="$search_dir/package.json"
+          break
+        fi
+        search_dir=$(dirname "$search_dir")
+      done
+      if [[ -n "$pkg" ]]; then
+        if grep -q '"vitest"' "$pkg" 2>/dev/null; then
           echo "npx vitest run"
-        elif grep -q '"jest"' package.json 2>/dev/null; then
+        elif grep -q '"jest"' "$pkg" 2>/dev/null; then
           echo "npx jest"
         else
           echo "npx vitest run"

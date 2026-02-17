@@ -20,7 +20,7 @@ def check(filepath: str) -> dict[str, Any]:
 
     # File length check
     try:
-        with open(filepath) as f:
+        with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
         line_count = len(lines)
         if line_count > 500:
@@ -33,12 +33,12 @@ def check(filepath: str) -> dict[str, Any]:
     # Format with ruff
     if shutil.which("ruff"):
         try:
-            subprocess.run(
+            proc = subprocess.run(
                 ["ruff", "format", filepath],
                 capture_output=True,
                 timeout=15,
             )
-            result["formatted"] = True
+            result["formatted"] = proc.returncode == 0
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
@@ -67,9 +67,12 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     # Strip unnecessary comments
-    from comment_stripper import strip_comments
-    strip_result = strip_comments(filepath, "python")
-    result["comments_stripped"] = strip_result.get("stripped", 0)
+    try:
+        from comment_stripper import strip_comments
+        strip_result = strip_comments(filepath, "python")
+        result["comments_stripped"] = strip_result.get("stripped", 0)
+    except (ImportError, Exception):
+        result["comments_stripped"] = 0
 
     # Type check with basedpyright
     if shutil.which("basedpyright"):

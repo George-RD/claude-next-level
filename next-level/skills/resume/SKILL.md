@@ -64,7 +64,7 @@ The resume file (`resume.md`) is written by `/next-level:execute` when context r
 
 ## If No Resume State Found
 
-```
+```text
 No resume state found. Nothing to resume.
 
 Options:

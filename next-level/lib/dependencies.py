@@ -170,6 +170,8 @@ def check_binary_version(name: str) -> str | None:
             text=True,
             timeout=5,
         )
+        if result.returncode != 0:
+            return "installed"
         output = result.stdout.strip() or result.stderr.strip()
         # Return first line only
         return output.split("\n")[0] if output else "installed"

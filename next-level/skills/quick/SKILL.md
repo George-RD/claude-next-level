@@ -19,6 +19,7 @@ Implement a task directly without the full spec planning workflow. For small, we
 ## Process
 
 1. **Create spec**: Write a minimal spec JSON to `~/.next-level/specs/<slug>.json`:
+
    ```json
    {
      "name": "<slug>",

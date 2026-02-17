@@ -27,7 +27,7 @@ For the full project plan, check:
 
 ## Output Format
 
-```
+```text
 PROJECT PLAN REVIEW
 ═══════════════════
 Epics reviewed: N

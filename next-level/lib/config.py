@@ -29,6 +29,7 @@ Schema:
 }
 """
 
+import copy
 import json
 import os
 from datetime import datetime, timezone
@@ -61,16 +62,18 @@ CHECKPOINT_DEPTHS = ("full", "medium", "light")
 
 
 def config_path() -> Path:
+    """Get the path to the next-level config file."""
     return CONFIG_PATH
 
 
 def exists() -> bool:
+    """Check if the config file exists."""
     return config_path().is_file()
 
 
 def read() -> dict[str, Any]:
     if not exists():
-        return dict(DEFAULT_CONFIG)
+        return copy.deepcopy(DEFAULT_CONFIG)
     with open(config_path(), encoding="utf-8") as f:
         return json.load(f)
 
@@ -85,30 +88,37 @@ def write(config: dict[str, Any]) -> None:
 
 
 def setup_complete() -> bool:
+    """Check if initial setup has been completed."""
     return read().get("setup_complete", False)
 
 
 def languages() -> list[str]:
+    """Get the list of detected languages for the project."""
     return read().get("languages_detected", [])
 
 
 def feature_enabled(name: str) -> bool:
+    """Check if a feature is enabled by name."""
     return read().get("features_enabled", {}).get(name, False)
 
 
 def plugin_available(name: str) -> bool:
+    """Check if a Claude Code plugin is available by name."""
     return read().get("plugins_available", {}).get(name, False)
 
 
 def linters_for(language: str) -> dict[str, str]:
+    """Get linter/formatter configuration for a specific language."""
     return read().get("linters", {}).get(language, {})
 
 
 def trust_level() -> str:
+    """Get the current trust level (cautious, balanced, or autonomous)."""
     return read().get("trust_level", "balanced")
 
 
 def checkpoint_depth() -> str:
+    """Get the checkpoint depth setting (full, medium, or light)."""
     return read().get("checkpoint_depth", "medium")
 
 

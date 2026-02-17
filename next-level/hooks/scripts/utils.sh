@@ -110,10 +110,18 @@ find_test_file() {
 
 # Check transcript for test runner evidence
 # Detects language-specific test runner output patterns
+# Optional second arg: byte offset to start scanning from
 has_test_evidence() {
   local transcript_path="$1"
+  local offset="${2:-0}"
   if [[ ! -f "$transcript_path" ]]; then
     return 1
+  fi
+  local content
+  if [[ "$offset" -gt 0 ]]; then
+    content=$(tail -c +$((offset + 1)) "$transcript_path" 2>/dev/null) || return 1
+  else
+    content=$(cat "$transcript_path")
   fi
   # Language-specific patterns:
   # Python: pytest, unittest, "passed", "failed", "ERROR", "test session starts"
@@ -121,7 +129,7 @@ has_test_evidence() {
   # Go: "go test", "ok ", "FAIL", "--- PASS", "--- FAIL"
   # Rust: "cargo test", "test result:", "running N test"
   # Swift: "swift test", "Test Suite", "Executed N test"
-  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)' "$transcript_path"
+  echo "$content" | grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)'
 }
 
 # Detect test runner command for a language

@@ -104,7 +104,7 @@ Only include tools that are actually installed.
 
 Show the user a summary:
 
-```
+```text
 next-level setup complete!
 
 Languages: python, typescript

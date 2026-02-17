@@ -19,7 +19,7 @@ Design a solution for the task. Output a plan document for user approval.
    - Consider 2-3 approaches with trade-offs
    - Recommend one with clear reasoning
    - Identify risks and unknowns
-4. **Write the plan**: Save to `docs/plans/YYYY-MM-DD-<spec-name>.md`
+5. **Write the plan**: Save to `docs/plans/YYYY-MM-DD-<spec-name>.md`
    - Concrete steps with exact file paths
    - Code changes needed
    - Test strategy (what to test, how)

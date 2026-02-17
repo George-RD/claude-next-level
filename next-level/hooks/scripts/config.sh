@@ -16,7 +16,7 @@ config_get() {
   if ! config_exists; then
     return 1
   fi
-  jq -r ".$field // empty" "$NEXT_LEVEL_CONFIG"
+  jq -r --arg f "$field" '.[$f] // empty' "$NEXT_LEVEL_CONFIG"
 }
 
 # Check if setup is complete

@@ -25,14 +25,19 @@ if ! is_impl_file "$FILE_PATH"; then
   exit 0
 fi
 
-# Check 1: Does a test file exist?
-if ! find_test_file "$FILE_PATH" > /dev/null 2>&1; then
-  BASENAME=$(basename "$FILE_PATH")
-  cat <<EOF
+# Check 1: Does a test file exist? (only for languages with known test patterns)
+EXT="${FILE_PATH##*.}"
+case "$EXT" in
+  py|ts|tsx|js|jsx|go)
+    if ! find_test_file "$FILE_PATH" > /dev/null 2>&1; then
+      BASENAME=$(basename "$FILE_PATH")
+      cat <<EOF
 {"result":"No test file found for ${BASENAME}. TDD: write a failing test before implementing."}
 EOF
-  exit 2
-fi
+      exit 2
+    fi
+    ;;
+esac
 
 # Check 2: Have tests been run recently in this session?
 # Look for test runner output patterns in the transcript
@@ -50,14 +55,24 @@ if [[ -f "$EDIT_COUNT_FILE" ]]; then
 fi
 edit_count=$((edit_count + 1))
 
-# Check transcript for recent test evidence
+# Check transcript for NEW test evidence (track last-read offset)
 TRANSCRIPT=$(json_field "$INPUT" "transcript_path" 2>/dev/null || echo "")
+OFFSET_FILE="$STATE_DIR/transcript_offset"
 if [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]]; then
-  if has_test_evidence "$TRANSCRIPT"; then
-    # Tests have been run — reset counter
+  offset=0
+  if [[ -f "$OFFSET_FILE" ]]; then
+    raw_offset=$(cat "$OFFSET_FILE")
+    if [[ "$raw_offset" =~ ^[0-9]+$ ]]; then
+      offset=$raw_offset
+    fi
+  fi
+  new_size=$(wc -c < "$TRANSCRIPT" 2>/dev/null || echo "$offset")
+  if has_test_evidence "$TRANSCRIPT" "$offset"; then
     echo "0" > "$EDIT_COUNT_FILE"
+    echo "$new_size" > "$OFFSET_FILE"
     exit 0
   fi
+  echo "$new_size" > "$OFFSET_FILE"
 fi
 
 # Save updated edit count

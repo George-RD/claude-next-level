@@ -62,7 +62,7 @@ def check(filepath: str) -> dict[str, Any]:
                 cwd=project_root,
             )
             # Parse JSON messages (one per line)
-            basename = os.path.basename(filepath)
+            abs_filepath = os.path.normpath(os.path.abspath(filepath))
             for line in proc.stdout.splitlines():
                 try:
                     msg = json.loads(line)
@@ -70,7 +70,8 @@ def check(filepath: str) -> dict[str, Any]:
                         message = msg.get("message", {})
                         # Only include findings for the specific file
                         for span in message.get("spans", []):
-                            if basename in span.get("file_name", ""):
+                            span_path = os.path.normpath(os.path.join(project_root, span.get("file_name", "")))
+                            if span_path == abs_filepath:
                                 result["findings"].append({
                                     "line": span.get("line_start", 0),
                                     "column": span.get("column_start", 0),

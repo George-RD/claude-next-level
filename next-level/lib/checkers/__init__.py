@@ -45,9 +45,11 @@ def should_skip(filepath: str) -> bool:
     if path.suffix in SKIP_EXTENSIONS:
         return True
 
-    # Skip by path pattern
+    # Skip by path segment
+    path_parts = set(Path(filepath).parts)
     for pattern in SKIP_PATTERNS:
-        if pattern in filepath:
+        segment = pattern.rstrip("/")
+        if segment in path_parts:
             return True
 
     # Skip test files

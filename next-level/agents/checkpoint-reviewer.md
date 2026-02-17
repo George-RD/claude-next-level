@@ -40,7 +40,7 @@ You will be given:
 
 ## Output Format
 
-```
+```text
 CHECKPOINT: <task-name>
 ═══════════════════════
 Trust level: full | medium | light

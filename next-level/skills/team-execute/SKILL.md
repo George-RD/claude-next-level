@@ -35,7 +35,7 @@ Execute an epic using parallel agent teams. For epics with independent tasks tha
 
 ## Phase 2: Create Team
 
-```
+```text
 TeamCreate: team_name = "epic-<name>"
 ```
 
@@ -50,7 +50,8 @@ Create tasks for each work item, then spawn agents:
 - Handles errors and blocked tasks
 
 **Coding Agents** (one per parallelizable task):
-```
+
+```text
 Task tool with:
   subagent_type: "general-purpose"
   team_name: "epic-<name>"
@@ -60,7 +61,8 @@ Task tool with:
 ```
 
 **Review Agent** (one, shared across all tasks):
-```
+
+```text
 Task tool with:
   subagent_type: "general-purpose"
   team_name: "epic-<name>"
@@ -103,7 +105,7 @@ Task tool with:
 
 Each coding agent receives this prompt (fill in the blanks):
 
-```
+```text
 You are implementing task #{ISSUE_NUMBER}: {TASK_TITLE}
 
 ## Task Description

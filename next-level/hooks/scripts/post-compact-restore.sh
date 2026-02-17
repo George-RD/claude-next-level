@@ -38,6 +38,9 @@ message="${message}\nActive specs: ${specs_summary}"
 if [[ -n "$recent_file" ]]; then
   message="${message}\nLast file: ${recent_file}"
 fi
+if [[ -n "$working_dir" ]]; then
+  message="${message}\nWorking dir: ${working_dir}"
+fi
 message="${message}\nContext was at: ${context_pct}%"
 
 # Clean up the snapshot (one-time use)

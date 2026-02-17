@@ -157,8 +157,8 @@ def _strip_c_style(
             new_lines.append(line)
             continue
 
-        # Start of block comment
-        if "/*" in stripped_line and not stripped_line.startswith("//"):
+        # Start of block comment (skip if inside a string)
+        if "/*" in stripped_line and not stripped_line.startswith("//") and not _in_string(line, line.index("/*")):
             # Check if it's a doc comment
             if stripped_line.startswith("/**") or stripped_line.startswith("/*!"):
                 block_is_preserved = True
@@ -180,10 +180,13 @@ def _strip_c_style(
                 # Single-line block comment
                 if not block_is_preserved:
                     stripped += 1
-                    # Remove just the comment if there's code before it
-                    before = line.split("/*")[0].rstrip()
-                    if before:
-                        new_lines.append(before + "\n")
+                    # Preserve code before /* and after */
+                    before = line.split("/*")[0]
+                    after = line.split("*/", 1)[1] if "*/" in line else ""
+                    combined = before.rstrip() + " " + after.lstrip() if before.strip() and after.strip() else before.rstrip() + after.lstrip()
+                    combined = combined.rstrip()
+                    if combined:
+                        new_lines.append(combined + "\n")
                     continue
                 new_lines.append(line)
                 continue
@@ -200,11 +203,13 @@ def _strip_c_style(
                 new_lines.append(line)
                 continue
 
-            # Preserve linter directives
+            # Preserve compiler directives and linter directives
             directive_patterns = [
                 "eslint-disable", "eslint-enable", "@ts-",
                 "swiftlint:", "nolint", "nosec",
                 "SAFETY:", "INVARIANT:",
+                "go:build", "go:generate", "go:embed", "go:linkname",
+                "+build",
             ]
             if any(p in stripped_line for p in directive_patterns):
                 new_lines.append(line)

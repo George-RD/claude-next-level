@@ -14,6 +14,10 @@ ESCAPE_FILE="${NEXT_LEVEL_STATE}/last_stop_attempt"
 now=$(date +%s)
 if [[ -f "$ESCAPE_FILE" ]]; then
   last_attempt=$(cat "$ESCAPE_FILE")
+  if ! [[ "$last_attempt" =~ ^[0-9]+$ ]]; then
+    rm -f "$ESCAPE_FILE"
+    last_attempt=0
+  fi
   elapsed=$((now - last_attempt))
   if [[ "$elapsed" -lt 60 ]]; then
     rm -f "$ESCAPE_FILE"

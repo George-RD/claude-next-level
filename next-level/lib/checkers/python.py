@@ -59,7 +59,7 @@ def check(filepath: str) -> dict[str, Any]:
                             "column": diag.get("location", {}).get("column", 0),
                             "message": diag.get("message", ""),
                             "rule": diag.get("code", ""),
-                            "severity": "error" if diag.get("code", "").startswith("E") else "warning",
+                            "severity": "error" if diag.get("code", "").startswith(("E", "F")) else "warning",
                         })
                 except json.JSONDecodeError:
                     pass

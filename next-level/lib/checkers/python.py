@@ -31,10 +31,11 @@ def check(filepath: str) -> dict[str, Any]:
         pass
 
     # Format with ruff
-    if shutil.which("ruff"):
+    ruff_path = shutil.which("ruff")
+    if ruff_path:
         try:
             proc = subprocess.run(
-                ["ruff", "format", filepath],
+                [ruff_path, "format", filepath],
                 capture_output=True,
                 timeout=15,
             )
@@ -42,10 +43,22 @@ def check(filepath: str) -> dict[str, Any]:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
-        # Lint with ruff
+    # Strip unnecessary comments (before linting so line numbers match final file)
+    try:
+        from comment_stripper import strip_comments
+        strip_result = strip_comments(filepath, "python")
+        result["comments_stripped"] = strip_result.get("stripped", 0)
+    except ImportError:
+        result["comments_stripped"] = 0
+    except Exception as exc:
+        result["comments_stripped"] = 0
+        result["comment_strip_error"] = str(exc)
+
+    # Lint with ruff (after comment stripping so findings match final content)
+    if ruff_path:
         try:
             proc = subprocess.run(
-                ["ruff", "check", "--output-format", "json", filepath],
+                [ruff_path, "check", "--output-format", "json", filepath],
                 capture_output=True,
                 text=True,
                 timeout=15,
@@ -66,22 +79,12 @@ def check(filepath: str) -> dict[str, Any]:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
-    # Strip unnecessary comments
-    try:
-        from comment_stripper import strip_comments
-        strip_result = strip_comments(filepath, "python")
-        result["comments_stripped"] = strip_result.get("stripped", 0)
-    except ImportError:
-        result["comments_stripped"] = 0
-    except Exception as exc:
-        result["comments_stripped"] = 0
-        result["comment_strip_error"] = str(exc)
-
     # Type check with basedpyright
-    if shutil.which("basedpyright"):
+    basedpyright_path = shutil.which("basedpyright")
+    if basedpyright_path:
         try:
             proc = subprocess.run(
-                ["basedpyright", "--outputjson", filepath],
+                [basedpyright_path, "--outputjson", filepath],
                 capture_output=True,
                 text=True,
                 timeout=30,

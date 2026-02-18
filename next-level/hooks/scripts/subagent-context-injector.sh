@@ -19,7 +19,8 @@ AGENT_LOG="${SESSIONS_DIR}/subagent-log.jsonl"
 
 # Append to log (keep last 100 entries)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-echo "{\"timestamp\":\"${TIMESTAMP}\",\"agent_id\":\"${AGENT_ID}\",\"agent_type\":\"${AGENT_TYPE}\"}" >> "$AGENT_LOG"
+jq -n --arg ts "$TIMESTAMP" --arg id "$AGENT_ID" --arg type "$AGENT_TYPE" \
+  '{timestamp: $ts, agent_id: $id, agent_type: $type}' >> "$AGENT_LOG"
 
 # Trim log to last 100 lines
 if [[ -f "$AGENT_LOG" ]] && [[ $(wc -l < "$AGENT_LOG") -gt 100 ]]; then

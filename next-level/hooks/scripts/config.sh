@@ -75,7 +75,7 @@ config_write() {
   local tmp
   tmp=$(mktemp "$dir/.config.XXXXXX")
   trap 'rm -f "$tmp"' EXIT INT TERM
-  echo "$json" > "$tmp"
+  printf '%s\n' "$json" > "$tmp"
   chmod 600 "$tmp"
   mv "$tmp" "$NEXT_LEVEL_CONFIG"
   trap - EXIT INT TERM

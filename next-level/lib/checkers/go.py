@@ -30,10 +30,11 @@ def check(filepath: str) -> dict[str, Any]:
         pass
 
     # Format with gofmt
-    if shutil.which("gofmt"):
+    gofmt_path = shutil.which("gofmt")
+    if gofmt_path:
         try:
             proc = subprocess.run(
-                ["gofmt", "-w", filepath],
+                [gofmt_path, "-w", filepath],
                 capture_output=True,
                 timeout=15,
             )
@@ -53,10 +54,11 @@ def check(filepath: str) -> dict[str, Any]:
     module_root = _find_go_module_root(filepath)
 
     # Lint with go vet
-    if module_root and shutil.which("go"):
+    go_path = shutil.which("go")
+    if module_root and go_path:
         try:
             proc = subprocess.run(
-                ["go", "vet", "./..."],
+                [go_path, "vet", "./..."],
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -69,10 +71,11 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     # Lint with golangci-lint
-    if shutil.which("golangci-lint"):
+    golangci_path = shutil.which("golangci-lint")
+    if golangci_path:
         try:
             proc = subprocess.run(
-                ["golangci-lint", "run", "--out-format", "json", "--fast", filepath],
+                [golangci_path, "run", "--out-format", "json", "--fast", filepath],
                 capture_output=True,
                 text=True,
                 timeout=30,

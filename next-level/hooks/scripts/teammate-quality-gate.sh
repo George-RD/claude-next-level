@@ -26,9 +26,7 @@ if [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]]; then
       has_impl_edits=true
       break
     fi
-  done < <(grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
-    | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//;s/"$//' \
-    || true)
+  done < <(jq -r '.. | objects | .file_path? // empty' "$TRANSCRIPT" 2>/dev/null | sort -u || true)
 
   if $has_impl_edits; then
     if ! has_test_evidence "$TRANSCRIPT"; then

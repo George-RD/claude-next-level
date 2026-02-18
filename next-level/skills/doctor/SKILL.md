@@ -208,6 +208,6 @@ Warnings:
 Overall: HEALTHY (2 optional warnings)
 ```
 
-Use `HEALTHY` if no FAIL results. Use `DEGRADED` if any WARN results exist. Use `UNHEALTHY` if any FAIL results exist.
+Use `HEALTHY` if no FAIL results, `DEGRADED` if any WARN results exist, and `UNHEALTHY` if any FAIL results exist.
 
 For each FAIL or WARN, include the fix command or action.

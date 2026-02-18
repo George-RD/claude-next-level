@@ -74,8 +74,11 @@ def exists() -> bool:
 def read() -> dict[str, Any]:
     if not exists():
         return copy.deepcopy(DEFAULT_CONFIG)
-    with open(config_path(), encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(config_path(), encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return copy.deepcopy(DEFAULT_CONFIG)
 
 
 def write(config: dict[str, Any]) -> None:

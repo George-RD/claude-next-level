@@ -29,10 +29,11 @@ def check(filepath: str) -> dict[str, Any]:
         pass
 
     # Format with swiftformat
-    if shutil.which("swiftformat"):
+    swiftformat_path = shutil.which("swiftformat")
+    if swiftformat_path:
         try:
             proc = subprocess.run(
-                ["swiftformat", filepath],
+                [swiftformat_path, filepath],
                 capture_output=True,
                 timeout=15,
             )
@@ -52,10 +53,11 @@ def check(filepath: str) -> dict[str, Any]:
         result["comment_strip_error"] = str(exc)
 
     # Lint with swiftlint
-    if shutil.which("swiftlint"):
+    swiftlint_path = shutil.which("swiftlint")
+    if swiftlint_path:
         try:
             proc = subprocess.run(
-                ["swiftlint", "lint", "--path", filepath, "--reporter", "json"],
+                [swiftlint_path, "lint", "--path", filepath, "--reporter", "json"],
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -84,7 +86,7 @@ def check(filepath: str) -> dict[str, Any]:
 def _parse_swiftlint_text(output: str, result: dict[str, Any]) -> None:
     """Parse swiftlint text output as fallback."""
     # Pattern: filepath:line:col: severity: message (rule)
-    pattern = re.compile(r":(\d+):(\d+): (\w+): (.+?) \((\w+)\)")
+    pattern = re.compile(r":(\d+):(\d+): (\w+): (.+?) \(([\w.-]+)\)")
     for match in pattern.finditer(output):
         result["findings"].append({
             "line": int(match.group(1)),

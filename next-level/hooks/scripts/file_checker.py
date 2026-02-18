@@ -40,6 +40,12 @@ def main() -> int:
     if not os.path.isfile(file_path):
         return 0
 
+    # Guard against out-of-workspace paths (including symlinks)
+    real_path = os.path.realpath(file_path)
+    workspace = os.path.realpath(os.getcwd())
+    if not real_path.startswith(workspace + os.sep) and real_path != workspace:
+        return 0
+
     # Run checks
     result = check_file(file_path)
 

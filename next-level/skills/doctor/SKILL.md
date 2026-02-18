@@ -1,7 +1,7 @@
 ---
 name: doctor
 description: Health check for next-level — verifies config, dependencies, hooks, and state directories
-user_invocable: true
+user-invocable: true
 ---
 
 # /next-level:doctor
@@ -188,7 +188,7 @@ for name, available in plugins.items():
 
 After running all checks, present a summary:
 
-```
+```text
 next-level doctor report
 ========================
 

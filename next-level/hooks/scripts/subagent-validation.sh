@@ -45,13 +45,13 @@ for changed_file in "${CHANGED_FILES[@]}"; do
   ext="${changed_file##*.}"
   case "$ext" in
     py)
-      if ! python3 -c "import ast; ast.parse(open('$changed_file').read())" 2>/dev/null; then
+      if ! python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" "$changed_file" 2>/dev/null; then
         echo "Subagent ${AGENT_ID} left syntax error in ${changed_file}. Fix before finishing." >&2
         exit 2
       fi
       ;;
     json)
-      if ! python3 -c "import json; json.load(open('$changed_file'))" 2>/dev/null; then
+      if ! python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$changed_file" 2>/dev/null; then
         echo "Subagent ${AGENT_ID} left invalid JSON in ${changed_file}. Fix before finishing." >&2
         exit 2
       fi

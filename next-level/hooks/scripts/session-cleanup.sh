@@ -23,8 +23,9 @@ if [[ -d "$SESSION_DIR" ]]; then
 fi
 
 # Clean up stale session dirs older than 7 days
-if [[ -d "$SESSIONS_DIR" ]]; then
-  find "$SESSIONS_DIR" -maxdepth 1 -type d -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+# Guard: only proceed if SESSIONS_DIR is within NEXT_LEVEL_STATE
+if [[ -d "$SESSIONS_DIR" && "$SESSIONS_DIR" == "${NEXT_LEVEL_STATE}/sessions" ]]; then
+  find "$SESSIONS_DIR" -maxdepth 1 -mindepth 1 -type d -mtime +7 -exec rm -rf {} + 2>/dev/null || true
 fi
 
 # Clean up escape hatch file

@@ -10,7 +10,6 @@ source "$SCRIPT_DIR/utils.sh"
 
 INPUT=$(read_hook_input)
 TEAMMATE_NAME=$(json_field "$INPUT" "teammate_name")
-TEAM_NAME=$(json_field "$INPUT" "team_name")
 TRANSCRIPT=$(json_field "$INPUT" "transcript_path")
 
 # Skip review agents and team leads — only gate coding agents

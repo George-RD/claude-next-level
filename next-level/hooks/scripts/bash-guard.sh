@@ -18,8 +18,6 @@ COMMAND=$(json_field "$INPUT" "tool_input.command")
 
 # Check for destructive commands
 BLOCKED_PATTERNS=(
-  'git push --force'
-  'git push -f '
   'rm -rf /'
   'rm -rf ~'
   'rm -rf \.'
@@ -37,10 +35,10 @@ for pattern in "${BLOCKED_PATTERNS[@]}"; do
   fi
 done
 
-# Check for force-push to main/master (even without --force flag, catch push -f to main)
-if echo "$COMMAND" | grep -qE 'git push.*(-f|--force).*(main|master)'; then
-  echo "Blocked force-push to protected branch" >&2
-  echo '{"decision":"block","reason":"Force-push to main/master is blocked. Use a feature branch."}'
+# Block any force-push (flags can appear anywhere in the command)
+if echo "$COMMAND" | grep -qE 'git push.*(--force|-f)'; then
+  echo "Blocked force-push" >&2
+  echo '{"decision":"block","reason":"Force-push is blocked by bash-guard. Use a normal push or ask the user to confirm."}'
   exit 2
 fi
 

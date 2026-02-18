@@ -69,13 +69,17 @@ else:
 Check that all hook scripts in `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/` are executable:
 
 ```bash
-for script in ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/*.sh ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/*.py; do
+found_issue=false
+for script in "${CLAUDE_PLUGIN_ROOT}"/hooks/scripts/*.sh "${CLAUDE_PLUGIN_ROOT}"/hooks/scripts/*.py; do
   if [ -f "$script" ] && [ ! -x "$script" ]; then
     echo "WARN: $script is not executable"
     echo "FIX: chmod +x $script"
+    found_issue=true
   fi
 done
-echo "OK: Hook scripts checked"
+if [ "$found_issue" = false ]; then
+  echo "OK: All hook scripts are executable"
+fi
 ```
 
 ### Check 4: State Directories

@@ -23,6 +23,7 @@ You will be given:
 ## Review by Trust Level
 
 ### Full Review (first 3 tasks, index 0-2)
+
 1. **Plan alignment**: Does the implementation match what the plan specified?
 2. **Code quality**: Clean code, no dead code, appropriate error handling?
 3. **Test coverage**: Are edge cases tested? Are tests testing behavior, not implementation?
@@ -30,11 +31,13 @@ You will be given:
 5. **Scope**: Did the implementation stay within the task boundary? No scope creep?
 
 ### Medium Review (middle tasks)
+
 1. **Tests pass**: Verify the test output is genuine (not mocked/skipped)
 2. **Integration**: Changes don't break previous tasks
 3. **No regressions**: Pre-existing tests still pass
 
 ### Light Review (final tasks)
+
 1. **Tests pass**: Full suite passes
 2. **No regressions**: Nothing broken
 

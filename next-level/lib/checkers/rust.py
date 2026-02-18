@@ -26,7 +26,7 @@ def check(filepath: str) -> dict[str, Any]:
             result["length_warning"] = f"File is {line_count} lines (>500) — consider splitting"
         elif line_count > 300:
             result["length_warning"] = f"File is {line_count} lines (>300) — getting long"
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         pass
 
     # Format with rustfmt

@@ -33,7 +33,7 @@ SKIP_PATTERNS = {"migrations/", "fixtures/", "__mocks__/", "node_modules/",
 
 def detect_language(filepath: str) -> str | None:
     """Detect language from file extension."""
-    ext = Path(filepath).suffix
+    ext = Path(filepath).suffix.lower()
     return EXTENSION_LANGUAGE.get(ext)
 
 
@@ -42,7 +42,7 @@ def should_skip(filepath: str) -> bool:
     path = Path(filepath)
 
     # Skip by extension
-    if path.suffix in SKIP_EXTENSIONS:
+    if path.suffix.lower() in SKIP_EXTENSIONS:
         return True
 
     # Skip by path segment

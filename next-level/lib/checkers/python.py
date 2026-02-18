@@ -27,7 +27,7 @@ def check(filepath: str) -> dict[str, Any]:
             result["length_warning"] = f"File is {line_count} lines (>500) — consider splitting"
         elif line_count > 300:
             result["length_warning"] = f"File is {line_count} lines (>300) — getting long"
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         pass
 
     # Format with ruff
@@ -71,8 +71,11 @@ def check(filepath: str) -> dict[str, Any]:
         from comment_stripper import strip_comments
         strip_result = strip_comments(filepath, "python")
         result["comments_stripped"] = strip_result.get("stripped", 0)
-    except (ImportError, Exception):
+    except ImportError:
         result["comments_stripped"] = 0
+    except Exception as exc:
+        result["comments_stripped"] = 0
+        result["comment_strip_error"] = str(exc)
 
     # Type check with basedpyright
     if shutil.which("basedpyright"):

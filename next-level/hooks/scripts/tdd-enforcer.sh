@@ -67,6 +67,10 @@ if [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]]; then
     fi
   fi
   new_size=$(wc -c < "$TRANSCRIPT" 2>/dev/null || echo "$offset")
+  # Reset offset if transcript was truncated/rotated
+  if [[ "$offset" -gt "$new_size" ]]; then
+    offset=0
+  fi
   if has_test_evidence "$TRANSCRIPT" "$offset"; then
     echo "0" > "$EDIT_COUNT_FILE"
     echo "$new_size" > "$OFFSET_FILE"

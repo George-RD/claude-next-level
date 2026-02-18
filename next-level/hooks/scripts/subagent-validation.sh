@@ -18,18 +18,19 @@ case "$AGENT_TYPE" in
   *) exit 0 ;;
 esac
 
-# Check 1: Did the agent leave uncommitted changes to impl files without tests?
-HAS_UNSTAGED=false
+# Collect all uncommitted impl files (both unstaged and staged)
+HAS_UNCOMMITTED=false
+CHANGED_FILES=()
 while IFS= read -r changed_file; do
   [[ -z "$changed_file" ]] && continue
+  CHANGED_FILES+=("$changed_file")
   if is_impl_file "$changed_file"; then
-    HAS_UNSTAGED=true
-    break
+    HAS_UNCOMMITTED=true
   fi
-done < <(git diff --name-only 2>/dev/null || true)
+done < <({ git diff --name-only 2>/dev/null; git diff --cached --name-only 2>/dev/null; } | sort -u || true)
 
-if $HAS_UNSTAGED; then
-  # Check if there's test evidence in the agent transcript
+# Check 1: Did the agent leave uncommitted changes to impl files without tests?
+if $HAS_UNCOMMITTED; then
   if [[ -n "$AGENT_TRANSCRIPT" && -f "$AGENT_TRANSCRIPT" ]]; then
     if ! has_test_evidence "$AGENT_TRANSCRIPT"; then
       echo "Subagent ${AGENT_ID} (${AGENT_TYPE}) has uncommitted impl changes without test evidence. Run tests before finishing." >&2
@@ -39,8 +40,7 @@ if $HAS_UNSTAGED; then
 fi
 
 # Check 2: Are there syntax errors in recently changed files?
-while IFS= read -r changed_file; do
-  [[ -z "$changed_file" ]] && continue
+for changed_file in "${CHANGED_FILES[@]}"; do
   [[ -f "$changed_file" ]] || continue
   ext="${changed_file##*.}"
   case "$ext" in
@@ -57,6 +57,6 @@ while IFS= read -r changed_file; do
       fi
       ;;
   esac
-done < <(git diff --name-only 2>/dev/null || true)
+done
 
 exit 0

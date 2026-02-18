@@ -2,7 +2,7 @@
 name: plan-challenger
 description: Adversarial review of implementation plans. Finds holes, missing edge cases, security issues, and over-engineering. Invoke during /spec-plan before user approval.
 tools: Read, Grep, Glob
-model: haiku
+model: sonnet
 maxTurns: 10
 ---
 

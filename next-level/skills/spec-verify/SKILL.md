@@ -1,6 +1,6 @@
 ---
 name: spec-verify
-description: Verification phase of spec workflow. Validates implementation against plan — tests, coverage, code review.
+description: Verification phase of spec workflow. Validates implementation against plan — tests, coverage, code review, CodeRabbit.
 user-invocable: true
 ---
 
@@ -15,16 +15,22 @@ Run these in order. Stop on first failure.
 1. **Tests pass**: Run the full test suite. Show actual output, not just "tests pass".
 2. **Plan coverage**: Check every task in the plan has corresponding code AND tests.
 3. **Code review**: Dispatch the spec-reviewer agent with the plan and changed files.
-4. **Lint clean**: Run any configured linters if available (eslint, ruff, golangci-lint).
-5. **No regressions**: Confirm pre-existing tests still pass.
+4. **CodeRabbit review** (if available): Run `coderabbit review --plain` on changes since spec started. Feed findings into spec-reviewer context. If coderabbit is not installed, skip this step with an info message.
+5. **Lint clean**: Run any configured linters if available (eslint, ruff, golangci-lint).
+6. **No regressions**: Confirm pre-existing tests still pass.
 
 ## If All Checks Pass
 
 Update spec JSON: `{"status": "VERIFIED"}`
+
+If omega memory is available, store the verification result:
+- Call `omega_store(verification_summary, "milestone")` with: spec name, all checks passed, key metrics (test count, files changed, lint status).
+
 Report success to the user with a summary:
 - Tasks completed
 - Tests passing
 - Files changed
+- CodeRabbit findings (if any were addressed)
 - Ready for PR/merge
 
 ## If Any Check Fails

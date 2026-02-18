@@ -109,10 +109,68 @@ find_test_file() {
 }
 
 # Check transcript for test runner evidence
+# Detects language-specific test runner output patterns
+# Optional second arg: byte offset to start scanning from
 has_test_evidence() {
   local transcript_path="$1"
+  local offset="${2:-0}"
   if [[ ! -f "$transcript_path" ]]; then
     return 1
   fi
-  grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|go test|✓|✗|Tests:)' "$transcript_path"
+  local content
+  if [[ "$offset" -gt 0 ]]; then
+    content=$(tail -c +$((offset + 1)) "$transcript_path" 2>/dev/null) || return 1
+  else
+    content=$(cat "$transcript_path")
+  fi
+  # Language-specific patterns:
+  # Python: pytest, unittest, "passed", "failed", "ERROR", "test session starts"
+  # JS/TS: jest, vitest, mocha, "Tests:", "Test Suites:", "PASS", "FAIL"
+  # Go: "go test", "ok ", "FAIL", "--- PASS", "--- FAIL"
+  # Rust: "cargo test", "test result:", "running N test"
+  # Swift: "swift test", "Test Suite", "Executed N test"
+  echo "$content" | grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)'
+}
+
+# Detect test runner command for a language
+# Usage: detect_test_command <ext> [file_dir]
+detect_test_command() {
+  local ext="$1"
+  local file_dir="${2:-.}"
+  case "$ext" in
+    py)    echo "pytest" ;;
+    ts|tsx|js|jsx)
+      # Walk up from file_dir to find package.json
+      local search_dir
+      search_dir=$(cd "$file_dir" 2>/dev/null && pwd || echo "$file_dir")
+      local pkg=""
+      while true; do
+        if [[ -f "$search_dir/package.json" ]]; then
+          pkg="$search_dir/package.json"
+          break
+        fi
+        local parent
+        parent=$(dirname "$search_dir")
+        if [[ "$parent" == "$search_dir" ]]; then
+          break
+        fi
+        search_dir="$parent"
+      done
+      if [[ -n "$pkg" ]]; then
+        if grep -q '"vitest"' "$pkg" 2>/dev/null; then
+          echo "npx vitest run"
+        elif grep -q '"jest"' "$pkg" 2>/dev/null; then
+          echo "npx jest"
+        else
+          echo "npx vitest run"
+        fi
+      else
+        echo "npx vitest run"
+      fi
+      ;;
+    go)    echo "go test ./..." ;;
+    rs)    echo "cargo test" ;;
+    swift) echo "swift test" ;;
+    *)     echo "" ;;
+  esac
 }

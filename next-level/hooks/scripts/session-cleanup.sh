@@ -11,6 +11,11 @@ INPUT=$(read_hook_input)
 SESSION_ID=$(json_field "$INPUT" "session_id")
 SESSION_ID="${SESSION_ID:-unknown}"
 
+# Validate SESSION_ID to prevent path traversal
+if [[ "$SESSION_ID" =~ [/\\] || "$SESSION_ID" == ".." || "$SESSION_ID" == "." ]]; then
+  exit 0
+fi
+
 SESSIONS_DIR="${NEXT_LEVEL_STATE}/sessions"
 
 # Clean up session-specific temp files

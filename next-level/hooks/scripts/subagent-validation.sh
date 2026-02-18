@@ -36,6 +36,8 @@ if $HAS_UNCOMMITTED; then
       echo "Subagent ${AGENT_ID} (${AGENT_TYPE}) has uncommitted impl changes without test evidence. Run tests before finishing." >&2
       exit 2
     fi
+  else
+    echo "Subagent ${AGENT_ID} (${AGENT_TYPE}): no transcript available — skipping test evidence check." >&2
   fi
 fi
 

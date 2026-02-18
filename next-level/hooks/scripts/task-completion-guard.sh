@@ -24,8 +24,8 @@ while IFS= read -r filepath; do
     has_impl_edits=true
     break
   fi
-done < <(grep -oE '"file_path"\s*:\s*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
-  | sed 's/"file_path"\s*:\s*"//;s/"$//' \
+done < <(grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
+  | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//;s/"$//' \
   || true)
 
 # If impl files were edited, require test evidence

@@ -28,7 +28,7 @@ BLOCKED_PATTERNS=(
 )
 
 for pattern in "${BLOCKED_PATTERNS[@]}"; do
-  if echo "$COMMAND" | grep -qE "$pattern"; then
+  if printf '%s' "$COMMAND" | grep -qE "$pattern"; then
     echo "Blocked destructive command: ${COMMAND}" >&2
     echo '{"decision":"block","reason":"Destructive command blocked by bash-guard. Use explicit flags or ask the user to confirm."}'
     exit 2
@@ -36,7 +36,7 @@ for pattern in "${BLOCKED_PATTERNS[@]}"; do
 done
 
 # Block any force-push (flags can appear anywhere in the command)
-if echo "$COMMAND" | grep -qE 'git push.*(--force|-f)'; then
+if printf '%s' "$COMMAND" | grep -qE 'git push.*(--force|-f)'; then
   echo "Blocked force-push" >&2
   echo '{"decision":"block","reason":"Force-push is blocked by bash-guard. Use a normal push or ask the user to confirm."}'
   exit 2

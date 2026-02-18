@@ -130,7 +130,45 @@ else:
 "
 ```
 
-### Check 6: Plugin Status
+### Check 6: Coding Agent Configuration
+
+```bash
+AGENT_FILE="${CLAUDE_PLUGIN_ROOT}/agents/coding-agent.md"
+if [ -f "$AGENT_FILE" ]; then
+  echo "OK: coding-agent.md exists"
+  if head -20 "$AGENT_FILE" | grep -q "hooks:"; then
+    echo "OK: coding-agent.md has hooks in frontmatter"
+  else
+    echo "WARN: coding-agent.md missing hooks in frontmatter — team enforcement won't work"
+  fi
+else
+  echo "WARN: coding-agent.md not found — team-execute will use general-purpose agents"
+fi
+```
+
+### Check 7: Hook Events Registered
+
+```bash
+HOOKS_FILE="${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json"
+if [ ! -f "$HOOKS_FILE" ]; then
+  echo "FAIL: hooks.json not found"
+else
+  expected_events="SessionStart PreToolUse PostToolUse Stop PreCompact SessionEnd SubagentStart SubagentStop TeammateIdle TaskCompleted"
+  missing=""
+  for event in $expected_events; do
+    if ! grep -q "\"$event\"" "$HOOKS_FILE"; then
+      missing="$missing $event"
+    fi
+  done
+  if [ -z "$missing" ]; then
+    echo "OK: All expected hook events registered (10 events)"
+  else
+    echo "WARN: Missing hook events:$missing"
+  fi
+fi
+```
+
+### Check 8: Plugin Status
 
 ```bash
 python3 -c "
@@ -159,6 +197,8 @@ Dependencies:   OK (2 warnings)
 Hook Scripts:   OK
 State Dirs:     OK
 Config Fresh:   OK
+Coding Agent:   OK
+Hook Events:    OK (10 events)
 Plugins:        WARN (omega-memory not installed)
 
 Warnings:

@@ -24,7 +24,13 @@ while IFS= read -r filepath; do
     has_impl_edits=true
     break
   fi
-done < <(jq -r '.. | objects | .file_path? // empty' "$TRANSCRIPT" 2>/dev/null | sort -u || true)
+done < <(
+  # Try jq first (handles JSON/JSONL), fall back to grep/sed for plain text
+  jq -r '.. | objects | .file_path? // empty' "$TRANSCRIPT" 2>/dev/null \
+    || grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
+       | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//;s/"$//' \
+    || true
+  ) | sort -u
 
 # If impl files were edited, require test evidence
 if $has_impl_edits; then

@@ -26,7 +26,11 @@ fi
 # Check 2: Is config stale? Compare project root against cwd
 config_root=$(config_get "project_root")
 current_dir="$(pwd)"
-real_config_root="$(cd "$config_root" 2>/dev/null && pwd -P || echo "$config_root")"
+if [[ -n "$config_root" ]]; then
+  real_config_root="$(cd "$config_root" 2>/dev/null && pwd -P || echo "$config_root")"
+else
+  real_config_root=""
+fi
 real_current_dir="$(pwd -P)"
 
 # Allow cwd to be the config root or a subdirectory of it

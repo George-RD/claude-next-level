@@ -26,20 +26,28 @@ fi
 # Check 2: Is config stale? Compare project root against cwd
 config_root=$(config_get "project_root")
 current_dir="$(pwd)"
+if [[ -n "$config_root" ]]; then
+  real_config_root="$(cd "$config_root" 2>/dev/null && pwd -P || echo "$config_root")"
+else
+  real_config_root=""
+fi
+real_current_dir="$(pwd -P)"
 
-if [[ -n "$config_root" && "$config_root" != "$current_dir" ]]; then
+# Allow cwd to be the config root or a subdirectory of it
+if [[ -n "$config_root" && "$real_current_dir" != "$real_config_root" && "$real_current_dir" != "$real_config_root"/* ]]; then
   jq -n --arg root "$config_root" '{"result":"next-level was configured for a different project (\($root)). Run /next-level:setup to reconfigure for this project."}'
   exit 2
 fi
 
 # Check 3: Quick staleness check — look for new language config files
-# that weren't present at setup time
+# that weren't present at setup time (always scan from config root)
 config_langs=$(config_get "languages_detected" 2>/dev/null || echo "[]")
+scan_dir="${real_config_root:-$real_current_dir}"
 
 stale=false
 # Check for new language indicators not in config
 for indicator in package.json tsconfig.json Cargo.toml Package.swift pyproject.toml go.mod; do
-  if [[ -f "$current_dir/$indicator" ]]; then
+  if [[ -f "$scan_dir/$indicator" ]]; then
     case "$indicator" in
       package.json|tsconfig.json)
         if ! echo "$config_langs" | jq -e 'index("typescript") or index("javascript")' > /dev/null 2>&1; then

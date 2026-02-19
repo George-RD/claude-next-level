@@ -1,5 +1,8 @@
 # Coding Agent Prompt Template
 
+> **Deprecated**: For team-execute, use `agents/coding-agent.md` instead (subagent_type: "coding-agent").
+> This template is kept for backward compatibility with manual Task tool spawning.
+
 You are implementing task **#{ISSUE_NUMBER}: {TASK_TITLE}**
 
 ## Task Description
@@ -35,6 +38,7 @@ You are implementing task **#{ISSUE_NUMBER}: {TASK_TITLE}**
 ## When Done
 
 Send a message to the team lead with:
+
 ```text
 Task #{ISSUE_NUMBER} complete.
 - Tests: {PASS_COUNT} passing

@@ -166,6 +166,8 @@ def _strip_c_style(
                 block_is_preserved = True
             elif PRESERVED_MARKERS.search(line):
                 block_is_preserved = True
+            elif preserve_godoc and _block_precedes_decl(lines, i):
+                block_is_preserved = True
             else:
                 block_is_preserved = False
 
@@ -174,6 +176,10 @@ def _strip_c_style(
                 if block_is_preserved:
                     new_lines.append(line)
                 else:
+                    # Preserve code before /* on the same line
+                    before = line.split("/*")[0].rstrip()
+                    if before:
+                        new_lines.append(before + "\n")
                     stripped += 1
                 continue
             else:
@@ -266,6 +272,23 @@ def _strip_c_style(
         "modified": stripped > 0,
         "content": content,
     }
+
+
+_GO_DECL_KEYWORDS = ("func ", "type ", "var ", "const ", "package ")
+
+
+def _block_precedes_decl(lines: list[str], start: int) -> bool:
+    """Check if a block comment starting at `start` immediately precedes a Go declaration."""
+    # Find the end of the block comment
+    for j in range(start, len(lines)):
+        if "*/" in lines[j]:
+            # Check the first non-empty line after the block
+            for k in range(j + 1, len(lines)):
+                next_line = lines[k].lstrip()
+                if next_line:
+                    return next_line.startswith(_GO_DECL_KEYWORDS)
+            return False
+    return False
 
 
 def _in_string(line: str, pos: int) -> bool:

@@ -53,22 +53,24 @@ Create tasks for each work item, then spawn agents:
 
 ```text
 Task tool with:
-  subagent_type: "general-purpose"
+  subagent_type: "coding-agent"
   team_name: "epic-<name>"
   name: "coder-<task-slug>"
+  model: "sonnet"
   mode: "bypassPermissions"
-  prompt: <filled from coding-agent-prompt template>
+  prompt: <task-specific context — see Coding Agent Prompt Template below>
 ```
 
 **Review Agent** (one, shared across all tasks):
 
 ```text
 Task tool with:
-  subagent_type: "general-purpose"
+  subagent_type: "checkpoint-reviewer"
   team_name: "epic-<name>"
   name: "reviewer"
+  model: "sonnet"
   mode: "default"
-  prompt: <filled from checkpoint-reviewer agent>
+  prompt: <checkpoint context — plan, completed task, test results, git diff>
 ```
 
 ## Phase 3: Execute in Waves
@@ -82,6 +84,7 @@ Task tool with:
   - Instructions to report back via SendMessage when done
 
 ### Between Waves: Checkpoint
+
 - Wait for all Wave 1 agents to complete
 - Send completed work to review agent for checkpoint
 - If CONTINUE: proceed to Wave 2
@@ -89,6 +92,7 @@ Task tool with:
 - If STOP: halt execution
 
 ### Wave 2+: Dependent Tasks
+
 - Spawn agents for next group of unblocked tasks
 - Repeat checkpoint between waves
 
@@ -103,7 +107,7 @@ Task tool with:
 
 ## Coding Agent Prompt Template
 
-Each coding agent receives this prompt (fill in the blanks):
+Each coding agent uses the `coding-agent` subagent type (see `agents/coding-agent.md`), which has TDD enforcement and quality hooks built into its frontmatter. The spawn prompt provides task-specific context:
 
 ```text
 You are implementing task #{ISSUE_NUMBER}: {TASK_TITLE}
@@ -113,16 +117,6 @@ You are implementing task #{ISSUE_NUMBER}: {TASK_TITLE}
 
 ## Acceptance Criteria
 {ACCEPTANCE_CRITERIA}
-
-## Constraints
-- Follow strict TDD: RED → GREEN → REFACTOR
-- All quality hooks are active (formatting, linting, comment stripping)
-- Commit after each subtask with message: "feat: {description} (fixes #{ISSUE_NUMBER})"
-- When done, send a message to the team lead with:
-  - Summary of what was implemented
-  - Test results (actual output)
-  - Files changed
-  - Any issues or deviations from the plan
 
 ## Project Context
 - Working directory: {PROJECT_ROOT}

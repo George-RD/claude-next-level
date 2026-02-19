@@ -30,10 +30,11 @@ def check(filepath: str) -> dict[str, Any]:
         pass
 
     # Format with rustfmt
-    if shutil.which("rustfmt"):
+    rustfmt_path = shutil.which("rustfmt")
+    if rustfmt_path:
         try:
             proc = subprocess.run(
-                ["rustfmt", filepath],
+                [rustfmt_path, filepath],
                 capture_output=True,
                 timeout=15,
             )
@@ -52,10 +53,11 @@ def check(filepath: str) -> dict[str, Any]:
     # Lint with cargo clippy (project-level)
     # Find project root by looking for Cargo.toml
     project_root = _find_cargo_root(filepath)
-    if project_root and shutil.which("cargo"):
+    cargo_path = shutil.which("cargo")
+    if project_root and cargo_path:
         try:
             proc = subprocess.run(
-                ["cargo", "clippy", "--message-format=json", "--", "-W", "clippy::all"],
+                [cargo_path, "clippy", "--message-format=json", "--", "-W", "clippy::all"],
                 capture_output=True,
                 text=True,
                 timeout=60,

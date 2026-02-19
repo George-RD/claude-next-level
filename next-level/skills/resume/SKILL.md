@@ -23,7 +23,7 @@ Resume work from a previous session's checkpoint.
    - Context percentage when checkpointed
 
 3. **Verify state**: Before resuming:
-   - Check that completed tasks are actually closed on GitHub: `gh issue list --state closed`
+   - Check that completed tasks are actually closed on GitHub: `gh issue list --state closed --json number | jq -r '[.[].number]'` and verify the issue numbers from the resume file appear in the output
    - Run the test suite to confirm previous work is intact
    - Check for any code changes made outside this workflow (manual edits, other sessions)
 
@@ -32,7 +32,7 @@ Resume work from a previous session's checkpoint.
    - If between tasks: start the next task in the execution plan
    - Use `/next-level:execute` to continue the epic from the right point
 
-5. **Clean up**: After successfully resuming, delete the resume/continuation file
+5. **Clean up**: Delete the resume/continuation file only after the resumed task completes successfully (not immediately on resume — keep as fallback if the resumed task fails)
 
 ## Resume File Format
 

@@ -17,6 +17,7 @@ from checkers import check_file
 
 
 def main() -> int:
+    """Dispatch file checks for PostToolUse hook events."""
     # Read hook input from stdin
     try:
         raw = sys.stdin.read()
@@ -40,8 +41,14 @@ def main() -> int:
     if not os.path.isfile(file_path):
         return 0
 
-    # Run checks
-    result = check_file(file_path)
+    # Guard against out-of-workspace paths (including symlinks)
+    real_path = os.path.realpath(file_path)
+    workspace = os.path.realpath(os.getcwd())
+    if not real_path.startswith(workspace + os.sep) and real_path != workspace:
+        return 0
+
+    # Run checks using the resolved path for consistency with the guard
+    result = check_file(real_path)
 
     if result.get("skipped"):
         return 0
@@ -58,7 +65,7 @@ def main() -> int:
 
     # Build feedback message
     parts = []
-    basename = os.path.basename(file_path)
+    basename = os.path.basename(real_path)
 
     if formatted:
         parts.append(f"Formatted {basename}")

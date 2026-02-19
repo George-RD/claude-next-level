@@ -159,8 +159,21 @@ def check_binary(name: str) -> bool:
     return shutil.which(name) is not None
 
 
+# Allowlist of binaries we will execute for version checks
+_KNOWN_BINARIES: frozenset[str] = frozenset(
+    tool_info["binary"]
+    for tools in LANGUAGE_TOOLS.values()
+    for tool_info in tools.values()
+)
+
+
 def check_binary_version(name: str) -> str | None:
-    """Get version string of a binary, or None if not available."""
+    """Get version string of a binary, or None if not available.
+
+    Only executes binaries in the known allowlist (from LANGUAGE_TOOLS).
+    """
+    if name not in _KNOWN_BINARIES:
+        return None
     if not check_binary(name):
         return None
     try:

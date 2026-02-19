@@ -72,13 +72,18 @@ def exists() -> bool:
 
 
 def read() -> dict[str, Any]:
+    """Read and return the config, falling back to defaults on error."""
     if not exists():
         return copy.deepcopy(DEFAULT_CONFIG)
-    with open(config_path(), encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(config_path(), encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return copy.deepcopy(DEFAULT_CONFIG)
 
 
 def write(config: dict[str, Any]) -> None:
+    """Write config to disk with a timestamp update."""
     config["last_updated"] = datetime.now(timezone.utc).isoformat()
     path = config_path()
     path.parent.mkdir(parents=True, exist_ok=True)

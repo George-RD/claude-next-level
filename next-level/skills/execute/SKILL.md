@@ -25,22 +25,26 @@ Execute an epic by running the spec workflow on each task in dependency order, w
 For each task in execution order:
 
 ### 2a. Start Task
+
 - Update GitHub issue: `gh issue edit <number> --remove-label "status:planned" --add-label "status:in-progress"`
 - Read the full issue body for acceptance criteria and approach
 - If omega memory is available, call `omega_query()` for context on related past work
 
 ### 2b. Run Spec Workflow
+
 - Create a spec from the issue: write spec JSON with issue details
 - **Plan**: If the issue body has a clear approach, use `/next-level:quick`. Otherwise, run `/next-level:spec-plan` for the task.
 - **Implement**: Run the spec-implement phase with strict TDD
 - **Verify**: Run spec-verify — tests, lint, code review
 
 ### 2c. Adversarial Checkpoint
+
 After each task completes, dispatch the **checkpoint-reviewer** agent:
 - Pass: project plan, completed task details, test results, diff since epic started
 - The reviewer verifies: task matches plan, no drift from vision, integration with previous tasks works
 
 #### Trust Escalation
+
 Review depth adjusts based on task position and track record:
 - **First 3 tasks**: Full review (code + tests + integration check)
 - **Middle tasks**: Medium review (tests pass + integration check)
@@ -53,6 +57,7 @@ If the reviewer returns a non-CONTINUE verdict:
 - **STOP**: Halt execution, report the issue
 
 ### 2d. Complete Task
+
 - Update and close GitHub issue: `gh issue edit <number> --remove-label "status:in-progress" --add-label "status:complete"` then `gh issue close <number>`
 - Commit with message referencing the issue: `fixes #<number>`
 - If omega memory available: `omega_store(task_summary, "milestone")`
@@ -91,7 +96,8 @@ If context approaches 85% during execution:
 ## Output
 
 After completing all tasks in the epic:
-```
+
+```text
 EPIC COMPLETE: <epic-name>
 ═════════════════════════
 Tasks completed: N/M

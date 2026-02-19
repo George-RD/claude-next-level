@@ -18,7 +18,7 @@ Display the current session state with project-level info.
 
 ## Output Format
 
-```
+```text
 NEXT-LEVEL STATUS
 =====================
 Context:      67% ██████████████░░░░░░ (OK)
@@ -53,7 +53,7 @@ If no, acknowledge and start fresh.
 
 ## If No State Exists
 
-```
+```text
 NEXT-LEVEL STATUS
 =====================
 No active specs or sessions.

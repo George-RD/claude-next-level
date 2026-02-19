@@ -91,6 +91,7 @@ print('Config written successfully')
 Replace the `$VARIABLES` with actual JSON values from the detection results.
 
 The `linters` field should map each language to its available tools by role:
+
 ```json
 {
   "python": {"formatter": "ruff", "linter": "ruff", "type_checker": "basedpyright"},

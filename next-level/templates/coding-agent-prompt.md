@@ -38,6 +38,7 @@ You are implementing task **#{ISSUE_NUMBER}: {TASK_TITLE}**
 ## When Done
 
 Send a message to the team lead with:
+
 ```text
 Task #{ISSUE_NUMBER} complete.
 - Tests: {PASS_COUNT} passing

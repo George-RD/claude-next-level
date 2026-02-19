@@ -84,6 +84,7 @@ Task tool with:
   - Instructions to report back via SendMessage when done
 
 ### Between Waves: Checkpoint
+
 - Wait for all Wave 1 agents to complete
 - Send completed work to review agent for checkpoint
 - If CONTINUE: proceed to Wave 2
@@ -91,6 +92,7 @@ Task tool with:
 - If STOP: halt execution
 
 ### Wave 2+: Dependent Tasks
+
 - Spawn agents for next group of unblocked tasks
 - Repeat checkpoint between waves
 

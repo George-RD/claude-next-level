@@ -23,7 +23,7 @@ Resume work from a previous session's checkpoint.
    - Context percentage when checkpointed
 
 3. **Verify state**: Before resuming:
-   - Check that completed tasks are actually closed on GitHub: `gh issue list --state closed --json number` and filter to the issue numbers listed in the resume file
+   - Check that completed tasks are actually closed on GitHub: `gh issue list --state closed --json number | jq -r '[.[].number]'` and verify the issue numbers from the resume file appear in the output
    - Run the test suite to confirm previous work is intact
    - Check for any code changes made outside this workflow (manual edits, other sessions)
 

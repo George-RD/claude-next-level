@@ -47,8 +47,8 @@ def main() -> int:
     if not real_path.startswith(workspace + os.sep) and real_path != workspace:
         return 0
 
-    # Run checks
-    result = check_file(file_path)
+    # Run checks using the resolved path for consistency with the guard
+    result = check_file(real_path)
 
     if result.get("skipped"):
         return 0
@@ -65,7 +65,7 @@ def main() -> int:
 
     # Build feedback message
     parts = []
-    basename = os.path.basename(file_path)
+    basename = os.path.basename(real_path)
 
     if formatted:
         parts.append(f"Formatted {basename}")

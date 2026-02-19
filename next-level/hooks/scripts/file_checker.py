@@ -17,6 +17,7 @@ from checkers import check_file
 
 
 def main() -> int:
+    """Dispatch file checks for PostToolUse hook events."""
     # Read hook input from stdin
     try:
         raw = sys.stdin.read()

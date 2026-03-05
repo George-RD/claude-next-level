@@ -18,29 +18,10 @@ case "$TEAMMATE_NAME" in
 esac
 
 # Check: Did this teammate edit impl files without test evidence?
-if [[ -n "$TRANSCRIPT" && -f "$TRANSCRIPT" ]]; then
-  has_impl_edits=false
-  while IFS= read -r filepath; do
-    [[ -z "$filepath" ]] && continue
-    if is_impl_file "$filepath"; then
-      has_impl_edits=true
-      break
-    fi
-  done < <(
-    # Try jq first (handles JSON/JSONL), fall back to grep/sed for plain text
-    {
-      jq -r '.. | objects | .file_path? // empty' "$TRANSCRIPT" 2>/dev/null \
-        || grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
-           | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//;s/"$//' \
-        || true
-    } | sort -u
-  )
-
-  if $has_impl_edits; then
-    if ! has_test_evidence "$TRANSCRIPT"; then
-      echo "Teammate ${TEAMMATE_NAME} edited implementation files but has no test evidence. Run tests before going idle." >&2
-      exit 2
-    fi
+if transcript_has_impl_edits "$TRANSCRIPT"; then
+  if ! has_test_evidence "$TRANSCRIPT"; then
+    echo "Teammate ${TEAMMATE_NAME} edited implementation files but has no test evidence. Run tests before going idle." >&2
+    exit 2
   fi
 fi
 

@@ -10,6 +10,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from checkers import EXTENSION_LANGUAGE as EXTENSION_MAP
+
 # Language detection: config file -> language
 LANGUAGE_INDICATORS: dict[str, str] = {
     "package.json": "typescript",
@@ -20,18 +22,6 @@ LANGUAGE_INDICATORS: dict[str, str] = {
     "setup.py": "python",
     "setup.cfg": "python",
     "go.mod": "go",
-}
-
-# File extension -> language (fallback detection)
-EXTENSION_MAP: dict[str, str] = {
-    ".ts": "typescript",
-    ".tsx": "typescript",
-    ".js": "typescript",  # JS uses same toolchain
-    ".jsx": "typescript",
-    ".py": "python",
-    ".swift": "swift",
-    ".rs": "rust",
-    ".go": "go",
 }
 
 # Per-language tool definitions: {tool_name: {binary, install_hint, role}}

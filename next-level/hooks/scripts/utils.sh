@@ -114,63 +114,37 @@ find_test_file() {
 has_test_evidence() {
   local transcript_path="$1"
   local offset="${2:-0}"
-  if [[ ! -f "$transcript_path" ]]; then
-    return 1
-  fi
-  local content
+  [[ -f "$transcript_path" ]] || return 1
+
+  local test_pattern='(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)'
+
   if [[ "$offset" -gt 0 ]]; then
-    content=$(tail -c +$((offset + 1)) "$transcript_path" 2>/dev/null) || return 1
+    tail -c +$((offset + 1)) "$transcript_path" 2>/dev/null | grep -qE "$test_pattern"
   else
-    content=$(cat "$transcript_path")
+    grep -qE "$test_pattern" "$transcript_path"
   fi
-  # Language-specific patterns:
-  # Python: pytest, unittest, "passed", "failed", "ERROR", "test session starts"
-  # JS/TS: jest, vitest, mocha, "Tests:", "Test Suites:", "PASS", "FAIL"
-  # Go: "go test", "ok ", "FAIL", "--- PASS", "--- FAIL"
-  # Rust: "cargo test", "test result:", "running N test"
-  # Swift: "swift test", "Test Suite", "Executed N test"
-  echo "$content" | grep -qE '(PASS|FAIL|passed|failed|test[s]? ran|pytest|jest|vitest|mocha|go test|cargo test|swift test|test session starts|Test Suites:|test result:|running [0-9]+ test|Executed [0-9]+ test|--- PASS|--- FAIL|ok[[:space:]]+[a-z]|Tests:|✓|✗)'
 }
 
-# Detect test runner command for a language
-# Usage: detect_test_command <ext> [file_dir]
-detect_test_command() {
-  local ext="$1"
-  local file_dir="${2:-.}"
-  case "$ext" in
-    py)    echo "pytest" ;;
-    ts|tsx|js|jsx)
-      # Walk up from file_dir to find package.json
-      local search_dir
-      search_dir=$(cd "$file_dir" 2>/dev/null && pwd || echo "$file_dir")
-      local pkg=""
-      while true; do
-        if [[ -f "$search_dir/package.json" ]]; then
-          pkg="$search_dir/package.json"
-          break
-        fi
-        local parent
-        parent=$(dirname "$search_dir")
-        if [[ "$parent" == "$search_dir" ]]; then
-          break
-        fi
-        search_dir="$parent"
-      done
-      if [[ -n "$pkg" ]]; then
-        if grep -q '"vitest"' "$pkg" 2>/dev/null; then
-          echo "npx vitest run"
-        elif grep -q '"jest"' "$pkg" 2>/dev/null; then
-          echo "npx jest"
-        else
-          echo "npx vitest run"
-        fi
-      else
-        echo "npx vitest run"
-      fi
-      ;;
-    go)    echo "go test ./..." ;;
-    rs)    echo "cargo test" ;;
-    swift) echo "swift test" ;;
-    *)     echo "" ;;
-  esac
+# Check if a transcript contains edits to implementation files.
+# Returns 0 (true) if impl files were edited, 1 (false) otherwise.
+# Usage: transcript_has_impl_edits <transcript_path>
+transcript_has_impl_edits() {
+  local transcript="$1"
+  [[ -n "$transcript" && -f "$transcript" ]] || return 1
+
+  local filepath
+  while IFS= read -r filepath; do
+    [[ -z "$filepath" ]] && continue
+    if is_impl_file "$filepath"; then
+      return 0
+    fi
+  done < <(
+    {
+      jq -r '.. | objects | .file_path? // empty' "$transcript" 2>/dev/null \
+        || grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]+"' "$transcript" 2>/dev/null \
+           | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//;s/"$//' \
+        || true
+    } | sort -u
+  )
+  return 1
 }

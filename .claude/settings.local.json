@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
+      "Bash(echo:*)",
       "WebFetch(domain:blog.emilburzo.com)",
       "WebFetch(domain:www.agentic-engineer.com)",
       "WebFetch(domain:claudefa.st)",
@@ -9,7 +10,8 @@
       "WebFetch(domain:www.joinformal.com)",
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:docs.claude.com)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Skill(pr-review-toolkit:review-pr)"
     ]
   },
   "sandbox": {

@@ -41,8 +41,7 @@ esac
 
 # Check 2: Have tests been run recently in this session?
 # Look for test runner output patterns in the transcript
-STATE_DIR="${NEXT_LEVEL_STATE}/sessions/${SESSION_ID}"
-mkdir -p "$STATE_DIR"
+STATE_DIR=$(ensure_state_dir "$SESSION_ID")
 
 # Track how many impl file edits since last test run
 EDIT_COUNT_FILE="$STATE_DIR/edits_since_test"

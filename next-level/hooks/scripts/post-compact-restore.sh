@@ -10,7 +10,7 @@ INPUT=$(read_hook_input)
 SESSION_ID=$(json_field "$INPUT" "session_id")
 SESSION_ID="${SESSION_ID:-unknown}"
 
-STATE_DIR="${NEXT_LEVEL_STATE}/sessions/${SESSION_ID}"
+STATE_DIR=$(ensure_state_dir "$SESSION_ID")
 SNAPSHOT_FILE="$STATE_DIR/pre-compact-state.json"
 
 # Only run if we have a pre-compact snapshot for this session
@@ -18,19 +18,26 @@ if [[ ! -f "$SNAPSHOT_FILE" ]]; then
   exit 0
 fi
 
-# Read the snapshot
-snapshot=$(cat "$SNAPSHOT_FILE")
-context_pct=$(echo "$snapshot" | jq -r '.context_pct // "unknown"')
-recent_file=$(echo "$snapshot" | jq -r '.recent_file // ""')
-working_dir=$(echo "$snapshot" | jq -r '.working_directory // ""')
-
-# Build active specs summary
-specs_summary=$(echo "$snapshot" | jq -r '
-  .active_specs // [] |
-  if length == 0 then "No active specs"
-  else [.[] | "\(.name // "unnamed") — \(.status // "unknown")"] | join(", ")
-  end
-')
+# Read the snapshot — single jq call extracts all fields
+# Capture jq output first, then eval only on success (empty eval "" would skip defaults)
+if jq_out="$(jq -r '
+  "context_pct=" + (.context_pct // "unknown" | @sh),
+  "recent_file=" + (.recent_file // "" | @sh),
+  "working_dir=" + (.working_directory // "" | @sh),
+  "specs_summary=" + (
+    .active_specs // [] |
+    if length == 0 then "No active specs"
+    else [.[] | "\(.name // "unnamed") — \(.status // "unknown")"] | join(", ")
+    end | @sh
+  )
+' "$SNAPSHOT_FILE" 2>/dev/null)" && [[ -n "$jq_out" ]]; then
+  eval "$jq_out"
+else
+  context_pct="unknown"
+  recent_file=""
+  working_dir=""
+  specs_summary="No active specs"
+fi
 
 # Build restore message
 message="Context was compacted. Restoring session state."

@@ -12,22 +12,14 @@ import shutil
 import subprocess
 from typing import Any
 
+from . import check_file_length, find_project_root, run_comment_strip
+
 
 def check(filepath: str) -> dict[str, Any]:
     """Run Go checks on a file."""
     result: dict[str, Any] = {"findings": [], "formatted": False}
 
-    # File length check
-    try:
-        with open(filepath, encoding="utf-8") as f:
-            lines = f.readlines()
-        line_count = len(lines)
-        if line_count > 500:
-            result["length_warning"] = f"File is {line_count} lines (>500) — consider splitting"
-        elif line_count > 300:
-            result["length_warning"] = f"File is {line_count} lines (>300) — getting long"
-    except (OSError, UnicodeDecodeError):
-        pass
+    check_file_length(filepath, result)
 
     # Format with gofmt
     gofmt_path = shutil.which("gofmt")
@@ -43,15 +35,10 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     # Strip unnecessary comments
-    try:
-        from comment_stripper import strip_comments
-        strip_result = strip_comments(filepath, "go")
-        result["comments_stripped"] = strip_result.get("stripped", 0)
-    except (ImportError, Exception):
-        result["comments_stripped"] = 0
+    run_comment_strip(filepath, "go", result)
 
     # Find Go module root
-    module_root = _find_go_module_root(filepath)
+    module_root = find_project_root(filepath, "go.mod")
 
     # Lint with go vet
     go_path = shutil.which("go")
@@ -98,16 +85,6 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     return result
-
-
-def _find_go_module_root(filepath: str) -> str | None:
-    """Walk up from filepath to find go.mod."""
-    current = os.path.dirname(os.path.abspath(filepath))
-    while current != os.path.dirname(current):
-        if os.path.isfile(os.path.join(current, "go.mod")):
-            return current
-        current = os.path.dirname(current)
-    return None
 
 
 def _parse_go_vet_output(output: str, target_rel_path: str, result: dict[str, Any]) -> None:

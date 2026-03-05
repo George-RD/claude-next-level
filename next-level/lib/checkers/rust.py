@@ -7,27 +7,18 @@ Graceful degradation: if tools not installed, skip.
 
 import json
 import os
-import re
 import shutil
 import subprocess
 from typing import Any
+
+from . import check_file_length, find_project_root, run_comment_strip
 
 
 def check(filepath: str) -> dict[str, Any]:
     """Run Rust checks on a file."""
     result: dict[str, Any] = {"findings": [], "formatted": False}
 
-    # File length check
-    try:
-        with open(filepath, encoding="utf-8") as f:
-            lines = f.readlines()
-        line_count = len(lines)
-        if line_count > 500:
-            result["length_warning"] = f"File is {line_count} lines (>500) — consider splitting"
-        elif line_count > 300:
-            result["length_warning"] = f"File is {line_count} lines (>300) — getting long"
-    except (OSError, UnicodeDecodeError):
-        pass
+    check_file_length(filepath, result)
 
     # Format with rustfmt
     rustfmt_path = shutil.which("rustfmt")
@@ -43,16 +34,10 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     # Strip unnecessary comments
-    try:
-        from comment_stripper import strip_comments
-        strip_result = strip_comments(filepath, "rust")
-        result["comments_stripped"] = strip_result.get("stripped", 0)
-    except (ImportError, Exception):
-        result["comments_stripped"] = 0
+    run_comment_strip(filepath, "rust", result)
 
     # Lint with cargo clippy (project-level)
-    # Find project root by looking for Cargo.toml
-    project_root = _find_cargo_root(filepath)
+    project_root = find_project_root(filepath, "Cargo.toml")
     cargo_path = shutil.which("cargo")
     if project_root and cargo_path:
         try:
@@ -87,13 +72,3 @@ def check(filepath: str) -> dict[str, Any]:
             pass
 
     return result
-
-
-def _find_cargo_root(filepath: str) -> str | None:
-    """Walk up from filepath to find Cargo.toml."""
-    current = os.path.dirname(os.path.abspath(filepath))
-    while current != os.path.dirname(current):  # Stop at filesystem root
-        if os.path.isfile(os.path.join(current, "Cargo.toml")):
-            return current
-        current = os.path.dirname(current)
-    return None

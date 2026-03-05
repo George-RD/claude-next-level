@@ -22,22 +22,7 @@ if [[ -z "$TRANSCRIPT" || ! -f "$TRANSCRIPT" ]]; then
 fi
 
 # --- Scan transcript for edited impl files ---
-# Look for Edit/Write tool calls with file paths
-has_impl_edits=false
-
-# Extract file paths from Edit/Write tool uses in the transcript
-# Patterns: "file_path": "..." or file_path in tool_input
-while IFS= read -r filepath; do
-  [[ -z "$filepath" ]] && continue
-  if is_impl_file "$filepath"; then
-    has_impl_edits=true
-    break
-  fi
-done < <(grep -oE '"file_path"\s*:\s*"[^"]+"' "$TRANSCRIPT" 2>/dev/null \
-  | sed 's/"file_path"\s*:\s*"//;s/"$//' \
-  || true)
-
-if ! $has_impl_edits; then
+if ! transcript_has_impl_edits "$TRANSCRIPT"; then
   # Docs-only session or no edits detected — allow stop
   exit 0
 fi

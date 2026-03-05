@@ -16,29 +16,12 @@ TOOL_NAME=$(json_field "$INPUT" "tool_name")
 COMMAND=$(json_field "$INPUT" "tool_input.command")
 [[ -n "$COMMAND" ]] || exit 0
 
-# Check for destructive commands
-BLOCKED_PATTERNS=(
-  'rm -rf /'
-  'rm -rf ~'
-  'rm -rf \.'
-  'git reset --hard'
-  'git clean -fd'
-  'git checkout \.'
-  'git restore \.'
-)
+# Check for destructive commands and force-push (single grep)
+BLOCKED_PATTERN='rm -rf /|rm -rf ~|rm -rf \.|git reset --hard|git clean -fd|git checkout \.|git restore \.|git push.*(--force|-f)'
 
-for pattern in "${BLOCKED_PATTERNS[@]}"; do
-  if printf '%s' "$COMMAND" | grep -qE "$pattern"; then
-    echo "Blocked destructive command: ${COMMAND}" >&2
-    echo '{"decision":"block","reason":"Destructive command blocked by bash-guard. Use explicit flags or ask the user to confirm."}'
-    exit 2
-  fi
-done
-
-# Block any force-push (flags can appear anywhere in the command)
-if printf '%s' "$COMMAND" | grep -qE 'git push.*(--force|-f)'; then
-  echo "Blocked force-push" >&2
-  echo '{"decision":"block","reason":"Force-push is blocked by bash-guard. Use a normal push or ask the user to confirm."}'
+if printf '%s' "$COMMAND" | grep -qE "$BLOCKED_PATTERN"; then
+  echo "Blocked dangerous command: ${COMMAND}" >&2
+  echo '{"decision":"block","reason":"Dangerous command blocked by bash-guard. Use explicit flags or ask the user to confirm."}'
   exit 2
 fi
 

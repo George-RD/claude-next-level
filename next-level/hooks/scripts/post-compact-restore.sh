@@ -19,7 +19,7 @@ if [[ ! -f "$SNAPSHOT_FILE" ]]; then
 fi
 
 # Read the snapshot — single jq call extracts all fields
-eval "$(jq -r '
+if ! eval "$(jq -r '
   "context_pct=" + (.context_pct // "unknown" | @sh),
   "recent_file=" + (.recent_file // "" | @sh),
   "working_dir=" + (.working_directory // "" | @sh),
@@ -29,7 +29,12 @@ eval "$(jq -r '
     else [.[] | "\(.name // "unnamed") — \(.status // "unknown")"] | join(", ")
     end | @sh
   )
-' "$SNAPSHOT_FILE")"
+' "$SNAPSHOT_FILE" 2>/dev/null)"; then
+  context_pct="unknown"
+  recent_file=""
+  working_dir=""
+  specs_summary="No active specs"
+fi
 
 # Build restore message
 message="Context was compacted. Restoring session state."

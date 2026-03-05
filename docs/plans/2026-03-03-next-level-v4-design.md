@@ -64,12 +64,14 @@ The trust escalation logic from `checkpoint-reviewer` stays — it just lives in
 **`coding-agent.md`** — Stays as-is (it's a subagent template, not a reviewer).
 
 ### Files to delete
+
 - `agents/plan-challenger.md`
 - `agents/project-reviewer.md`
 - `agents/checkpoint-reviewer.md`
 - `agents/spec-reviewer.md`
 
 ### Files to create
+
 - `agents/plan-reviewer.md`
 - `agents/code-reviewer.md`
 
@@ -235,7 +237,7 @@ The spec workflow ends at VERIFIED. Getting from verified code to a merged PR is
 
 Add two states to the spec state machine:
 
-```
+```text
 PLANNING → APPROVED → IMPLEMENTING → COMPLETE → VERIFYING → VERIFIED
                                                               ↓
                                                          PR_REVIEW → MERGED
@@ -314,7 +316,7 @@ In bugfix mode:
 
 ### Problem
 
-Hooks fire and forget. There's no record of what was enforced, when, or the outcome. Pilot Shell's dashboard works because every hook writes structured events to a persistent store. We need the same foundation — not a dashboard yet, but the data layer.
+Hooks fire-and-forget. There's no record of what was enforced, when, or the outcome. Pilot Shell's dashboard works because every hook writes structured events to a persistent store. We need the same foundation — not a dashboard yet, but the data layer.
 
 ### Design
 

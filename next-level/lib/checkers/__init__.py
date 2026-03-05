@@ -53,7 +53,7 @@ def run_comment_strip(filepath: str, language: str, result: dict[str, Any]) -> N
         result["comments_stripped"] = strip_result.get("stripped", 0)
     except ImportError:
         result["comments_stripped"] = 0
-    except Exception as exc:
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
         result["comments_stripped"] = 0
         result["comment_strip_error"] = str(exc)
 

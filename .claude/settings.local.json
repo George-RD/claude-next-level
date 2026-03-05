@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
-      "Bash(do)",
       "Bash(echo:*)",
       "WebFetch(domain:blog.emilburzo.com)",
       "WebFetch(domain:www.agentic-engineer.com)",
@@ -12,7 +11,6 @@
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:docs.claude.com)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:www.vibesparking.com)",
       "Skill(pr-review-toolkit:review-pr)"
     ]
   },

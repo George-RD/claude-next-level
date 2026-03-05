@@ -424,7 +424,7 @@ This feeds into:
 | Spec states | 7 | 9 | +PR_REVIEW, +MERGED |
 | Spec modes | 1 (feature) | 2 (+bugfix) | Behavior contracts |
 | Event logging | none | JSONL append log | Foundation for observability |
-| External deps required | 0 | 0 | Still self-contained |
+| External deps required | 0 | 0 | Self-contained (linters recommended, `/doctor` reports missing as FAIL) |
 | External deps optional | 0 | 4 | Context7, pr-review-toolkit, CodeRabbit, AutoMem |
 
 ### Open issues addressed

@@ -19,7 +19,8 @@ if [[ ! -f "$SNAPSHOT_FILE" ]]; then
 fi
 
 # Read the snapshot — single jq call extracts all fields
-if ! eval "$(jq -r '
+# Capture jq output first, then eval only on success (empty eval "" would skip defaults)
+if jq_out="$(jq -r '
   "context_pct=" + (.context_pct // "unknown" | @sh),
   "recent_file=" + (.recent_file // "" | @sh),
   "working_dir=" + (.working_directory // "" | @sh),
@@ -29,7 +30,9 @@ if ! eval "$(jq -r '
     else [.[] | "\(.name // "unnamed") — \(.status // "unknown")"] | join(", ")
     end | @sh
   )
-' "$SNAPSHOT_FILE" 2>/dev/null)"; then
+' "$SNAPSHOT_FILE" 2>/dev/null)" && [[ -n "$jq_out" ]]; then
+  eval "$jq_out"
+else
   context_pct="unknown"
   recent_file=""
   working_dir=""

@@ -13,9 +13,8 @@ AGENT_TYPE=$(json_field "$INPUT" "agent_type")
 AGENT_ID=$(json_field "$INPUT" "agent_id")
 
 # Log subagent spawning for observability
-SESSIONS_DIR="${NEXT_LEVEL_STATE}/sessions"
-mkdir -p "$SESSIONS_DIR"
-AGENT_LOG="${SESSIONS_DIR}/subagent-log.jsonl"
+AGENT_LOG="${NEXT_LEVEL_STATE}/sessions/subagent-log.jsonl"
+mkdir -p "$(dirname "$AGENT_LOG")"
 
 # Append to log (keep last 100 entries) — use flock to prevent races
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")

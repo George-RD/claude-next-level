@@ -17,8 +17,6 @@ if [[ "$SESSION_ID" =~ [/\\] || "$SESSION_ID" == ".." || "$SESSION_ID" == "." ]]
 fi
 
 SESSIONS_DIR="${NEXT_LEVEL_STATE}/sessions"
-
-# Clean up session-specific temp files
 SESSION_DIR="${SESSIONS_DIR}/${SESSION_ID}"
 if [[ -d "$SESSION_DIR" ]]; then
   # Remove transient tracking files (edit counts, transcript offsets)

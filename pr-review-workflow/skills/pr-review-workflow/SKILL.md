@@ -1,279 +1,186 @@
 ---
 name: pr-review-workflow
-description: Use when you need to open and shepherd multiple PRs through review — spawns parallel agents per branch, runs local lint + cloud review, monitors comments, iterates until all PRs are clean and mergeable.
+description: Domain knowledge for multi-PR review orchestration — monitoring patterns, fix dispatch, worktree management, cross-PR intelligence, and CodeRabbit specifics. Referenced by /pr-cycle for batch PR operations.
 ---
 
-# PR Review Sprint
+# PR Review Workflow — Domain Knowledge
 
-Orchestrate team-based PR reviews with parallel agents. Each agent owns a branch, opens a PR, runs lint, resolves review comments, and pushes until clean.
+Reference knowledge for orchestrating PR review cycles. The procedural workflow lives in `/pr-cycle`; this skill provides the patterns and expertise that workflow depends on.
 
-## When to Use
+## When This Activates
 
-- You have 2+ feature branches ready for PR
-- Each branch needs: local lint, PR creation, cloud review, comment resolution
-- You want parallel execution with a central monitoring loop
-
-## Prerequisites
-
-- Branches exist (locally or on remote)
-- `gh` CLI authenticated
-- `cr` CLI installed (CodeRabbit) for local lint — or substitute your linter
-- Git worktrees set up if agents edit concurrently (see worktree setup below)
+- `/pr-cycle` is running in multi-PR mode and needs domain knowledge
+- You're designing or debugging a batch PR review process
+- You need to understand CodeRabbit behavior, worktree management, or cross-PR patterns
 
 ---
 
-## Phase 1: Setup
+## Monitoring Patterns
 
-### 1A. Inventory Branches
+### Polling Strategy
 
-List all branches that need PRs:
+CodeRabbit and GitHub Actions have predictable timing:
 
-```text
-BRANCH INVENTORY
-────────────────
-Branch: feature/foo       → PR Title: "Add foo feature"     → Closes: #12
-Branch: feature/bar       → PR Title: "Fix bar handling"    → Closes: #15, #16
-Branch: fix/baz           → PR Title: "Fix baz regression"  → Closes: #20
-```
+| Event | Typical Delay | What to Check |
+|-------|--------------|---------------|
+| Push → CI start | 10-30 sec | `gh pr checks <N>` |
+| Push → CI complete | 1-5 min | `gh pr checks <N>` (look for all green/red) |
+| Push → CodeRabbit review | 1-3 min | `gh api repos/{o}/{r}/pulls/{n}/comments` |
+| Fix push → CodeRabbit re-review | 1-2 min | Same, filter by `created_at > last_check` |
 
-### 1B. Create Worktrees (if parallel editing needed)
+**Optimal cadence**: First poll at 2-3 min. Then every 3-5 min. CodeRabbit converges after ~3 rounds — if you're past round 3 and still getting new comments, check for a recurring pattern rather than fixing one-off.
 
-Each agent needs its own working directory to avoid git conflicts:
+### What to Poll
 
 ```bash
-# From the main repo
-git worktree add ../repo-worktree-foo feature/foo
-git worktree add ../repo-worktree-bar feature/bar
-```
-
-### 1C. Create Team
-
-Use `TeamCreate` to set up the team, then create tasks per branch with `TaskCreate`.
-
-### 1D. Spawn PR Agents
-
-Spawn one `general-purpose` agent per branch using the Task tool with `team_name`. Use the **pr-agent-prompt** template (`templates/pr-agent-prompt.md`) — fill in placeholders for each branch.
-
-Spawn all agents in **parallel** in a single message with multiple Task tool calls.
-
-### 1E. Optional: Spawn Plugin Builder
-
-If you also need a plugin or documentation agent, spawn it in the same parallel batch.
-
----
-
-## Phase 2: Local Review + PR Creation
-
-Each PR agent executes this sequence independently (defined in the agent prompt template):
-
-1. **Checkout** — Ensure branch is up to date with remote
-2. **Local lint** — Run `cr review` (or equivalent) on the branch diff
-3. **Fix findings** — Address lint issues, commit fixes
-4. **Push** — Push branch to remote
-5. **Open PR** — Use `gh pr create` with proper title, body, and `Closes #issue` references
-6. **Report** — Send message to team lead with PR URL and lint summary
-
-### Key Commands
-
-```bash
-# Local CodeRabbit review
-cr review
-
-# Push with upstream tracking
-git push -u origin {{BRANCH}}
-
-# Open PR
-gh pr create --title "{{PR_TITLE}}" --body "$(cat <<'EOF'
-## Summary
-- {{BULLET_POINTS}}
-
-## Test plan
-- [ ] {{TEST_ITEMS}}
-
-Closes {{CLOSES_ISSUES}}
-
-Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
----
-
-## Phase 3: Comment Monitoring Loop
-
-The team lead runs a monitoring loop after all PRs are open. Use the **lead-monitoring-loop** template (`templates/lead-monitoring-loop.md`) for the full pattern.
-
-### 3A. Poll PR Status
-
-For each open PR, periodically check:
-
-```bash
-# CI/check status
+# CI status (pass/fail/pending)
 gh pr checks {{PR_NUMBER}}
 
-# Review comments (pending reviews)
-gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/reviews
+# Inline review comments (CodeRabbit, humans)
+gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments \
+  --jq '.[] | {id, path, line, body, user: .user.login, created_at}'
 
-# Inline comments
-gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments
+# Review summaries (approve/request-changes/comment)
+gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/reviews \
+  --jq '.[] | {id, state, body, user: .user.login}'
 
-# General PR comments
-gh api repos/{{OWNER}}/{{REPO}}/issues/{{PR_NUMBER}}/comments
-```
-
-### 3B. Dashboard Tracking
-
-Maintain a mental or written dashboard:
-
-```text
-PR DASHBOARD
-────────────────────────────────────────────────
-PR   Branch              Status    CI    Comments
-#42  feature/foo         Open      Pass  3 pending
-#43  feature/bar         Open      Fail  0 pending
-#44  fix/baz             Open      Pass  1 resolved
-────────────────────────────────────────────────
-```
-
-### 3C. Route Comments to Agents
-
-When new comments appear:
-1. Read the comment content
-2. Identify which PR agent owns that branch
-3. Send a message to the agent with the comment text and file/line reference
-4. Track that the comment is being addressed
-
-### 3D. Cross-PR Overlap Detection
-
-Watch for comments that affect multiple PRs:
-- Architecture feedback that applies broadly
-- Style/convention comments that should be consistent
-- Merge conflict warnings between branches
-
-If overlap detected, **broadcast** to all affected agents with the shared feedback.
-
-### 3E. Polling Cadence
-
-- **First check**: 2-3 minutes after PRs open (CI usually takes 1-5 min)
-- **Subsequent checks**: Every 3-5 minutes while comments are pending
-- **Wind down**: Once all PRs show 0 pending comments, do a final check after 5 min
-
----
-
-## Phase 4: Comment Resolution
-
-When a PR agent receives routed comments, it executes:
-
-### 4A. Evaluate Comments
-
-For each comment, decide:
-- **Fix**: Agree and implement the change
-- **Discuss**: Disagree but explain reasoning
-- **Won't fix**: Explain why (style preference, out of scope, etc.)
-
-### 4B. Fix and Push
-
-```bash
-# Make changes
-# Stage and commit
-git add {{FILES}}
-git commit -m "$(cat <<'EOF'
-Address review feedback: {{SUMMARY}}
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-EOF
-)"
-
-# Push
-git push
-```
-
-### 4C. Reply to Comments
-
-```bash
-# Reply to a review comment
-gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments/{{COMMENT_ID}}/replies \
-  -f body="{{REPLY_TEXT}}"
-
-# Reply to a general PR comment (creates a new comment)
+# General PR comments (issue-level)
 gh api repos/{{OWNER}}/{{REPO}}/issues/{{PR_NUMBER}}/comments \
-  -f body="{{REPLY_TEXT}}"
-
-# Update an existing comment (e.g., your own previous comment)
-# gh api repos/{{OWNER}}/{{REPO}}/issues/comments/{{COMMENT_ID}} \
-#   -X PATCH -f body="{{UPDATED_BODY}}"
+  --jq '.[] | {id, body, user: .user.login, created_at}'
 ```
 
-### 4D. Report Back
+### Detecting "Clean" State
 
-Agent sends message to team lead confirming:
-- Which comments were addressed
-- What changes were made
-- Any comments that need team lead input
+A PR is clean when ALL of:
+- `gh pr checks` shows all green
+- Zero unresolved inline comments
+- No "CHANGES_REQUESTED" reviews outstanding
+- No merge conflicts with base branch
 
 ---
 
-## Phase 5: Finalization
+## Fix Dispatch Patterns
 
-### 5A. All-Clear Check
+### Dispatch-and-Poll (Not Team/SendMessage)
 
-All PRs must meet:
-- [ ] CI passing (`gh pr checks` all green)
-- [ ] No unresolved review comments
-- [ ] No pending reviews
-- [ ] No merge conflicts
+The monitoring loop dispatches finite background agents. Each agent:
+1. Receives specific comments to fix
+2. Fixes them, commits, pushes
+3. Reports results and exits
 
-### 5B. Merge Order
+The agent does NOT wait for re-review. The monitoring loop handles the re-poll.
 
-If PRs have dependencies, recommend merge order:
+### Agent Prompt Template
 
-```text
-MERGE ORDER
-───────────
-1. #44 fix/baz          (no dependencies, smallest diff)
-2. #42 feature/foo      (depends on #44 for clean merge)
-3. #43 feature/bar      (independent, largest diff — merge last)
-```
+Located at: `templates/pr-agent-prompt.md`
 
-Consider:
-- **Dependency chains**: If branch B was based on branch A, merge A first
-- **Conflict risk**: Merge smallest/simplest first to reduce conflict surface
-- **CI re-run**: After each merge, remaining PRs may need CI re-run
+Required placeholders:
+- `{{WORKTREE_PATH}}`: Working directory (worktree path or repo root)
+- `{{BRANCH}}`: Head branch name
+- `{{PR_NUMBER}}`: GitHub PR number
+- `{{OWNER}}` / `{{REPO}}`: Repository coordinates
+- `{{COMMENT_LIST}}`: Formatted comment list for the agent to address
 
-### 5C. Shutdown
+### Preventing Silent Stops
 
-1. Send shutdown requests to all PR agents
-2. Clean up worktrees: `git worktree remove ../repo-worktree-foo`
-3. Delete the team: `TeamDelete`
+Agents sometimes complete edits but stop before committing. The agent prompt template includes a MUST-complete section to prevent this. If an agent still stops early:
+1. Check its output for error messages
+2. Resume the agent with explicit "commit and push" instructions
+3. If it fails twice, take over manually
+
+### Serial vs Parallel Dispatch
+
+| Scenario | Strategy |
+|----------|----------|
+| Worktrees available | Dispatch all fix agents in parallel |
+| No worktrees, different repos | Parallel is fine |
+| No worktrees, same repo | Serialize — one agent at a time |
+| Agent already running for a PR | Wait for it to complete |
 
 ---
 
-## Quick Reference: Key Commands
+## Worktree Management
 
-| Action | Command |
-|--------|---------|
-| Local lint | `cr review` |
-| Push branch | `git push -u origin {{BRANCH}}` |
-| Open PR | `gh pr create --title "..." --body "..."` |
-| Check CI | `gh pr checks {{PR_NUMBER}}` |
-| List reviews | `gh api repos/OWNER/REPO/pulls/PR/reviews` |
-| List comments | `gh api repos/OWNER/REPO/pulls/PR/comments` |
-| Reply to comment | `gh api repos/OWNER/REPO/pulls/PR/comments/ID/replies -f body="..."` |
-| Merge PR | `gh pr merge {{PR_NUMBER}} --squash --delete-branch` |
-| Remove worktree | `git worktree remove {{PATH}}` |
+### Setup
 
-## Worktree Tips
+```bash
+# Create worktree for a branch
+git worktree add ../repo-worktree-<branch-suffix> <branch-name>
 
-- Pre-push hooks may fail in worktrees (no simulator access, etc.) — use `SKIP_PREPUSH=1` after manual build verification
-- Each worktree has its own working directory but shares the git object store
-- Clean up worktrees after merging to avoid stale references
+# List all worktrees
+git worktree list
+```
+
+### Gotchas
+
+- Worktrees share the git object store but have independent working trees
+- Pre-push hooks may fail in worktrees (e.g., no simulator access for iOS) — use `SKIP_PREPUSH=1` after manual build verification
+- After merging, clean up immediately: `git worktree remove <path>`
+- Stale worktrees cause confusion — run `git worktree prune` periodically
+
+### Worktree Path Convention
+
+When dispatching agents, always provide the **absolute worktree path** so the agent can `cd` directly. Check `git worktree list` to find it.
+
+---
+
+## Cross-PR Intelligence
+
+### Overlap Detection
+
+Watch for these patterns when reviewing comments across multiple PRs:
+
+| Pattern | Signal | Action |
+|---------|--------|--------|
+| Same style comment on 2+ PRs | Convention issue | Apply fix to ALL affected PRs |
+| Architecture feedback | Structural concern | Evaluate cross-PR impact before fixing |
+| Merge conflict warning | Overlapping changes | Merge simpler PR first, rebase others |
+| Shared dependency change | Coordination needed | Fix in one PR, verify in others |
+
+### Merge Ordering
+
+1. **Dependencies first**: If PR B branched from PR A → merge A first
+2. **Smallest diff**: Less change = less conflict surface
+3. **After each merge**: Remaining PRs may need CI re-run (base changed)
+4. **Conflict resolution**: If two PRs touch the same files, merge the simpler one, then rebase the other on the updated main
+
+---
+
+## CodeRabbit Specifics
+
+### Behavior
+
+- Posts an initial summary comment + inline comments within 1-3 min of push
+- Re-reviews on each push, but only comments on new/changed code
+- Converges after 2-3 rounds typically — diminishing new comments
+- Sometimes re-raises resolved comments if the fix changes nearby code
+
+### Configuration
+
+- `.coderabbit.yaml` in repo root controls behavior
+- If CodeRabbit doesn't review: check the file exists, try closing/reopening the PR
+- CodeRabbit respects `@coderabbitai resolve` to mark threads as resolved
+
+### Comment Types
+
+| CodeRabbit Comment | How to Handle |
+|-------------------|---------------|
+| Bug/logic error | Fix immediately — these are high-signal |
+| Security issue | Fix immediately |
+| Style/nitpick | Fix it — clean PRs merge faster |
+| Performance suggestion | Fix if small; issue if large refactor |
+| False positive | Reply explaining why it's incorrect |
+
+---
 
 ## Error Recovery
 
-| Problem | Action |
-|---------|--------|
-| Agent stuck on lint | Check if lint finding is false positive; send agent guidance to skip with justification |
-| CI failing on unrelated test | Re-run CI: `gh run rerun --failed` or push empty commit |
-| Merge conflict | Rebase agent's branch: send agent instructions to `git rebase main` |
-| CodeRabbit not reviewing | Check `.coderabbit.yaml` exists; may need to close/reopen PR |
-| Agent idle too long | Send a message to poke the agent; if 2+ stops, analyze feedback patterns |
+| Problem | Root Cause | Resolution |
+|---------|-----------|------------|
+| Agent edits but doesn't commit | Agent hit context limit or stopped early | Resume agent or take over manually |
+| CI fails on unrelated test | Flaky test or upstream break | `gh run rerun --failed` or push empty commit |
+| Merge conflict post-fix | Base branch moved | `git rebase main` in the PR branch |
+| CodeRabbit not posting | Missing config or rate limit | Check `.coderabbit.yaml`; close/reopen PR |
+| Reviewer requests large refactor | Scope creep | Create follow-up issue; keep PR focused |
+| Agent infinite loop | Keeps re-fixing same thing | Stop after 3 identical fixes; escalate to user |
+| Worktree in bad state | Uncommitted changes or detached HEAD | `git worktree remove --force` + recreate |

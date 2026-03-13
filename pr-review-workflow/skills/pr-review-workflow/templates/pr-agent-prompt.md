@@ -1,118 +1,177 @@
-# PR Agent Prompt Template
+# PR Fix Agent — Task Prompt
 
-Fill in `{{PLACEHOLDERS}}` and pass as the `prompt` parameter when spawning a PR agent via the Task tool.
+Fill in `{{PLACEHOLDERS}}` and pass as the `prompt` parameter when dispatching a fix agent via the Agent tool. This is a **finite task** — the agent fixes, commits, pushes, reports, and exits.
 
 ---
 
-You are a PR agent. Your job is to open a clean PR for your assigned branch, resolve all review feedback, and push until the PR is mergeable.
+You are a PR fix agent. You receive specific review comments, fix them, commit, push, and exit. You do NOT wait for re-review — the monitoring loop handles that.
 
 ## Your Assignment
 
+- **Working directory**: `{{WORKTREE_PATH}}`
 - **Branch**: `{{BRANCH}}`
-- **Working directory**: `{{WORKTREE}}`
-- **PR title**: `{{PR_TITLE}}`
-- **Closes issues**: {{CLOSES_ISSUES}}
-- **Base branch**: `{{BASE_BRANCH}}` (usually `main`)
+- **PR number**: #{{PR_NUMBER}}
 - **Repo**: `{{OWNER}}/{{REPO}}`
 
-## Your 6-Step Workflow
+## Comments to Address
 
-### Step 1: Verify Branch State
+{{COMMENT_LIST}}
+
+## MUST-Complete Checklist
+
+**You MUST complete ALL of these before exiting. Do NOT stop after making edits.**
+
+- [ ] Fix every comment listed above
+- [ ] Build succeeds after fixes
+- [ ] Each fix is its own commit with a descriptive message
+- [ ] All changes are pushed to the remote
+- [ ] Every comment has a reply on the PR
+- [ ] Output a FIX REPORT (format below)
+
+If you encounter an error at any step, report it in the FIX REPORT — do NOT silently stop.
+
+---
+
+## Preferences (Non-Negotiable)
+
+1. **Fix ALL comments including nits** — clean PRs merge faster
+2. **Fix out-of-diff suggestions** if small and correct; note large ones in the FIX REPORT as needing a follow-up issue
+3. **Individual commits per fix** — one commit per comment or logical group of related comments
+4. **Stage specific files only** — never `git add -A` or `git add .`
+5. **Build after every fix** — never push broken code
+6. **Reply to every comment** — reviewers need to know their feedback was seen
+7. **Never force-push** unless explicitly told to
+8. **Never skip pre-commit hooks** — fix lint issues properly
+9. **Include Co-Authored-By** in commit messages
+
+---
+
+## Workflow
+
+### Step 1: Set Up
 
 ```bash
-cd {{WORKTREE}}
+cd {{WORKTREE_PATH}}
 git checkout {{BRANCH}}
 git pull origin {{BRANCH}}
-git log --oneline -5
 ```
 
-Confirm you're on the right branch with the expected commits.
+Confirm you're on the right branch with expected commits.
 
-### Step 2: Run Local Lint
+### Step 2: Fix Each Comment
+
+For each comment in the COMMENT_LIST:
+
+**a. Read and classify:**
+- **Actionable fix** (bug, missing check, wrong pattern) → Fix it
+- **Nitpick** (style, naming, wording) → Fix it anyway
+- **Out-of-diff suggestion** (small and correct) → Fix it
+- **Out-of-diff suggestion** (large scope) → Note for follow-up issue, don't fix
+- **Question/clarification** → Prepare a reply, no code change
+- **Incorrect suggestion** → Prepare a rebuttal with evidence
+
+**b. Make the fix** (if applicable)
+
+**c. Verify:**
+- Run `lsp_diagnostics` on changed files
+- Build the project (use build command from AGENTS.md or package.json)
+
+**d. Commit:**
 
 ```bash
-cr review
-```
-
-Read the output carefully. Fix any findings that are:
-- Actual bugs or logic errors
-- Security issues
-- Style violations that match project conventions
-
-For each fix:
-1. Make the change
-2. Stage the specific files: `git add <file1> <file2>`
-3. Commit with a descriptive message:
-
-```bash
+git add <specific-files-only>
 git commit -m "$(cat <<'EOF'
-Address lint findings: <brief summary>
+Address review: <brief description of fix>
 
-Co-Authored-By: {{MODEL_NAME}} <noreply@anthropic.com>
+Responds to comment #<COMMENT_ID> by <reviewer>.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 EOF
 )"
 ```
 
-If a lint finding is a false positive or style preference you disagree with, note it for the team lead but don't change the code.
+### Step 3: Push All Fixes
 
-### Step 3: Push to Remote
+After ALL comments are addressed:
 
 ```bash
-git push -u origin {{BRANCH}}
+git push
 ```
 
-### Step 4: Open the PR
+If push fails (e.g., remote has new commits), pull and retry:
 
 ```bash
-gh pr create --title "{{PR_TITLE}}" --body "$(cat <<'EOF'
-## Summary
-{{SUMMARY_BULLETS}}
-
-## Test plan
-{{TEST_PLAN_ITEMS}}
-
-Closes {{CLOSES_ISSUES}}
-
-Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
+git pull --rebase origin {{BRANCH}}
+git push
 ```
 
-### Step 5: Report to Team Lead
+### Step 4: Reply to Comments
 
-Send a message to the team lead with:
-- PR URL (from `gh pr create` output)
-- Number of lint findings fixed
-- Any lint findings skipped (with reasoning)
-- Any concerns about the branch
-
-### Step 6: Wait for Review Feedback
-
-After reporting, wait for the team lead to route review comments to you. When you receive comments:
-
-1. **Read each comment carefully** — understand what the reviewer is asking
-2. **Evaluate**: Fix / Discuss / Won't-fix
-3. **For fixes**: Make the change, commit, push
-4. **Reply to comments** via `gh api`:
+For each comment that was fixed:
 
 ```bash
-# Reply to an inline review comment
 gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments/{{COMMENT_ID}}/replies \
-  -f body="Fixed in <commit-sha>. <brief explanation>"
-
-# For discussion/won't-fix
-gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments/{{COMMENT_ID}}/replies \
-  -f body="<your reasoning>"
+  -f body="Fixed in <commit-sha>."
 ```
 
-5. **Report back** to team lead with what you addressed
+For questions or disagreements:
+
+```bash
+gh api repos/{{OWNER}}/{{REPO}}/pulls/{{PR_NUMBER}}/comments/{{COMMENT_ID}}/replies \
+  -f body="<your explanation with evidence>"
+```
+
+For general PR comments (issue-level, not inline):
+
+```bash
+gh api repos/{{OWNER}}/{{REPO}}/issues/{{PR_NUMBER}}/comments \
+  -f body="<response>"
+```
+
+### Step 5: Output FIX REPORT and Exit
+
+End your work with this exact format so the monitoring loop can parse it:
+
+```
+=== FIX REPORT ===
+PR: #{{PR_NUMBER}}
+Branch: {{BRANCH}}
+Status: COMPLETE | PARTIAL | BLOCKED
+
+Comments Fixed:
+- #<comment_id>: <one-line summary> → commit <sha>
+- #<comment_id>: <one-line summary> → commit <sha>
+
+Comments Replied (no code change):
+- #<comment_id>: <reason — question answered / disagreed with evidence>
+
+Comments Deferred:
+- #<comment_id>: <reason — needs follow-up issue / large scope>
+
+Commits:
+- <sha> <message>
+- <sha> <message>
+
+Issues to Create:
+- <description of follow-up work> (from comment #<id>)
+
+Errors:
+- <any errors encountered, or "none">
+=== END REPORT ===
+```
+
+**Status meanings:**
+- `COMPLETE`: All comments addressed, pushed, replied
+- `PARTIAL`: Some comments fixed, others deferred or need follow-up
+- `BLOCKED`: Could not complete — merge conflict, build failure, or other blocker
+
+---
 
 ## Rules
 
-- **Never force-push** unless explicitly told to by the team lead
-- **Never skip pre-commit hooks** without team lead approval (use `SKIP_AI_REVIEW=1` only if told to)
-- **Commit per logical fix**, not one giant commit for all review feedback
-- **Always include Co-Authored-By** in commit messages
-- **Stage specific files**, never `git add -A` or `git add .`
-- If you encounter a merge conflict, **stop and ask the team lead** for guidance
-- If CI fails on something unrelated to your changes, **report it** rather than trying to fix unrelated code
+- **This is a finite task.** Fix → commit → push → reply → report → exit.
+- **Do NOT wait** for re-review or new comments. Exit after pushing.
+- **Do NOT ask the monitoring loop** for guidance unless truly blocked (merge conflict, ambiguous comment intent). If blocked, set status to BLOCKED in the report and explain why.
+- **Never `git add -A`** — stage specific files only.
+- **Never skip hooks** — if pre-commit fails, fix the issue.
+- **If build fails after a fix**, investigate and fix the build. Do not push broken code.

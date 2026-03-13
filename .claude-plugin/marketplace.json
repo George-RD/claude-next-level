@@ -31,11 +31,11 @@
       "category": "business"
     },
     {
-      "name": "pr-review-workflow",
-      "description": "Unified PR review system: domain knowledge for multi-PR orchestration with dispatch-and-poll fix agents, worktree management, and CodeRabbit patterns. Powers /pr-cycle.",
+      "name": "cycle",
+      "description": "Unified PR review system: /cycle:pr shepherds one or many PRs through review with dispatch-and-poll fix agents, worktree management, and CodeRabbit patterns.",
       "version": "2.0.0",
       "author": { "name": "George-RD" },
-      "source": "./pr-review-workflow",
+      "source": "./cycle",
       "category": "development"
     }
   ]

@@ -1,15 +1,15 @@
 ---
-name: pr-review-workflow
-description: Domain knowledge for multi-PR review orchestration — monitoring patterns, fix dispatch, worktree management, cross-PR intelligence, and CodeRabbit specifics. Referenced by /pr-cycle for batch PR operations.
+name: cycle
+description: Domain knowledge for multi-PR review orchestration — monitoring patterns, fix dispatch, worktree management, cross-PR intelligence, and CodeRabbit specifics. Referenced by /cycle:pr for batch PR operations.
 ---
 
-# PR Review Workflow — Domain Knowledge
+# PR Cycle — Domain Knowledge
 
-Reference knowledge for orchestrating PR review cycles. The procedural workflow lives in `/pr-cycle`; this skill provides the patterns and expertise that workflow depends on.
+Reference knowledge for orchestrating PR review cycles. The procedural workflow lives in `/cycle:pr`; this skill provides the patterns and expertise that workflow depends on.
 
 ## When This Activates
 
-- `/pr-cycle` is running in multi-PR mode and needs domain knowledge
+- `/cycle:pr` is running in multi-PR mode and needs domain knowledge
 - You're designing or debugging a batch PR review process
 - You need to understand CodeRabbit behavior, worktree management, or cross-PR patterns
 

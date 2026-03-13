@@ -1,0 +1,9 @@
+{
+  "name": "cycle",
+  "description": "Unified PR review system: /cycle:pr shepherds one or many PRs through review with dispatch-and-poll fix agents, worktree management, and CodeRabbit patterns.",
+  "version": "2.0.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["pr", "review", "cycle", "code-review", "github", "worktree"]
+}

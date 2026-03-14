@@ -37,6 +37,14 @@
       "author": { "name": "George-RD" },
       "source": "./cycle",
       "category": "development"
+    },
+    {
+      "name": "jj-commands",
+      "description": "Jujutsu (jj) version control workflows — replaces git commit/push/PR commands in JJ repos. Detects .jj/ directory and handles describe, push, bookmark, PR creation, conflict resolution, and undo.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./jj-commands",
+      "category": "development"
     }
   ]
 }

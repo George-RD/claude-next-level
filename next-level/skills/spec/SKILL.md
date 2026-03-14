@@ -20,14 +20,14 @@ Orchestrate structured development through three phases: **plan**, **implement**
 
 | Status | Action |
 |--------|--------|
-| No spec | Create new spec → /next-level:spec-plan |
-| PLANNING | Continue /next-level:spec-plan |
-| APPROVED | Run /next-level:spec-implement |
-| IMPLEMENTING | Continue /next-level:spec-implement |
-| COMPLETE | Run /next-level:spec-verify |
-| VERIFYING | Continue /next-level:spec-verify |
+| No spec | Create new spec → Read `references/spec-plan.md` and follow it |
+| PLANNING | Continue → Read `references/spec-plan.md` and follow it |
+| APPROVED | Run → Read `references/spec-implement.md` and follow it |
+| IMPLEMENTING | Continue → Read `references/spec-implement.md` and follow it |
+| COMPLETE | Run → Read `references/spec-verify.md` and follow it |
+| VERIFYING | Continue → Read `references/spec-verify.md` and follow it |
 | VERIFIED | Done — report success |
-| FAILED | Back to /next-level:spec-implement with feedback |
+| FAILED | Back to → Read `references/spec-implement.md` and follow it with feedback |
 
 ## Starting a New Spec
 
@@ -43,7 +43,7 @@ Orchestrate structured development through three phases: **plan**, **implement**
   "feedback": []
 }
 ```
-3. Invoke /next-level:spec-plan with the description
+3. Read `references/spec-plan.md` and follow the process with the description
 
 ## Resuming an Existing Spec
 

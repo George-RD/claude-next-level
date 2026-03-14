@@ -1,0 +1,9 @@
+{
+  "name": "ralph-wiggum",
+  "description": "Spec-driven autonomous development loops implementing Geoffrey Huntley's Ralph methodology. Three phases: define JTBD requirements, plan implementation, build in loops. Parallel subagents, IMPLEMENTATION_PLAN.md as shared state, specs/* as source of truth.",
+  "version": "1.0.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["ralph", "loop", "autonomous", "spec-driven", "jtbd", "subagents", "implementation-plan"]
+}

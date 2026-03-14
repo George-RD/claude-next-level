@@ -18,16 +18,15 @@ Orchestrate structured development through three phases: **plan**, **implement**
 1. Check for existing spec state in `~/.next-level/specs/`
 2. Route to the correct phase based on status:
 
-| Status | Action |
-|--------|--------|
-| No spec | Create new spec → /next-level:spec-plan |
-| PLANNING | Continue /next-level:spec-plan |
-| APPROVED | Run /next-level:spec-implement |
-| IMPLEMENTING | Continue /next-level:spec-implement |
-| COMPLETE | Run /next-level:spec-verify |
-| VERIFYING | Continue /next-level:spec-verify |
-| VERIFIED | Done — report success |
-| FAILED | Back to /next-level:spec-implement with feedback |
+For each status, Read the corresponding reference file and follow its process.
+
+| Status | Phase | Reference |
+|--------|-------|-----------|
+| No spec / PLANNING | Plan | `references/spec-plan.md` |
+| APPROVED / IMPLEMENTING | Implement | `references/spec-implement.md` |
+| COMPLETE / VERIFYING | Verify | `references/spec-verify.md` |
+| VERIFIED | Done | — (report success) |
+| FAILED | Implement | `references/spec-implement.md` (with feedback) |
 
 ## Starting a New Spec
 
@@ -43,7 +42,7 @@ Orchestrate structured development through three phases: **plan**, **implement**
   "feedback": []
 }
 ```
-3. Invoke /next-level:spec-plan with the description
+3. Read `references/spec-plan.md` and follow the process with the description
 
 ## Resuming an Existing Spec
 

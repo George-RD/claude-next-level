@@ -1,7 +1,6 @@
 ---
 name: spec-implement
 description: Implementation phase of spec workflow. Executes the approved plan using strict TDD — red, green, refactor.
-user-invocable: true
 model: sonnet
 ---
 

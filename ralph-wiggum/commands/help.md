@@ -8,9 +8,7 @@ Explain the following to the user:
 
 ## What is Ralph Wiggum?
 
-Ralph Wiggum implements Geoffrey Huntley's spec-driven autonomous development methodology. It's a structured approach to building software through iterative AI loops, where each iteration gets a fresh context window but sees its previous work through files on disk.
-
-The core insight: a dumb bash loop that keeps restarting Claude, combined with a shared plan file on disk, creates a surprisingly effective autonomous development system.
+Ralph Wiggum implements Geoffrey Huntley's spec-driven autonomous development methodology. A bash loop feeds the same prompt to Claude repeatedly -- each iteration gets a fresh context window but sees its previous work through files on disk.
 
 ```bash
 while :; do cat PROMPT.md | claude -p; done
@@ -18,41 +16,19 @@ while :; do cat PROMPT.md | claude -p; done
 
 ## Three Phases
 
-### Phase 1: Define Requirements (`/ralph-wiggum:spec`)
+| Phase | Command | What happens |
+|-------|---------|-------------|
+| 1. Define | `/ralph-wiggum:spec` | Interactive JTBD analysis, write `specs/*.md` |
+| 2. Plan | `/ralph-wiggum:plan` | Gap analysis between specs and code, create `IMPLEMENTATION_PLAN.md` |
+| 3. Build | `/ralph-wiggum:build` | Implement one task per iteration: investigate, build, test, commit |
 
-Interactive conversation to identify Jobs to Be Done (JTBD) and write specs:
-- Discuss project ideas with the user
-- Break JTBDs into topics of concern (use "one sentence without and" test)
-- Write `specs/FILENAME.md` for each topic
-- Include acceptance criteria (what success looks like, not how to build it)
-
-### Phase 2: Plan (`/ralph-wiggum:plan`)
-
-Run the planning loop - gap analysis between specs and existing code:
-- Subagents study `specs/*` and `src/*` in parallel
-- Compare specs against code to find what's missing
-- Create/update `IMPLEMENTATION_PLAN.md` with prioritized tasks
-- **Plan only - no implementation**
-- Usually completes in 1-2 iterations
-
-### Phase 3: Build (`/ralph-wiggum:build`)
-
-Run the build loop - implement one task per iteration:
-1. Orient (study specs)
-2. Read plan (pick most important task)
-3. Investigate (search codebase - "don't assume not implemented")
-4. Implement (parallel subagents)
-5. Validate (run tests - 1 subagent only, for backpressure)
-6. Update plan and AGENTS.md
-7. Commit and push
-
-## Available Commands
+## All Commands
 
 | Command | Description |
 |---------|-------------|
 | `/ralph-wiggum:init` | Set up project structure (specs/, AGENTS.md, prompts, loop.sh) |
 | `/ralph-wiggum:spec` | Phase 1: Define JTBD requirements and write specs |
-| `/ralph-wiggum:plan` | Phase 2: Planning loop (gap analysis → implementation plan) |
+| `/ralph-wiggum:plan` | Phase 2: Planning loop (gap analysis, create implementation plan) |
 | `/ralph-wiggum:build` | Phase 3: Build loop (implement, test, commit) |
 | `/ralph-wiggum:status` | Show current Ralph project state |
 | `/ralph-wiggum:cancel` | Cancel an active loop |
@@ -77,25 +53,19 @@ Run the build loop - implement one task per iteration:
 |------|---------|
 | `specs/*.md` | Source of truth for requirements (one per topic) |
 | `AGENTS.md` | Operational guide: build/test/lint commands (~60 lines) |
-| `IMPLEMENTATION_PLAN.md` | Prioritized task list (generated/updated by Ralph) |
+| `IMPLEMENTATION_PLAN.md` | Prioritized task list (shared state between iterations) |
 | `PROMPT_plan.md` | Planning mode instructions |
 | `PROMPT_build.md` | Build mode instructions |
 | `loop.sh` | External autonomous loop runner |
 
-## Key Principles
-
-1. **Context is everything** - Use the main agent as scheduler, subagents as memory extension
-2. **Steer with backpressure** - Tests, types, lints create gates that reject bad work
-3. **Let Ralph Ralph** - Trust the self-correction loop, don't over-prescribe
-4. **Move outside the loop** - Observe, tune prompts, add signs - don't sit in the loop
-5. **The plan is disposable** - Wrong plan? Regenerate it. One planning loop is cheap.
-
 ## Expectations
 
-- **Best for greenfield projects.** Ralph works best when building from scratch with clear specs. Existing codebases with legacy patterns and implicit conventions are much harder to steer.
-- **Expect ~90% completion.** Ralph gets you most of the way there, not to production-ready. Plan for human review and polish on the final stretch.
+- **Best for greenfield projects.** Existing codebases with legacy patterns are harder to steer.
+- **Expect ~90% completion.** Plan for human review and polish on the final stretch.
 
 ## Learn More
+
+For detailed methodology, steering techniques, and prompt patterns, see the methodology reference (loaded automatically during loops).
 
 - Original technique: https://ghuntley.com/ralph/
 - Playbook reference: https://github.com/ghuntley/how-to-ralph-wiggum

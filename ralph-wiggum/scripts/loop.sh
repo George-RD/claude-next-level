@@ -22,6 +22,10 @@ if [[ "${1:-}" == "plan" ]]; then
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
     MAX_ITERATIONS=${2:-0}
+    if [[ -n "$MAX_ITERATIONS" ]] && ! [[ "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
+        echo "Error: max_iterations must be a positive integer, got: '$MAX_ITERATIONS'" >&2
+        exit 1
+    fi
 elif [[ "${1:-}" == "plan-work" ]]; then
     MODE="plan-work"
     PROMPT_FILE="PROMPT_plan.md"
@@ -84,11 +88,13 @@ while true; do
             < "$PROMPT_FILE"
     fi
 
-    # Push changes after each iteration
-    git push origin "$CURRENT_BRANCH" || {
-        echo "Failed to push. Creating remote branch..."
-        git push -u origin "$CURRENT_BRANCH"
-    }
+    # Push changes after each iteration (don't let transient failures kill the loop)
+    if ! git push origin "$CURRENT_BRANCH" 2>&1; then
+        echo "Push failed. Trying to create remote branch..." >&2
+        if ! git push -u origin "$CURRENT_BRANCH" 2>&1; then
+            echo "Warning: push to '$CURRENT_BRANCH' failed. Continuing loop." >&2
+        fi
+    fi
 
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== RALPH ITERATION $ITERATION ========================\n"

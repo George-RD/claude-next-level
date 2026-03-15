@@ -34,6 +34,7 @@ elif [[ "${1:-}" == "plan-work" ]]; then
     MAX_ITERATIONS=${3:-5}
 elif [[ "${1:-}" =~ ^[0-9]+$ ]]; then
     MAX_ITERATIONS=$1
+    shift
 fi
 
 ITERATION=0
@@ -68,12 +69,6 @@ while true; do
         break
     fi
 
-    # Feed prompt to claude in headless mode
-    # -p: headless (non-interactive, reads from stdin)
-    # --dangerously-skip-permissions: auto-approve all tool calls
-    # --output-format=stream-json: structured output for logging
-    # --model opus: Opus for complex reasoning (task selection, prioritization)
-    # --verbose: detailed execution logging
     if [[ "$MODE" == "plan-work" ]]; then
         WORK_SCOPE="$WORK_SCOPE" envsubst < "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
@@ -81,11 +76,12 @@ while true; do
             --model opus \
             --verbose
     else
-        cat "$PROMPT_FILE" | claude -p \
+        claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
-            --verbose
+            --verbose \
+            < "$PROMPT_FILE"
     fi
 
     # Push changes after each iteration

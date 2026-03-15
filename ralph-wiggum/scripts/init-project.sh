@@ -36,16 +36,29 @@ create_dir_if_missing() {
   fi
 }
 
+# Escape sed replacement metacharacters for delimiter '|'
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'
+}
+
 # Parse arguments
 SRC_DIR="src"
 GOAL=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --src-dir)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --src-dir requires a path argument" >&2
+        exit 1
+      fi
       SRC_DIR="$2"
       shift 2
       ;;
     --goal)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --goal requires a text argument" >&2
+        exit 1
+      fi
       GOAL="$2"
       shift 2
       ;;
@@ -109,10 +122,11 @@ fi
 
 # If source dir is not "src", update prompt templates to use the right path
 if [[ "$SRC_DIR" != "src" ]]; then
+  ESCAPED_SRC_DIR="$(escape_sed_replacement "$SRC_DIR")"
   for f in PROMPT_plan.md PROMPT_build.md; do
     if [[ -f "$f" ]]; then
-      sed -i '' "s|src/\*|${SRC_DIR}/*|g; s|src/lib/\*|${SRC_DIR}/lib/*|g" "$f" 2>/dev/null || \
-      sed -i "s|src/\*|${SRC_DIR}/*|g; s|src/lib/\*|${SRC_DIR}/lib/*|g" "$f"
+      sed -i '' "s|src/lib/\*|${ESCAPED_SRC_DIR}/lib/*|g; s|src/\*|${ESCAPED_SRC_DIR}/*|g" "$f" 2>/dev/null || \
+      sed -i "s|src/lib/\*|${ESCAPED_SRC_DIR}/lib/*|g; s|src/\*|${ESCAPED_SRC_DIR}/*|g" "$f"
     fi
   done
   echo "Updated prompts to use '$SRC_DIR' as source directory"
@@ -120,8 +134,7 @@ fi
 
 # If goal provided, substitute in PROMPT_plan.md
 if [[ -n "$GOAL" ]] && [[ -f "PROMPT_plan.md" ]]; then
-  # Escape sed special characters in GOAL to prevent injection
-  ESCAPED_GOAL=$(printf '%s\n' "$GOAL" | sed 's/[&/\]/\\&/g')
+  ESCAPED_GOAL="$(escape_sed_replacement "$GOAL")"
   sed -i '' "s|\[project-specific goal\]|${ESCAPED_GOAL}|g" "PROMPT_plan.md" 2>/dev/null || \
   sed -i "s|\[project-specific goal\]|${ESCAPED_GOAL}|g" "PROMPT_plan.md"
   echo "Set project goal in PROMPT_plan.md"

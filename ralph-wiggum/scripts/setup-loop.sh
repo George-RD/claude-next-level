@@ -14,6 +14,10 @@ WORK_SCOPE=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --mode)
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" == -* ]]; then
+        echo "Error: --mode requires a value (plan, build, or plan-work)" >&2
+        exit 1
+      fi
       MODE="$2"
       shift 2
       ;;
@@ -116,8 +120,9 @@ fi
 mkdir -p .claude
 
 if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
-  # Escape internal double quotes for valid YAML
-  ESCAPED_PROMISE="${COMPLETION_PROMISE//\"/\\\"}"
+  # Escape backslashes first, then double quotes for valid YAML
+  ESCAPED_PROMISE="${COMPLETION_PROMISE//\\/\\\\}"
+  ESCAPED_PROMISE="${ESCAPED_PROMISE//\"/\\\"}"
   COMPLETION_PROMISE_YAML="\"$ESCAPED_PROMISE\""
 else
   COMPLETION_PROMISE_YAML="null"

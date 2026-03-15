@@ -34,6 +34,10 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --work-scope)
+      if [[ -z "${2:-}" ]] || [[ "$2" == -* ]]; then
+        echo "Error: --work-scope requires a text argument" >&2
+        exit 1
+      fi
       WORK_SCOPE="$2"
       shift 2
       ;;
@@ -112,7 +116,9 @@ fi
 mkdir -p .claude
 
 if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
-  COMPLETION_PROMISE_YAML="\"$COMPLETION_PROMISE\""
+  # Escape internal double quotes for valid YAML
+  ESCAPED_PROMISE="${COMPLETION_PROMISE//\"/\\\"}"
+  COMPLETION_PROMISE_YAML="\"$ESCAPED_PROMISE\""
 else
   COMPLETION_PROMISE_YAML="null"
 fi

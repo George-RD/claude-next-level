@@ -47,7 +47,7 @@ GOAL=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --src-dir)
-      if [[ -z "${2:-}" ]]; then
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" == -* ]]; then
         echo "Error: --src-dir requires a path argument" >&2
         exit 1
       fi
@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --goal)
-      if [[ -z "${2:-}" ]]; then
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" == -* ]]; then
         echo "Error: --goal requires a text argument" >&2
         exit 1
       fi

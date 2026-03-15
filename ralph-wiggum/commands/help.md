@@ -90,6 +90,11 @@ Run the build loop - implement one task per iteration:
 4. **Move outside the loop** - Observe, tune prompts, add signs - don't sit in the loop
 5. **The plan is disposable** - Wrong plan? Regenerate it. One planning loop is cheap.
 
+## Expectations
+
+- **Best for greenfield projects.** Ralph works best when building from scratch with clear specs. Existing codebases with legacy patterns and implicit conventions are much harder to steer.
+- **Expect ~90% completion.** Ralph gets you most of the way there, not to production-ready. Plan for human review and polish on the final stretch.
+
 ## Learn More
 
 - Original technique: https://ghuntley.com/ralph/

@@ -116,6 +116,11 @@ For parallel work streams, scope the plan per branch:
 
 Scope at plan creation (deterministic), not task selection (probabilistic).
 
+## Expectations
+
+- **Best for greenfield.** The original author explicitly warns against using Ralph on existing codebases — legacy patterns and implicit conventions are hard to steer. Ralph shines when building from scratch with clear specs.
+- **~90% completion.** Expect Ralph to get you most of the way, not to production-ready. The last 10% needs human review, polish, and judgement.
+
 ## Safety
 
 Ralph requires `--dangerously-skip-permissions` for autonomous operation. Run in a sandbox:

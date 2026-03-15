@@ -66,47 +66,39 @@ if [[ -z "$MODE" ]]; then
   exit 1
 fi
 
-# Build the prompt based on mode
+# Determine prompt file and label for mode
 case "$MODE" in
-  plan)
-    if [[ ! -f "PROMPT_plan.md" ]]; then
-      echo "Error: PROMPT_plan.md not found. Run /ralph-wiggum:init first." >&2
-      exit 1
-    fi
-    PROMPT=$(cat PROMPT_plan.md)
-    MODE_LABEL="PLANNING"
-    ;;
-  build)
-    if [[ ! -f "PROMPT_build.md" ]]; then
-      echo "Error: PROMPT_build.md not found. Run /ralph-wiggum:init first." >&2
-      exit 1
-    fi
-    PROMPT=$(cat PROMPT_build.md)
-    MODE_LABEL="BUILDING"
-    ;;
-  plan-work)
-    if [[ -z "$WORK_SCOPE" ]]; then
-      echo "Error: --work-scope required for plan-work mode" >&2
-      exit 1
-    fi
-    if [[ ! -f "PROMPT_plan.md" ]]; then
-      echo "Error: PROMPT_plan.md not found. Run /ralph-wiggum:init first." >&2
-      exit 1
-    fi
-    # Create scoped planning prompt
-    PROMPT=$(cat PROMPT_plan.md | sed "s/\[project-specific goal\]/${WORK_SCOPE}/g")
-    PROMPT="SCOPED PLANNING for: ${WORK_SCOPE}
-
-${PROMPT}
-
-IMPORTANT: This is SCOPED PLANNING for \"${WORK_SCOPE}\" only. Create a plan containing ONLY tasks directly related to this work scope."
-    MODE_LABEL="SCOPED PLANNING"
-    ;;
+  plan)      PROMPT_FILE="PROMPT_plan.md";  MODE_LABEL="PLANNING" ;;
+  build)     PROMPT_FILE="PROMPT_build.md"; MODE_LABEL="BUILDING" ;;
+  plan-work) PROMPT_FILE="PROMPT_plan.md";  MODE_LABEL="SCOPED PLANNING" ;;
   *)
     echo "Error: Unknown mode '$MODE'. Use plan, build, or plan-work." >&2
     exit 1
     ;;
 esac
+
+if [[ ! -f "$PROMPT_FILE" ]]; then
+  echo "Error: $PROMPT_FILE not found. Run /ralph-wiggum:init first." >&2
+  exit 1
+fi
+
+# Build the prompt
+PROMPT=$(cat "$PROMPT_FILE")
+
+if [[ "$MODE" == "plan-work" ]]; then
+  if [[ -z "$WORK_SCOPE" ]]; then
+    echo "Error: --work-scope required for plan-work mode" >&2
+    exit 1
+  fi
+  # Escape sed special characters in WORK_SCOPE to prevent injection
+  ESCAPED_SCOPE=$(printf '%s\n' "$WORK_SCOPE" | sed 's/[&/\]/\\&/g')
+  PROMPT=$(echo "$PROMPT" | sed "s/\[project-specific goal\]/${ESCAPED_SCOPE}/g")
+  PROMPT="SCOPED PLANNING for: ${WORK_SCOPE}
+
+${PROMPT}
+
+IMPORTANT: This is SCOPED PLANNING for \"${WORK_SCOPE}\" only. Create a plan containing ONLY tasks directly related to this work scope."
+fi
 
 # Allow additional prompt text to be appended
 if [[ ${#PROMPT_PARTS[@]} -gt 0 ]]; then
@@ -139,22 +131,23 @@ started_at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 $PROMPT
 EOF
 
-# Output setup message
-cat <<EOF
-Ralph Wiggum: $MODE_LABEL loop activated
+# Output setup summary
+MAX_ITER_DISPLAY=$( [[ $MAX_ITERATIONS -gt 0 ]] && echo "$MAX_ITERATIONS" || echo "unlimited" )
+PROMISE_DISPLAY=$( [[ "$COMPLETION_PROMISE" != "null" ]] && echo "$COMPLETION_PROMISE" || echo "none" )
 
-Mode: $MODE_LABEL
-Iteration: 1
-Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
-Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "${COMPLETION_PROMISE} (ONLY output when TRUE)"; else echo "none"; fi)
-$(if [[ -n "$WORK_SCOPE" ]]; then echo "Work scope: $WORK_SCOPE"; fi)
-
-The stop hook will feed the same prompt back after each iteration.
-Your previous work persists in files and git history.
-
-To monitor: head -10 .claude/ralph-wiggum.local.md
-To cancel:  /ralph-wiggum:cancel
-EOF
+echo "Ralph Wiggum: $MODE_LABEL loop activated"
+echo ""
+echo "Mode: $MODE_LABEL"
+echo "Iteration: 1"
+echo "Max iterations: $MAX_ITER_DISPLAY"
+echo "Completion promise: $PROMISE_DISPLAY"
+[[ -n "$WORK_SCOPE" ]] && echo "Work scope: $WORK_SCOPE"
+echo ""
+echo "The stop hook will feed the same prompt back after each iteration."
+echo "Your previous work persists in files and git history."
+echo ""
+echo "To monitor: head -10 .claude/ralph-wiggum.local.md"
+echo "To cancel:  /ralph-wiggum:cancel"
 
 if [[ $MAX_ITERATIONS -eq 0 ]] && [[ "$COMPLETION_PROMISE" == "null" ]]; then
   echo ""
@@ -162,7 +155,6 @@ if [[ $MAX_ITERATIONS -eq 0 ]] && [[ "$COMPLETION_PROMISE" == "null" ]]; then
   echo "  Set --max-iterations or --completion-promise to auto-stop."
 fi
 
-# Display completion promise requirements
 if [[ "$COMPLETION_PROMISE" != "null" ]]; then
   echo ""
   echo "To complete this loop, output: <promise>$COMPLETION_PROMISE</promise>"

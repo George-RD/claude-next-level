@@ -33,9 +33,9 @@ For each task in execution order:
 ### 2b. Run Spec Workflow
 
 - Create a spec from the issue: write spec JSON with issue details
-- **Plan**: If the issue body has a clear approach, use `/next-level:quick`. Otherwise, run `/next-level:spec-plan` for the task.
-- **Implement**: Run the spec-implement phase with strict TDD
-- **Verify**: Run spec-verify — tests, lint, code review
+- **Plan**: If the issue body has a clear approach, use `/next-level:quick`. Otherwise, Read `skills/spec/references/spec-plan.md` and follow the process.
+- **Implement**: Read `skills/spec/references/spec-implement.md` and follow the process with strict TDD.
+- **Verify**: Read `skills/spec/references/spec-verify.md` and follow the process — tests, lint, code review.
 
 ### 2c. Adversarial Checkpoint
 

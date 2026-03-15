@@ -1,7 +1,6 @@
 ---
 name: spec-verify
 description: Verification phase of spec workflow. Validates implementation against plan — tests, coverage, code review, CodeRabbit.
-user-invocable: true
 model: opus
 ---
 

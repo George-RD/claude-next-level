@@ -1,7 +1,6 @@
 ---
 name: spec-plan
 description: Design phase of spec workflow. Explores codebase, designs solution, writes plan, gets user approval before implementation.
-user-invocable: true
 argument-hint: "[task description]"
 model: opus
 ---

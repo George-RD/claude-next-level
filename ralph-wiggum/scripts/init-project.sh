@@ -72,6 +72,7 @@ EOF
       exit 0
       ;;
     *)
+      echo "Warning: Unknown argument '$1' ignored" >&2
       shift
       ;;
   esac
@@ -119,8 +120,10 @@ fi
 
 # If goal provided, substitute in PROMPT_plan.md
 if [[ -n "$GOAL" ]] && [[ -f "PROMPT_plan.md" ]]; then
-  sed -i '' "s|\[project-specific goal\]|${GOAL}|g" "PROMPT_plan.md" 2>/dev/null || \
-  sed -i "s|\[project-specific goal\]|${GOAL}|g" "PROMPT_plan.md"
+  # Escape sed special characters in GOAL to prevent injection
+  ESCAPED_GOAL=$(printf '%s\n' "$GOAL" | sed 's/[&/\]/\\&/g')
+  sed -i '' "s|\[project-specific goal\]|${ESCAPED_GOAL}|g" "PROMPT_plan.md" 2>/dev/null || \
+  sed -i "s|\[project-specific goal\]|${ESCAPED_GOAL}|g" "PROMPT_plan.md"
   echo "Set project goal in PROMPT_plan.md"
 fi
 

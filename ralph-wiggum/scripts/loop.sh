@@ -36,9 +36,16 @@ elif [[ "${1:-}" == "plan-work" ]]; then
     fi
     WORK_SCOPE="$2"
     MAX_ITERATIONS=${3:-5}
+    if ! [[ "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
+        echo "Error: max_iterations must be a positive integer, got: '$MAX_ITERATIONS'" >&2
+        exit 1
+    fi
 elif [[ "${1:-}" =~ ^[0-9]+$ ]]; then
     MAX_ITERATIONS=$1
     shift
+elif [[ -n "${1:-}" ]]; then
+    echo "Error: Unknown mode '${1:-}'. Usage: ./loop.sh [plan|plan-work \"scope\"] [max_iterations]" >&2
+    exit 1
 fi
 
 ITERATION=0

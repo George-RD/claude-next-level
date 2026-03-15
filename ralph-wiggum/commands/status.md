@@ -1,6 +1,6 @@
 ---
 description: "Show Ralph Wiggum project state"
-allowed-tools: ["Read(AGENTS.md)", "Read(IMPLEMENTATION_PLAN.md)", "Read(.claude/ralph-wiggum.local.md)", "Bash(ls specs/)", "Bash(ls PROMPT_*.md 2>/dev/null)", "Bash(git tag -l)", "Bash(git log --oneline -5)"]
+allowed-tools: ["Read(AGENTS.md)", "Read(IMPLEMENTATION_PLAN.md)", "Read(.claude/ralph-wiggum.local.md)", "Bash(test -d specs && ls specs/ || echo NO_SPECS)", "Bash(ls PROMPT_*.md 2>/dev/null || true)", "Bash(test -f loop.sh && echo LOOP_SH_EXISTS || echo LOOP_SH_MISSING)", "Bash(git tag -l)", "Bash(git log --oneline -5)"]
 ---
 
 # Ralph Wiggum: Status

@@ -41,7 +41,7 @@ That's it. No `git add`, no staging. The `jj new` creates a fresh change on top 
 1. Set bookmark: `jj bookmark set <name> -r @-`
 1. Push: `jj git push --bookmark <name> --allow-new`
 1. Analyze ALL changes in the PR range with `jj log -r 'trunk()..@-'`
-1. Create PR: `gh pr create --title "<title>" --body "<summary + test plan>"`
+1. Create PR: `gh pr create --head "<name>" --title "<title>" --body "<summary + test plan>"`
 
 ## Action: Conflict resolution
 

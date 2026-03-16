@@ -97,10 +97,9 @@ Use parentheses to override: `(x \| y) & z`
 
 | Function | Description |
 |----------|-------------|
-| `file(path)` | Changes that modified the given path |
-| `file(path1, path2, ...)` | Changes that modified any of the paths |
+| `files(expression)` | Changes that modified paths matching the fileset expression |
 | `conflicts()` | Changes with unresolved conflicts |
-| `diff_contains(pattern)` | Changes whose diff contains the pattern |
+| `diff_lines(text, [files])` | Changes whose diff contains matching lines |
 
 ### State
 
@@ -126,7 +125,7 @@ jj log -r 'mine() & ~immutable()'
 jj log -r 'main..@'
 
 # Find changes that touched a specific file
-jj log -r 'file("src/auth.rs")'
+jj log -r 'files("src/auth.rs")'
 
 # Show conflicted changes
 jj log -r 'conflicts()'
@@ -160,13 +159,13 @@ jj log -r 'mine() & conflicts()'
 jj log -r 'main..@ & ~empty()'
 
 # Changes that modified tests
-jj log -r 'file("tests/")'
+jj log -r 'files("tests/")'
 
 # Bookmarks not yet merged to main
 jj log -r 'bookmarks() ~ ::main'
 
 # Find who changed a file recently
-jj log -r 'file("src/main.rs") & ~immutable()'
+jj log -r 'files("src/main.rs") & ~immutable()'
 ```
 
 ### Using revsets with commands

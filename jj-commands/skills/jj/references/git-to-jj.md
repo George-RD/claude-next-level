@@ -79,7 +79,7 @@ A comprehensive translation table for moving from Git workflows to Jujutsu.
 | `git show <commit>` | `jj show <change>` | |
 | `git blame <file>` | `jj file annotate <file>` | |
 | `git diff <a>..<b>` | `jj diff --from <a> --to <b>` | |
-| `git log -- <file>` | `jj log -r 'file("path")'` | Uses revset file() function |
+| `git log -- <file>` | `jj log -r 'files("path")'` | Uses revset files() function |
 
 ## Undoing and Recovery
 
@@ -109,5 +109,5 @@ A comprehensive translation table for moving from Git workflows to Jujutsu.
 | `git worktree add` | `jj workspace add <path>` | Multiple working copies |
 | *(no equivalent)* | `jj parallelize <revset>` | Convert linear stack to siblings |
 | *(no equivalent)* | `jj absorb` | Auto-distribute fixes to ancestors |
-| *(no equivalent)* | `jj evolog` | See how a change evolved over time |
+| *(no equivalent)* | `jj evolog` | See how a change evolved |
 | *(no equivalent)* | `jj interdiff --from <a> --to <b>` | Compare diffs of two changes |

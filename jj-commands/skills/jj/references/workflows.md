@@ -80,7 +80,7 @@ jj has first-class Gerrit support via `jj gerrit` commands.
 
 ```bash
 # Send changes for review
-jj gerrit send
+jj gerrit upload
 
 # The Gerrit workflow uses Change-Ids natively since jj's change IDs
 # map directly to Gerrit's concept of changes

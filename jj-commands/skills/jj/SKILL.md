@@ -14,7 +14,8 @@ In JJ, the working copy is always a live commit (`@`). There is no staging area 
 
 ## Detect JJ repo
 
-Before any VC operation: `test -d .jj`. If present, use only `jj` commands — never bare `git`.
+Before any VC operation, verify you're in a JJ workspace with:
+`jj root >/dev/null 2>&1`. If that succeeds, use only `jj` commands — never bare `git`.
 
 ## Action: Describe (when user says "commit" or "save")
 

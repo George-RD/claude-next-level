@@ -11,6 +11,8 @@ if ((BASH_VERSINFO[0] < 4)); then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=next-level/hooks/scripts/utils.sh
+source "$SCRIPT_DIR/utils.sh"
 # Marketplace root is three levels up from hooks/scripts/
 MARKETPLACE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 

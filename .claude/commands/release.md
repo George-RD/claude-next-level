@@ -41,11 +41,13 @@ If no plugins have changes, report "No plugin changes detected since `<base-ref>
 
 For each changed plugin, run:
 
-```
-git log <base-ref>..HEAD --oneline -- <plugin-directory>/
+```bash
+git log <base-ref>..HEAD --format='%H%x1f%s%x1f%b%x1e' -- <plugin-directory>/
 ```
 
-Classify each commit using conventional commit prefixes:
+This format emits hash, subject, and body separated by unit separators, enabling detection of `BREAKING CHANGE` footers in commit bodies.
+
+Classify each commit using conventional commit prefixes (inspect both subject and body):
 
 - `feat(...)` or `feat:` -> **minor** bump
 - `fix(...)` or `fix:` -> **patch** bump
@@ -60,7 +62,7 @@ Read the current version from the plugin's `plugin.json`. Bump it accordingly us
 
 Before making changes, display a summary table:
 
-```
+```text
 Release Plan:
 | Plugin | Current | New | Bump | Commits |
 |--------|---------|-----|------|---------|
@@ -102,7 +104,7 @@ Use the Edit tool for precise replacements. Do not rewrite entire files.
 
 Create a single commit with all version bumps:
 
-```
+```text
 chore(release): bump <plugin1> v<new1>, <plugin2> v<new2>, ...
 ```
 
@@ -111,7 +113,7 @@ List all released plugins and their new versions in the commit message.
 Create a git tag. Use the format:
 
 - If releasing a single plugin: `<plugin-name>/v<version>` (e.g., `next-level/v0.4.0`)
-- If releasing multiple plugins: `release/v<date>` using today's date as YYYY-MM-DD (e.g., `release/v2026-03-16`)
+- If releasing multiple plugins: `release/v<date>-<short-sha>` using today's date as YYYY-MM-DD and the short commit SHA (e.g., `release/v2026-03-16-a1b2c3d`) to avoid same-day tag collisions
 
 ## Step 8: GitHub release (optional)
 

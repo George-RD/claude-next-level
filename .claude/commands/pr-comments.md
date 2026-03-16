@@ -3,6 +3,8 @@ description: "Show PR review comments"
 argument-hint: "<pr-number>"
 ---
 
+# PR Comments
+
 Fetch and summarize all review comments for PR #$ARGUMENTS.
 
 ## Steps

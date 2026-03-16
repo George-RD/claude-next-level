@@ -9,7 +9,7 @@ Fetch and summarize all review comments for PR #$ARGUMENTS.
 
 1. **Get the repo context** by running:
 
-   ```
+   ```bash
    gh repo view --json nameWithOwner -q .nameWithOwner
    ```
 
@@ -17,19 +17,19 @@ Fetch and summarize all review comments for PR #$ARGUMENTS.
 
 2. **Fetch top-level PR data** (reviews and issue-level comments):
 
-   ```
+   ```bash
    gh pr view $ARGUMENTS --json reviews,comments,author,title,state
    ```
 
 3. **Fetch inline review comments** (file-level comments with diff context):
 
-   ```
+   ```bash
    gh api repos/{owner}/{repo}/pulls/$ARGUMENTS/comments
    ```
 
 4. **Fetch review threads to get resolved status**:
 
-   ```
+   ```bash
    gh pr view $ARGUMENTS --json reviewThreads
    ```
 
@@ -39,7 +39,7 @@ Start with a one-line summary: PR title, state, and total comment count.
 
 Then group comments by reviewer. For each reviewer, list their comments:
 
-```
+```text
 ### @reviewer-handle (N comments, M unresolved)
 
 - **file.ts:42** — "The comment body truncated to first 2-3 lines..."
@@ -53,7 +53,7 @@ Then group comments by reviewer. For each reviewer, list their comments:
 
 At the end, collect all **unresolved** comments into a numbered checklist:
 
-```
+```text
 ## Unresolved Items
 
 1. @reviewer — file.ts:42 — "Comment summary..."

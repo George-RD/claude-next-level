@@ -5,6 +5,11 @@
 # Non-blocking: always exits 0.
 set -euo pipefail
 
+if ((BASH_VERSINFO[0] < 4)); then
+  echo "Warning: Bash 4+ required for hook conflict check" >&2
+  exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Marketplace root is three levels up from hooks/scripts/
 MARKETPLACE_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"

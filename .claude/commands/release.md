@@ -5,7 +5,7 @@ argument-hint: "[plugin-name] [--dry-run]"
 
 # Release Workflow
 
-You are automating a release for the **claude-next-level** plugin marketplace. This repo contains 6 plugins, each with its own directory and `plugin.json`, plus a central registry at `.claude-plugin/marketplace.json`.
+You are automating a release for the **claude-next-level** plugin marketplace. This repo contains 7 plugins, each with its own directory and `plugin.json`, plus a central registry at `.claude-plugin/marketplace.json`.
 
 Parse the argument `$ARGUMENTS` for:
 

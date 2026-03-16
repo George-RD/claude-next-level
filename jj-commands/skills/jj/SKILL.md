@@ -2,10 +2,11 @@
 name: jj
 description: >-
   Version control operations using Jujutsu (jj) — replaces git commit/push/PR
-  workflows when a .jj/ directory exists. Use when the user says "commit", "push",
-  "create a PR", "describe", "bookmark", or any VC action in a JJ repo. Also use
-  for jj-specific operations: revsets, stacked changes, conflict resolution, undo.
-  If the repo has .jj/, this skill takes priority over git workflows.
+  workflows when `jj root` succeeds (i.e., inside a JJ workspace). Use when the
+  user says "commit", "push", "create a PR", "describe", "bookmark", or any VC
+  action in a JJ repo. Also use for jj-specific operations: revsets, stacked
+  changes, conflict resolution, undo. If `jj root` succeeds, this skill takes
+  priority over git workflows.
 ---
 
 # JJ Version Control

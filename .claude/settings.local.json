@@ -17,5 +17,19 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(cat - | python3 -c \"import sys,json; print(json.load(sys.stdin).get(\\\"tool_input\\\",{}).get(\\\"file_path\\\",\\\"\\\"))\"); [[ \"$FILE\" == *.md ]] && npx --yes markdownlint-cli2 --fix \"$FILE\" 2>/dev/null; exit 0'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }

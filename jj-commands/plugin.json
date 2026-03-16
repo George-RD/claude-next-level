@@ -1,0 +1,9 @@
+{
+  "name": "jj-commands",
+  "description": "Jujutsu (jj) version control workflows — replaces git commit/push/PR commands in JJ repos",
+  "version": "1.0.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["jj", "jujutsu", "vcs", "version-control", "commit", "push", "pr", "bookmarks"]
+}

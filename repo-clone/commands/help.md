@@ -1,6 +1,6 @@
 ---
 name: help
-description: "Explain the repo-clone workflow, ralph loop setup, and all stages"
+description: "Explain the repo-clone workflow, Ralph loop setup, and PROMPT file architecture"
 allowed-tools: ["Read"]
 ---
 
@@ -12,167 +12,137 @@ Read and present the following information to the user.
 
 ## What is repo-clone?
 
-repo-clone automates codebase porting between languages using a **ralph loop** architecture inspired by Geoffrey Huntley's Loom project. Instead of interactively guiding an AI through a port, you set up a loop that iterates autonomously through 6 stages until the port is complete.
+repo-clone automates codebase porting between languages using **Ralph loops** -- autonomous iteration loops where each cycle gets fresh context and all continuity lives on disk. Instead of interactively guiding an AI through a port, you set up prompt files that drive extraction and porting in a stateless loop.
 
-Key principles:
+Key ideas:
 
-- **Primary context = scheduler.** The main agent never does leaf-level work. It reads state, decides what to do, and spawns subagents for all file reading, analysis, and implementation.
-- **Fresh context each iteration.** Every loop iteration starts with zero memory of previous iterations. All state persists on disk via `PORT_STATE.md` and other files in `porting/`.
-- **Fitness = tests pass.** Each iteration either passes the test command and commits, or fails and reverts. No half-done work accumulates.
-
----
-
-## The 6 Stages
-
-### Stage 0: Freeze
-
-**What it does:** Creates the baseline documentation for the port.
-
-- Writes `BASELINE.md` (snapshot of what the source codebase does)
-- Writes `OUT_OF_SCOPE.md` (what will NOT be ported and why)
-- Writes `SEMANTIC_MISMATCHES.md` (language differences that affect the port: error handling, types, concurrency, module systems)
-- This is the only stage where the primary context may do work directly (these are small files, no subagents needed)
-
-**Gate to advance:** All three files exist in `porting/`.
-
-### Stage 1: Extract Test Specs
-
-**What it does:** Extracts behavioral specifications from every test file in the source project.
-
-- Spawns `spec-extractor` subagents in parallel (up to 10 concurrent), one per batch of test files
-- Each agent reads test files and produces structured specs describing WHAT is tested, not HOW
-- Primary context collects specs, validates completeness, writes them to `porting/specs/from-tests/`
-- One `.spec.md` file per test file, with citations in `[test:path/file.ext:start-end]` format
-
-**Gate to advance:** Every test file has a corresponding spec in `porting/specs/from-tests/`.
-
-### Stage 2: Extract Source Specs
-
-**What it does:** Extracts behavioral specifications from every source module.
-
-- Same pattern as Stage 1 but for source files
-- Spawns `spec-extractor` subagents in parallel per source file batch
-- Produces specs describing what each module DOES (behavior, contracts, invariants)
-- Writes to `porting/specs/from-src/`
-- Citations use `[source:path/file.ext:start-end]` format
-
-**Gate to advance:** Every source module has a corresponding spec in `porting/specs/from-src/`.
-
-### Stage 3: Plan
-
-**What it does:** Synthesizes all specs into a dependency-ordered task list.
-
-- Reads all specs from both `porting/specs/from-tests/` and `porting/specs/from-src/`
-- Creates `PORT_TODO.md` with tasks ordered by dependency (foundations first, dependent modules later)
-- Each task references the specs it implements
-- Cross-references with `SEMANTIC_MISMATCHES.md` for language-specific considerations
-
-**Gate to advance:** `PORT_TODO.md` exists with dependency-ordered tasks.
-
-### Stage 4: Build
-
-**What it does:** Implements the port, one task per iteration.
-
-- Each iteration picks ONE task from `PORT_TODO.md` (the next undone task whose dependencies are met)
-- Reads the relevant specs for that task
-- Implements the code in the target language
-- Runs the test command
-- On pass: commits and marks task DONE in `PORT_TODO.md`
-- On fail: reverts all changes (ralph loop handles this)
-- This is the longest stage — it runs for as many iterations as there are tasks
-
-**Gate to advance:** All tasks in `PORT_TODO.md` marked DONE and test command passes.
-
-### Stage 5: Audit
-
-**What it does:** Final parity check between source and target.
-
-- Spawns `parity-checker` subagents in parallel, one per module
-- Each agent compares the source spec against the actual target implementation
-- Distinguishes intentional mismatches (documented in `SEMANTIC_MISMATCHES.md`) from gaps
-- Produces `PORT_AUDIT.md` with a full parity report
-
-**Gate to complete:** `PORT_AUDIT.md` shows no critical gaps.
+- **Fresh context every iteration.** Each loop cycle starts a new Claude session with no memory of previous runs. State persists through files: `IMPLEMENTATION_PLAN.md`, specs, and git history.
+- **Citations are the key innovation.** Every behavioral claim in a spec cites the original source code (`[source:path/file:line-range]`). During porting, the agent follows citations back to the original to verify behavior -- preventing hallucinated implementations.
+- **Two phases, two loops.** Spec extraction and porting run as separate loops with separate PROMPT files.
 
 ---
 
-## How to Run the Ralph Loop
+## The PROMPT File Architecture
 
-### Setup
+`/repo-clone init` scaffolds these files into the project root:
 
-1. Initialize the project interactively:
+### PROMPT_extract.md
 
-   ```text
-   /repo-clone init rust typescript
-   ```
+Drives the **spec extraction loop**. Each iteration:
 
-   This creates `porting/PORT_STATE.md` and the directory structure.
+1. Reads source code at the configured source root
+2. Checks which modules already have specs
+3. Extracts behavioral specifications for unprocessed modules
+4. Writes specs to `specs/tests/` (from test files) and `specs/src/` (from source modules) with `[source:file:line-range]` citations
+5. Updates `IMPLEMENTATION_PLAN.md` with extraction progress
+6. Commits and pushes
 
-2. Create your loop prompt file `PROMPT_port.md` in the repo root. The SKILL.md provides the template — it instructs the agent to read `PORT_STATE.md`, determine the current stage, and execute the appropriate protocol.
+Run: `while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done`
 
-3. Start the loop:
+> **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
 
-   ```bash
-   while :; do cat PROMPT_port.md | claude -p ; done
-   ```
+### PROMPT_port.md
 
-   Or use `loop.sh` if your project has one configured for porting.
+Drives the **porting loop**. Each iteration:
 
-### How It Works
+1. Reads all specs and the implementation plan
+2. Picks the most important unfinished task from `IMPLEMENTATION_PLAN.md`
+3. Follows citations to read original source before implementing
+4. Implements idiomatically in the target language (no transliteration)
+5. Runs tests; updates the plan with findings
+6. Commits and pushes on success
 
-Each iteration of the loop:
+Run: `while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done`
 
-1. Starts a **fresh Claude context** (no memory of previous iterations)
-2. Reads `PROMPT_port.md` as the prompt
-3. The SKILL.md is loaded (plugin skill), giving the agent the full methodology
-4. Agent reads `porting/PORT_STATE.md` to determine current stage
-5. Agent acts as **scheduler**: spawns subagents for actual work
-6. Agent updates state, commits on success
-7. Process exits, loop restarts with fresh context
+### AGENTS.md
 
-**Important:** Each iteration gets FRESH CONTEXT. The agent has no memory of what happened in previous iterations. All continuity comes from files on disk — `PORT_STATE.md`, spec files, `PORT_TODO.md`, etc. This is by design: it prevents context window pollution and ensures each iteration operates from clean, validated state.
+The **operational guide** for both loops. Contains:
 
----
+- Source and target language, root paths, test/build/lint commands
+- Porting conventions (idiomatic code, follow citations, check mismatches)
+- Operational notes section that accumulates learnings across iterations
+- Codebase patterns section for discovered conventions
 
-## Observing and Controlling the Loop
+Both PROMPT files reference `@AGENTS.md` so the agent knows how to build, test, and validate.
 
-You can stop the loop at any time (Ctrl+C) and inspect the state:
+### IMPLEMENTATION_PLAN.md
 
-- **Check progress:** `/repo-clone status` or read `porting/PORT_STATE.md` directly
-- **Review specs:** Browse `porting/specs/from-tests/` and `porting/specs/from-src/`
-- **Check the plan:** Read `porting/PORT_TODO.md`
-- **Review the audit:** Read `porting/PORT_AUDIT.md`
-- **Resume:** Just restart the loop. The agent will pick up from wherever it left off.
+**Shared state between iterations.** Starts empty, then accumulates:
 
-You can also manually edit `PORT_STATE.md` to:
+- During extraction: summary of extracted specs, gaps found, untested code paths
+- During porting: task backlog, progress tracking, learnings, blockers
 
-- Skip a stage (set `current_stage` to a higher number)
-- Replay a stage (set it back and remove it from `stages_completed`)
-- Adjust configuration (change `test_command`, roots, etc.)
+This is the primary coordination mechanism between loop iterations.
 
 ---
 
-## Citation Format
+## Supporting Files
 
-All specs and reports use consistent citation format:
+### porting/SEMANTIC_MISMATCHES.md
 
-- `[source:path/file.ext:start-end]` — reference to source code
-- `[test:path/file.ext:start-end]` — reference to test file
-- `[see-also:specs/from-tests/module.spec.md]` — cross-reference to another spec
+Created during init with known divergences for the language pair (error handling, type systems, concurrency, module systems). Agents consult this before implementing to avoid naive translations.
+
+### specs/tests/
+
+Behavioral specifications extracted from test files. Each spec describes WHAT a module does (not HOW) with citations to the original test code (`[source:path/file:line-range]`).
+
+### specs/src/
+
+Behavioral specifications extracted from source modules. Each spec captures module behavior with citations to the original source. Together with `specs/tests/`, these are the single source of truth for porting -- agents read specs, follow citations, and implement.
+
+### porting/PORT_STATE.md
+
+Tracks which stages are complete. Stages 0-2 map to the extraction loop (`PROMPT_extract.md`), stages 3-4 to the porting loop (`PROMPT_port.md`), and stage 5 to the parity audit.
+
+Tracks overall porting progress across 6 stages (Freeze, Extract Tests, Extract Source, Plan, Build, Audit). Used by `/repo-clone status` to report progress.
 
 ---
 
-## The Scheduler/Subagent Pattern
+## Running the Loops
 
-The primary context (the agent running in the ralph loop) is a **scheduler**, not a worker:
+### Option A: Using ralph-wiggum's loop.sh
 
-- It **never** reads source or test files directly. It spawns `spec-extractor` subagents for that.
-- It **never** checks parity directly. It spawns `parity-checker` subagents for that.
-- It **decides** what to work on, when to advance stages, and what to commit.
-- It **dispatches** parallel subagents (up to 10) for read/analysis work.
-- It **serializes** build/test work (exactly 1 subagent at a time for backpressure).
+If the project has ralph-wiggum configured:
 
-This keeps the primary context window clean and focused on coordination.
+```bash
+./loop.sh plan     # Run planning/extraction
+./loop.sh build    # Run porting
+```
+
+### Option B: Bare bash loops
+
+```bash
+# Phase 1: Extract specs from source
+while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done
+
+# Phase 2: Port using specs
+while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done
+```
+
+Stop anytime with Ctrl+C. The loop picks up where it left off because all state is on disk.
+
+---
+
+## Why Citations Matter
+
+The citation format `[source:path/file.ext:start-end]` is what makes this approach work:
+
+1. **Extraction** reads source code and writes specs with citations
+2. **Porting** reads specs, then follows each citation back to the original source
+3. The agent sees the actual implementation before writing the port
+4. This prevents "spec drift" where the agent invents behavior not in the source
+
+Without citations, the agent would implement from spec descriptions alone -- which degrades with each layer of abstraction. Citations keep it grounded.
+
+---
+
+## Observing and Controlling
+
+- **Check progress:** `/repo-clone status` or read `porting/PORT_STATE.md`
+- **Review specs:** Browse `specs/tests/` and `specs/src/`
+- **Check the plan:** Read `IMPLEMENTATION_PLAN.md`
+- **Resume:** Restart the loop. Fresh context picks up from disk state.
+- **Manual override:** Edit `IMPLEMENTATION_PLAN.md` or `PORT_STATE.md` to reprioritize or skip tasks.
 
 ---
 
@@ -180,26 +150,9 @@ This keeps the primary context window clean and focused on coordination.
 
 | Command | Purpose |
 |---------|---------|
-| `/repo-clone init <source> <target>` | Initialize a new porting project |
+| `/repo-clone init <source> <target>` | Scaffold porting project with PROMPT files and AGENTS.md |
 | `/repo-clone status` | Show progress, next action, quality gate status |
-| `/repo-clone:help` | This help page |
+| `/repo-clone:help` | This guide |
 
-These commands are for **interactive** use — setup, inspection, and manual control. The ralph loop uses the SKILL.md directly and does not invoke these commands.
-
----
-
-## Output Directory Structure
-
-```text
-porting/
-  PORT_STATE.md              # Single source of truth for loop state
-  BASELINE.md                # What the source codebase does (Stage 0)
-  OUT_OF_SCOPE.md            # What will not be ported (Stage 0)
-  SEMANTIC_MISMATCHES.md     # Language differences affecting the port (Stage 0)
-  specs/
-    from-tests/              # One .spec.md per test file (Stage 1)
-    from-src/                # One .spec.md per source module (Stage 2)
-  PORT_TODO.md               # Dependency-ordered task list (Stage 3)
-  PORT_AUDIT.md              # Final parity report (Stage 5)
-  golden-tests/              # Reference test outputs
-```
+Full methodology: `references/methodology.md`
+Cross-language patterns: `references/semantic-mappings.md`

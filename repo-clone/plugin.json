@@ -1,0 +1,17 @@
+{
+  "name": "repo-clone",
+  "version": "1.0.0",
+  "description": "Automates codebase porting between languages using a Ralph loop architecture. Primary context acts as scheduler, spawning subagents for spec extraction and parity checking across 6 stages: freeze, extract-tests, extract-source, plan, build, audit.",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": [
+    "porting",
+    "migration",
+    "ralph-loop",
+    "code-translation",
+    "language-migration",
+    "clone",
+    "agent-loop"
+  ]
+}

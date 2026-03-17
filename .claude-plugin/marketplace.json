@@ -53,6 +53,14 @@
       "author": { "name": "George-RD" },
       "source": "./jj-commands",
       "category": "development"
+    },
+    {
+      "name": "repo-clone",
+      "description": "Automates codebase porting between languages using a Ralph loop architecture. Primary context acts as scheduler, spawning subagents for spec extraction and parity checking across 6 stages: freeze, extract-tests, extract-source, plan, build, audit.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./repo-clone",
+      "category": "development"
     }
   ]
 }

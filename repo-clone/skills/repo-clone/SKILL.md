@@ -34,7 +34,7 @@ Subagents are WORKERS within a single iteration. They are not sub-loops. They re
 
 ### State Machine
 
-State lives in `/porting/PORT_STATE.md` with YAML frontmatter. The `current_stage` field drives behavior. The six stages form a linear pipeline:
+State lives in `porting/PORT_STATE.md` with YAML frontmatter. The `current_stage` field drives behavior. The six stages form a linear pipeline:
 
 | Stage | Name | What Happens |
 |-------|------|--------------|
@@ -49,8 +49,8 @@ Each stage has a quality gate. The gate must pass before `current_stage` increme
 
 ### Disk Layout
 
-```
-/porting/
+```text
+porting/
   PORT_STATE.md              # YAML frontmatter state machine
   BASELINE.md                # Source commit hash, test results at freeze time
   OUT_OF_SCOPE.md            # Files/patterns excluded from porting
@@ -113,7 +113,7 @@ Specs describe WHAT code does, not HOW. Every spec file follows this structure:
 
 ## 3. Semantic Mismatch Quick Reference
 
-When porting between languages, these patterns require deliberate translation decisions, not mechanical line-by-line copying. Record project-specific decisions in `/porting/SEMANTIC_MISMATCHES.md`.
+When porting between languages, these patterns require deliberate translation decisions, not mechanical line-by-line copying. Record project-specific decisions in `porting/SEMANTIC_MISMATCHES.md`.
 
 ### Error Handling
 
@@ -187,7 +187,7 @@ You are the primary context window. Act as a SCHEDULER:
 
 ### Step 1: Orient
 
-Read `/porting/PORT_STATE.md`. Parse the YAML frontmatter to extract:
+Read `porting/PORT_STATE.md`. Parse the YAML frontmatter to extract:
 
 - `source_lang`, `target_lang` — the language pair
 - `source_root`, `target_root` — directory paths
@@ -208,9 +208,9 @@ Create the baseline snapshot. This is small enough to do directly (no subagents)
 
 1. Run `git log --oneline -1` to capture the current commit hash.
 2. Run the `test_command` and capture the output (pass/fail, number of tests).
-3. Write `/porting/BASELINE.md`:
+3. Write `porting/BASELINE.md`:
 
-   ```
+   ```text
    # Baseline
    - Commit: {hash}
    - Date: {today}
@@ -219,9 +219,9 @@ Create the baseline snapshot. This is small enough to do directly (no subagents)
    - Test result: {pass/fail, count}
    ```
 
-4. Write `/porting/OUT_OF_SCOPE.md` with sensible defaults:
+4. Write `porting/OUT_OF_SCOPE.md` with sensible defaults:
 
-   ```
+   ```text
    # Out of Scope
    These files/patterns are excluded from porting:
    - Build configs (Cargo.toml, package.json, go.mod, etc.)
@@ -232,8 +232,8 @@ Create the baseline snapshot. This is small enough to do directly (no subagents)
    - Static assets (images, fonts, etc.)
    ```
 
-5. Write `/porting/SEMANTIC_MISMATCHES.md` by examining the language pair and listing the relevant patterns from Section 3 above, plus any project-specific patterns you can detect (e.g., heavy macro usage, async patterns, error handling strategy).
-6. Create `/porting/golden-tests/` directory if it does not exist.
+5. Write `porting/SEMANTIC_MISMATCHES.md` by examining the language pair and listing the relevant patterns from Section 3 above, plus any project-specific patterns you can detect (e.g., heavy macro usage, async patterns, error handling strategy).
+6. Create `porting/golden-tests/` directory if it does not exist.
 7. **Quality gate:** All three files (BASELINE.md, OUT_OF_SCOPE.md, SEMANTIC_MISMATCHES.md) exist. If yes, set `current_stage: 1`, add `0` to `stages_completed`, update the status table row for stage 0 to `done`. Commit all files.
 
 #### Stage 1 -- Extract Test Specs
@@ -249,7 +249,7 @@ Spawn subagents to extract behavioral specs from every test file.
 3. For each batch, spawn a spec-extractor subagent with `run_in_background: true`:
    - Pass: mode=test, file paths, citation format reference
    - The agent reads the files, extracts behavioral specs, returns structured markdown
-4. Collect all results. For each test file, write the spec to `/porting/specs/from-tests/{module_name}.spec.md`.
+4. Collect all results. For each test file, write the spec to `porting/specs/from-tests/{module_name}.spec.md`.
 5. **Quality gate:** Every test file found in step 1 has a corresponding spec in specs/from-tests/. If yes, set `current_stage: 2`, add `1` to `stages_completed`, update status table. Commit all spec files.
 
 If some files were missed, do NOT advance. The next iteration will pick up remaining files.
@@ -262,17 +262,17 @@ Spawn subagents to extract behavioral specs from every source file (excluding te
 2. Group into batches of 3-5 files.
 3. For each batch, spawn a spec-extractor subagent with `run_in_background: true`:
    - Pass: mode=source, file paths, citation format, paths to any related test specs in specs/from-tests/ for cross-referencing
-4. Collect results. Write each to `/porting/specs/from-src/{module_name}.spec.md`.
+4. Collect results. Write each to `porting/specs/from-src/{module_name}.spec.md`.
 5. **Quality gate:** Every source module has a spec. If yes, set `current_stage: 3`, add `2` to `stages_completed`, update status table. Commit all spec files.
 
 #### Stage 3 -- Plan
 
 Synthesize all specs into a dependency-ordered task list. This iteration reads a lot, so use subagents if the spec set is large (>10 files), otherwise read directly.
 
-1. Read all specs from `/porting/specs/from-tests/` and `/porting/specs/from-src/`.
-2. Read `/porting/OUT_OF_SCOPE.md` and `/porting/SEMANTIC_MISMATCHES.md`.
+1. Read all specs from `porting/specs/from-tests/` and `porting/specs/from-src/`.
+2. Read `porting/OUT_OF_SCOPE.md` and `porting/SEMANTIC_MISMATCHES.md`.
 3. Analyze module dependencies: which modules import/call which others.
-4. Create `/porting/PORT_TODO.md` with dependency-ordered tasks. Leaf modules (no dependencies) come first. Each task follows the format in Section 6 below.
+4. Create `porting/PORT_TODO.md` with dependency-ordered tasks. Leaf modules (no dependencies) come first. Each task follows the format in Section 6 below.
 5. Ensure every behavior from every spec is covered by at least one task.
 6. **Quality gate:** PORT_TODO.md exists and contains at least one task. If yes, set `current_stage: 4`, add `3` to `stages_completed`, update status table. Commit PORT_TODO.md.
 
@@ -280,12 +280,12 @@ Synthesize all specs into a dependency-ordered task list. This iteration reads a
 
 This is the core ralph loop stage. Each iteration implements exactly one task.
 
-1. Read `/porting/PORT_TODO.md`. Find the first task whose Status is `TODO` and whose dependencies are all `DONE`.
+1. Read `porting/PORT_TODO.md`. Find the first task whose Status is `TODO` and whose dependencies are all `DONE`.
 2. If no eligible task exists and all tasks are `DONE`: set `current_stage: 5`, add `4` to `stages_completed`, update status table, commit, exit.
 3. If no eligible task exists but some are not `DONE` (dependency deadlock): report the deadlock in PORT_STATE.md, suggest breaking tasks into subtasks, exit.
 4. Mark the chosen task `IN_PROGRESS` in PORT_TODO.md.
 5. Read the specs referenced by this task (from specs/from-src/ and specs/from-tests/). If the specs are large, spawn subagents to summarize the relevant sections.
-6. Read `/porting/SEMANTIC_MISMATCHES.md` for patterns relevant to this task.
+6. Read `porting/SEMANTIC_MISMATCHES.md` for patterns relevant to this task.
 7. Implement the code in `target_root` using idiomatic target-language patterns. Write tests if the target framework expects them alongside source.
 8. Run `test_command`.
 9. **If tests PASS:**
@@ -294,7 +294,8 @@ This is the core ralph loop stage. Each iteration implements exactly one task.
    - `git commit -m "port: Task N - {task_name}"`
    - Increment `build_iterations` in PORT_STATE.md
 10. **If tests FAIL:**
-    - `git checkout -- {target_root}` to revert implementation changes
+    - `git reset --hard HEAD` to restore all tracked files
+    - `git clean -fd {target_root}` to remove untracked files from the failed attempt
     - Do NOT mark the task as DONE
     - Increment both `build_iterations` and `build_failures` in PORT_STATE.md
     - Add a brief failure note to PORT_STATE.md body (what went wrong)
@@ -305,13 +306,13 @@ This is the core ralph loop stage. Each iteration implements exactly one task.
 
 Spawn subagents to verify parity between specs and target implementation.
 
-1. Read all specs from `/porting/specs/from-src/` and `/porting/specs/from-tests/`.
+1. Read all specs from `porting/specs/from-src/` and `porting/specs/from-tests/`.
 2. Use Glob to find all implemented files in `target_root`.
 3. Map each spec to its corresponding target module.
 4. For each (spec, target) pair, spawn a parity-checker subagent with `run_in_background: true`:
    - Pass: source spec, test spec (if exists), target file path, SEMANTIC_MISMATCHES.md
    - The agent reads the target file, catalogs every behavior from the spec, checks each against the implementation, returns a parity report
-5. Collect all reports. Write `/porting/PORT_AUDIT.md` with a summary table and detailed findings.
+5. Collect all reports. Write `porting/PORT_AUDIT.md` with a summary table and detailed findings.
 6. **If gaps found:** Create remediation tasks in PORT_TODO.md, set `current_stage: 4`, exit. The loop will re-enter build stage.
 7. **If full parity:** Mark stage 5 `done` in status table, add `5` to `stages_completed`. Commit PORT_AUDIT.md. Output a completion message.
 
@@ -321,7 +322,7 @@ After executing the stage protocol:
 
 1. Update PORT_STATE.md YAML frontmatter: `current_stage`, `stages_completed`, `build_iterations`, `build_failures`.
 2. Update the status table in the PORT_STATE.md body (set current stage row to `done` if the quality gate passed, `in_progress` otherwise).
-3. Commit the state file: `git add /porting/PORT_STATE.md && git commit -m "port-state: stage {N} update"`.
+3. Commit the state file: `git add porting/PORT_STATE.md && git commit -m "port-state: stage {N} update"`.
 
 ### Step 4: Exit
 

@@ -102,11 +102,11 @@ Key principles:
 
 1. Initialize the project interactively:
 
-   ```
+   ```text
    /repo-clone init rust typescript
    ```
 
-   This creates `/porting/PORT_STATE.md` and the directory structure.
+   This creates `porting/PORT_STATE.md` and the directory structure.
 
 2. Create your loop prompt file `PROMPT_port.md` in the repo root. The SKILL.md provides the template — it instructs the agent to read `PORT_STATE.md`, determine the current stage, and execute the appropriate protocol.
 
@@ -190,8 +190,8 @@ These commands are for **interactive** use — setup, inspection, and manual con
 
 ## Output Directory Structure
 
-```
-/porting/
+```text
+porting/
   PORT_STATE.md              # Single source of truth for loop state
   BASELINE.md                # What the source codebase does (Stage 0)
   OUT_OF_SCOPE.md            # What will not be ported (Stage 0)

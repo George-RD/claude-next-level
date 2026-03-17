@@ -41,15 +41,15 @@ If found, use it as `source_root`. If none found, ask the user.
 
 Use this table to set `target_root` and `test_command` based on the target language:
 
-| Target Lang  | target_root  | test_command     |
-|--------------|--------------|------------------|
-| typescript   | ./src-ts     | npm test         |
-| python       | ./src-py     | pytest           |
-| go           | ./src-go     | go test ./...    |
-| rust         | ./src-rs     | cargo test       |
-| java         | ./src-java   | mvn test         |
+| Lang         | target_root  | test_command     | build_command        |
+|--------------|--------------|------------------|----------------------|
+| typescript   | ./src-ts     | npm test         | npm run build        |
+| python       | ./src-py     | pytest           | python -m py_compile |
+| go           | ./src-go     | go test ./...    | go build ./...       |
+| rust         | ./src-rs     | cargo test       | cargo build          |
+| java         | ./src-java   | mvn test         | mvn compile          |
 
-If the target language is not in the table, ask the user for `target_root` and `test_command`.
+Use this table for both source (auto-detect) and target (from user choice) languages. If a language is not in the table, ask the user for the commands.
 
 ### 4. Create Directory Structure
 
@@ -142,6 +142,7 @@ Tell the user:
   - `./loop.sh plan` to analyze specs and create the porting plan (if using ralph-wiggum's loop.sh)
   - Or run the extraction loop first: `while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done`
   - Then run the porting loop: `while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done`
+- **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
 - That they can check progress anytime with `/repo-clone status`
 - That `/repo-clone:help` explains the full workflow
 
@@ -194,7 +195,7 @@ Based on the current stage, recommend the next action:
 
 For the current stage, show what's needed to advance:
 
-- 0 -> 1: BASELINE.md, OUT_OF_SCOPE.md, and SEMANTIC_MISMATCHES.md must exist in `porting/`
+- 0 -> 1: SEMANTIC_MISMATCHES.md must exist in `porting/` (created by init; BASELINE.md and OUT_OF_SCOPE.md are created by the first extraction loop iteration)
 - 1 -> 2: Every test file must have a corresponding spec in `specs/tests/`
 - 2 -> 3: Every source module must have a corresponding spec in `specs/src/`
 - 3 -> 4: `IMPLEMENTATION_PLAN.md` must exist with dependency-ordered tasks

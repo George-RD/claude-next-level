@@ -39,6 +39,8 @@ Drives the **spec extraction loop**. Each iteration:
 
 Run: `while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done`
 
+> **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
+
 ### PROMPT_port.md
 
 Drives the **porting loop**. Each iteration:

@@ -17,7 +17,7 @@ Start with tests -- they are the most reliable behavioral contracts in any codeb
 Tests first because they tell you what the code *must* do. Implementation second
 because it fills in details tests don't cover (logging, config, internal structure).
 
-Output: `SPECS.md` -- one spec per module/component, all citation-backed.
+Output: `specs/tests/*.md` (from test extraction) and `specs/src/*.md` (from source extraction) -- one spec per module/component, all citation-backed.
 
 ### Phase 2: Plan the Porting Backlog
 
@@ -67,8 +67,7 @@ Languages have paradigm-level differences that cannot be transliterated:
 - **Concurrency models:** Rust Send/Sync bounds disappear; cooperative async is default
 - **Macros:** Expand mentally, port the generated behavior
 
-Track mismatches in `SEMANTIC_MISMATCHES.md` as they arise during porting.
-Full cross-language mapping tables live in `references/semantic-mappings.md`.
+Track mismatches in `porting/SEMANTIC_MISMATCHES.md` as they arise during porting.
 
 ## Backpressure
 
@@ -120,14 +119,5 @@ or the target language lacks fundamental capabilities the source relies on.
 
 ## Ralph Loop Integration
 
-This methodology runs on Ralph loops -- autonomous iteration cycles with
-fresh context per run.
-
-- `PROMPT_extract.md` -- drives Phase 1 spec extraction loops
-- `PROMPT_port.md` -- drives Phase 3 implementation loops
-- `IMPLEMENTATION_PLAN.md` -- shared state between iterations (the backlog)
-
-Each loop iteration gets a clean context window. The plan file is the only
-persistent state between iterations. This means specs and citations must be
-self-contained -- an agent reading them cold should have everything needed
-to implement the next task without prior conversation context.
+This methodology runs on Ralph loops. See `docs/ralph-reference.md` for the
+full technique reference, loop mechanics, and prompt template conventions.

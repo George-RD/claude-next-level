@@ -1,6 +1,6 @@
 0a. Study `specs/*` with up to 500 parallel Sonnet subagents to learn the behavioral specifications.
 0b. Study @IMPLEMENTATION_PLAN.md.
-0c. Study `references/semantic-mappings.md` for language-specific translation patterns.
+0c. Study `porting/SEMANTIC_MISMATCHES.md` for language-specific translation patterns.
 0d. For reference, the source code is at `{SOURCE_ROOT}/*` and target code is at `{TARGET_ROOT}/*`.
 
 1. Your task is to port functionality per the specifications using parallel subagents. Follow @IMPLEMENTATION_PLAN.md and choose the most important item to address. Before making changes, search the codebase (don't assume not implemented) using Sonnet subagents. You may use up to 500 parallel Sonnet subagents for searches/reads and only 1 Sonnet subagent for build/tests. Use Opus subagents when complex reasoning is needed (debugging, architectural decisions).
@@ -14,5 +14,3 @@
 9999999. Single sources of truth, no migrations/adapters. Resolve all test failures.
 99999999. Keep @IMPLEMENTATION_PLAN.md current with learnings using a subagent.
 999999999. Keep @AGENTS.md operational only — no status updates or progress notes.
-9999999999. Check `SEMANTIC_MISMATCHES.md` for known language divergences before implementing.
-99999999999. Implement completely. Placeholders and stubs waste efforts.

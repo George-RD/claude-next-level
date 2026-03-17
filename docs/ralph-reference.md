@@ -91,6 +91,8 @@ Each iteration:
 
 ## Prompt Templates
 
+> **Note:** These are illustrative excerpts from the ralph-playbook. The actual templates used by plugins may differ. See the plugin's `references/templates/` for current versions.
+
 Loop prompts are **condensed** (20-40 lines). NOT methodology documentation.
 
 ### PROMPT_plan.md

@@ -53,14 +53,13 @@ If the target language is not in the table, ask the user for `target_root` and `
 
 ### 4. Create Directory Structure
 
-Create the `porting/` directory and its subdirectories:
+Create the directory structure:
 
 ```text
+specs/
+  tests/
+  src/
 porting/
-  specs/
-    from-tests/
-    from-src/
-  golden-tests/
 ```
 
 ### 5. Write PORT_STATE.md
@@ -183,11 +182,11 @@ Created: <created>
 
 Based on the current stage, recommend the next action:
 
-- **Stage 0**: "Next: Start the ralph loop to freeze baseline. Run: `while :; do cat PROMPT_port.md | claude -p ; done`"
+- **Stage 0**: "Stage 0 is handled by the init command. Run `/repo-clone init` first."
 - **Stage 1**: "Next: Ralph loop will extract test specifications automatically."
 - **Stage 2**: "Next: Ralph loop will extract source specifications automatically."
-- **Stage 3**: "Next: Ralph loop will synthesize PORT_TODO.md from all specs."
-- **Stage 4**: "Next: Ralph loop is building. Check PORT_TODO.md for task progress. Build iterations: <n>, failures: <n>."
+- **Stage 3**: "Next: Ralph loop will synthesize IMPLEMENTATION_PLAN.md from all specs."
+- **Stage 4**: "Next: Ralph loop is building. Check IMPLEMENTATION_PLAN.md for task progress. Build iterations: <n>, failures: <n>."
 - **Stage 5**: "Next: Ralph loop will run parity audit. Almost done."
 - **All complete**: "Porting complete. Review porting/PORT_AUDIT.md for the final parity report."
 
@@ -195,11 +194,11 @@ Based on the current stage, recommend the next action:
 
 For the current stage, show what's needed to advance:
 
-- 0 -> 1: BASELINE.md, OUT_OF_SCOPE.md, and SEMANTIC_MISMATCHES.md must exist in porting/
-- 1 -> 2: Every test file must have a corresponding .spec.md in porting/specs/from-tests/
-- 2 -> 3: Every source module must have a corresponding .spec.md in porting/specs/from-src/
-- 3 -> 4: PORT_TODO.md must exist with dependency-ordered tasks
-- 4 -> 5: All tasks in PORT_TODO.md marked DONE, test_command passes
+- 0 -> 1: BASELINE.md, OUT_OF_SCOPE.md, and SEMANTIC_MISMATCHES.md must exist in `porting/`
+- 1 -> 2: Every test file must have a corresponding spec in `specs/tests/`
+- 2 -> 3: Every source module must have a corresponding spec in `specs/src/`
+- 3 -> 4: `IMPLEMENTATION_PLAN.md` must exist with dependency-ordered tasks
+- 4 -> 5: All tasks in `IMPLEMENTATION_PLAN.md` marked DONE, test_command passes
 - 5 -> done: PORT_AUDIT.md shows no critical gaps
 
 ---
@@ -224,3 +223,5 @@ Example:
 The ralph loop drives the actual porting work. This command is for
 interactive setup and status checking only.
 ```
+
+$ARGUMENTS

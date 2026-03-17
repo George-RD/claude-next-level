@@ -33,7 +33,7 @@ Drives the **spec extraction loop**. Each iteration:
 1. Reads source code at the configured source root
 2. Checks which modules already have specs
 3. Extracts behavioral specifications for unprocessed modules
-4. Writes specs to `specs/` with `[source:file:line-range]` citations
+4. Writes specs to `specs/tests/` (from test files) and `specs/src/` (from source modules) with `[source:file:line-range]` citations
 5. Updates `IMPLEMENTATION_PLAN.md` with extraction progress
 6. Commits and pushes
 
@@ -80,9 +80,13 @@ This is the primary coordination mechanism between loop iterations.
 
 Created during init with known divergences for the language pair (error handling, type systems, concurrency, module systems). Agents consult this before implementing to avoid naive translations.
 
-### specs/
+### specs/tests/
 
-Behavioral specifications extracted from source code. Each spec describes WHAT a module does (not HOW) with citations to the original source. These are the single source of truth for porting -- agents read specs, follow citations, and implement.
+Behavioral specifications extracted from test files. Each spec describes WHAT a module does (not HOW) with citations to the original test code (`[source:path/file:line-range]`).
+
+### specs/src/
+
+Behavioral specifications extracted from source modules. Each spec captures module behavior with citations to the original source. Together with `specs/tests/`, these are the single source of truth for porting -- agents read specs, follow citations, and implement.
 
 ### porting/PORT_STATE.md
 
@@ -131,7 +135,7 @@ Without citations, the agent would implement from spec descriptions alone -- whi
 ## Observing and Controlling
 
 - **Check progress:** `/repo-clone status` or read `porting/PORT_STATE.md`
-- **Review specs:** Browse `specs/`
+- **Review specs:** Browse `specs/tests/` and `specs/src/`
 - **Check the plan:** Read `IMPLEMENTATION_PLAN.md`
 - **Resume:** Restart the loop. Fresh context picks up from disk state.
 - **Manual override:** Edit `IMPLEMENTATION_PLAN.md` or `PORT_STATE.md` to reprioritize or skip tasks.

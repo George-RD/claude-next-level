@@ -146,7 +146,7 @@ Based on the current stage, recommend the next action:
 - **Stage 3**: "Next: Ralph loop will synthesize PORT_TODO.md from all specs."
 - **Stage 4**: "Next: Ralph loop is building. Check PORT_TODO.md for task progress. Build iterations: <n>, failures: <n>."
 - **Stage 5**: "Next: Ralph loop will run parity audit. Almost done."
-- **All complete**: "Porting complete. Review /porting/PORT_AUDIT.md for the final parity report."
+- **All complete**: "Porting complete. Review porting/PORT_AUDIT.md for the final parity report."
 
 ### 4. Show Quality Gate Status
 

@@ -17,7 +17,7 @@ repo-clone automates codebase porting between languages using a **ralph loop** a
 Key principles:
 
 - **Primary context = scheduler.** The main agent never does leaf-level work. It reads state, decides what to do, and spawns subagents for all file reading, analysis, and implementation.
-- **Fresh context each iteration.** Every loop iteration starts with zero memory of previous iterations. All state persists on disk via `PORT_STATE.md` and other files in `/porting/`.
+- **Fresh context each iteration.** Every loop iteration starts with zero memory of previous iterations. All state persists on disk via `PORT_STATE.md` and other files in `porting/`.
 - **Fitness = tests pass.** Each iteration either passes the test command and commits, or fails and reverts. No half-done work accumulates.
 
 ---
@@ -33,7 +33,7 @@ Key principles:
 - Writes `SEMANTIC_MISMATCHES.md` (language differences that affect the port: error handling, types, concurrency, module systems)
 - This is the only stage where the primary context may do work directly (these are small files, no subagents needed)
 
-**Gate to advance:** All three files exist in `/porting/`.
+**Gate to advance:** All three files exist in `porting/`.
 
 ### Stage 1: Extract Test Specs
 
@@ -41,10 +41,10 @@ Key principles:
 
 - Spawns `spec-extractor` subagents in parallel (up to 10 concurrent), one per batch of test files
 - Each agent reads test files and produces structured specs describing WHAT is tested, not HOW
-- Primary context collects specs, validates completeness, writes them to `/porting/specs/from-tests/`
+- Primary context collects specs, validates completeness, writes them to `porting/specs/from-tests/`
 - One `.spec.md` file per test file, with citations in `[test:path/file.ext:start-end]` format
 
-**Gate to advance:** Every test file has a corresponding spec in `/porting/specs/from-tests/`.
+**Gate to advance:** Every test file has a corresponding spec in `porting/specs/from-tests/`.
 
 ### Stage 2: Extract Source Specs
 
@@ -53,16 +53,16 @@ Key principles:
 - Same pattern as Stage 1 but for source files
 - Spawns `spec-extractor` subagents in parallel per source file batch
 - Produces specs describing what each module DOES (behavior, contracts, invariants)
-- Writes to `/porting/specs/from-src/`
+- Writes to `porting/specs/from-src/`
 - Citations use `[source:path/file.ext:start-end]` format
 
-**Gate to advance:** Every source module has a corresponding spec in `/porting/specs/from-src/`.
+**Gate to advance:** Every source module has a corresponding spec in `porting/specs/from-src/`.
 
 ### Stage 3: Plan
 
 **What it does:** Synthesizes all specs into a dependency-ordered task list.
 
-- Reads all specs from both `/porting/specs/from-tests/` and `/porting/specs/from-src/`
+- Reads all specs from both `porting/specs/from-tests/` and `porting/specs/from-src/`
 - Creates `PORT_TODO.md` with tasks ordered by dependency (foundations first, dependent modules later)
 - Each task references the specs it implements
 - Cross-references with `SEMANTIC_MISMATCHES.md` for language-specific considerations
@@ -125,7 +125,7 @@ Each iteration of the loop:
 1. Starts a **fresh Claude context** (no memory of previous iterations)
 2. Reads `PROMPT_port.md` as the prompt
 3. The SKILL.md is loaded (plugin skill), giving the agent the full methodology
-4. Agent reads `/porting/PORT_STATE.md` to determine current stage
+4. Agent reads `porting/PORT_STATE.md` to determine current stage
 5. Agent acts as **scheduler**: spawns subagents for actual work
 6. Agent updates state, commits on success
 7. Process exits, loop restarts with fresh context
@@ -138,10 +138,10 @@ Each iteration of the loop:
 
 You can stop the loop at any time (Ctrl+C) and inspect the state:
 
-- **Check progress:** `/repo-clone status` or read `/porting/PORT_STATE.md` directly
-- **Review specs:** Browse `/porting/specs/from-tests/` and `/porting/specs/from-src/`
-- **Check the plan:** Read `/porting/PORT_TODO.md`
-- **Review the audit:** Read `/porting/PORT_AUDIT.md`
+- **Check progress:** `/repo-clone status` or read `porting/PORT_STATE.md` directly
+- **Review specs:** Browse `porting/specs/from-tests/` and `porting/specs/from-src/`
+- **Check the plan:** Read `porting/PORT_TODO.md`
+- **Review the audit:** Read `porting/PORT_AUDIT.md`
 - **Resume:** Just restart the loop. The agent will pick up from wherever it left off.
 
 You can also manually edit `PORT_STATE.md` to:

@@ -53,10 +53,10 @@ If the target language is not in the table, ask the user for `target_root` and `
 
 ### 4. Create Directory Structure
 
-Create the `/porting/` directory and its subdirectories:
+Create the `porting/` directory and its subdirectories:
 
-```
-/porting/
+```text
+porting/
   specs/
     from-tests/
     from-src/
@@ -65,7 +65,7 @@ Create the `/porting/` directory and its subdirectories:
 
 ### 5. Write PORT_STATE.md
 
-Write `/porting/PORT_STATE.md` with the following content (substitute actual values):
+Write `porting/PORT_STATE.md` with the following content (substitute actual values):
 
 ```yaml
 ---
@@ -107,17 +107,17 @@ Tell the user:
 
 ## Status Mode (`/repo-clone status`)
 
-Read `/porting/PORT_STATE.md` and display a progress summary.
+Read `porting/PORT_STATE.md` and display a progress summary.
 
 ### 1. Read State
 
-Read `/porting/PORT_STATE.md`. Parse the YAML frontmatter to extract all fields. Parse the markdown table for stage statuses.
+Read `porting/PORT_STATE.md`. Parse the YAML frontmatter to extract all fields. Parse the markdown table for stage statuses.
 
 ### 2. Display Progress Table
 
 Show a formatted summary:
 
-```
+```text
 PORT STATUS: <source_lang> -> <target_lang>
 ================================================
 
@@ -152,9 +152,9 @@ Based on the current stage, recommend the next action:
 
 For the current stage, show what's needed to advance:
 
-- 0 -> 1: BASELINE.md, OUT_OF_SCOPE.md, and SEMANTIC_MISMATCHES.md must exist in /porting/
-- 1 -> 2: Every test file must have a corresponding .spec.md in /porting/specs/from-tests/
-- 2 -> 3: Every source module must have a corresponding .spec.md in /porting/specs/from-src/
+- 0 -> 1: BASELINE.md, OUT_OF_SCOPE.md, and SEMANTIC_MISMATCHES.md must exist in porting/
+- 1 -> 2: Every test file must have a corresponding .spec.md in porting/specs/from-tests/
+- 2 -> 3: Every source module must have a corresponding .spec.md in porting/specs/from-src/
 - 3 -> 4: PORT_TODO.md must exist with dependency-ordered tasks
 - 4 -> 5: All tasks in PORT_TODO.md marked DONE, test_command passes
 - 5 -> done: PORT_AUDIT.md shows no critical gaps
@@ -163,11 +163,11 @@ For the current stage, show what's needed to advance:
 
 ## Fallback Mode (no arguments, no state)
 
-If `/porting/PORT_STATE.md` exists, behave as **Status Mode**.
+If `porting/PORT_STATE.md` exists, behave as **Status Mode**.
 
 If it does not exist, show usage help:
 
-```
+```text
 repo-clone: Automated codebase porting between languages
 
 Usage:

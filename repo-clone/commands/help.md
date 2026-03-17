@@ -92,6 +92,8 @@ Behavioral specifications extracted from source modules. Each spec captures modu
 
 ### porting/PORT_STATE.md
 
+Tracks which stages are complete. Stages 0-2 map to the extraction loop (`PROMPT_extract.md`), stages 3-4 to the porting loop (`PROMPT_port.md`), and stage 5 to the parity audit.
+
 Tracks overall porting progress across 6 stages (Freeze, Extract Tests, Extract Source, Plan, Build, Audit). Used by `/repo-clone status` to report progress.
 
 ---

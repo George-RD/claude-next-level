@@ -114,9 +114,9 @@ Read `references/templates/AGENTS_port.md` from the plugin directory. Replace th
 | `{TARGET_LANG}` | target language name |
 | `{SOURCE_ROOT}` | detected source root |
 | `{TARGET_ROOT}` | smart-defaults target root |
-| `{SOURCE_TEST_CMD}` | infer from source language (e.g., `cargo test` for Rust, `pytest` for Python) |
-| `{TARGET_TEST_CMD}` | smart-defaults test command |
-| `{TARGET_BUILD_CMD}` | infer from target language (e.g., `npm run build` for TypeScript, `go build ./...` for Go) |
+| `{SOURCE_TEST_CMD}` | smart-defaults test command for source language |
+| `{TARGET_TEST_CMD}` | smart-defaults test command for target language |
+| `{TARGET_BUILD_CMD}` | smart-defaults build command for target language |
 
 Write the result to `AGENTS.md` in the project root.
 
@@ -198,7 +198,7 @@ For the current stage, show what's needed to advance:
 - 0 -> 1: SEMANTIC_MISMATCHES.md must exist in `porting/` (created by init; BASELINE.md and OUT_OF_SCOPE.md are created by the first extraction loop iteration)
 - 1 -> 2: Every test file must have a corresponding spec in `specs/tests/`
 - 2 -> 3: Every source module must have a corresponding spec in `specs/src/`
-- 3 -> 4: `IMPLEMENTATION_PLAN.md` must exist with dependency-ordered tasks
+- 3 -> 4: `IMPLEMENTATION_PLAN.md` must contain dependency-ordered tasks (not just the empty init placeholder)
 - 4 -> 5: All tasks in `IMPLEMENTATION_PLAN.md` marked DONE, test_command passes
 - 5 -> done: PORT_AUDIT.md shows no critical gaps
 

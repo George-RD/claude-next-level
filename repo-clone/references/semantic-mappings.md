@@ -39,13 +39,13 @@ Used by scheduler and agents during porting. Target language defaults to TypeScr
 | `async fn` / `.await` | `async function` / `await` | `async def` / `await` | goroutine (no async/await) |
 | `tokio::spawn` | `Promise.all([...])` | `asyncio.gather(...)` | `go func()` |
 | `tokio::spawn` + `JoinHandle` | store Promise, await later | `asyncio.create_task` | `sync.WaitGroup` |
-| `Mutex<T>` | not needed (single-threaded) | `asyncio.Lock` | `sync.Mutex` |
-| `Arc<T>` | not needed (GC + single thread) | not needed (GC + GIL) | not needed (GC), but guard shared state |
-| `mpsc::channel` | EventEmitter or async iterator | `asyncio.Queue` | `chan T` |
+| `Mutex<T>` | usually unnecessary (cooperative async), but required with Worker Threads + SharedArrayBuffer | `asyncio.Lock` or `threading.Lock` | `sync.Mutex` |
+| `Arc<T>` | not needed (GC) unless sharing across Worker Threads | GIL does not replace synchronization for shared mutable state — use `threading.Lock` | not needed (GC), but guard shared state |
+| `mpsc::channel` | EventEmitter or async iterator (cooperative); `MessagePort` for Worker Threads | `asyncio.Queue` or `queue.Queue` for threads | `chan T` |
 | `Send + Sync` bounds | N/A -- remove entirely | N/A | N/A |
 | `tokio::select!` | `Promise.race([...])` | `asyncio.wait(FIRST_COMPLETED)` | `select {}` |
 
-**Port rule:** Drop all Send/Sync/lifetime bounds. In TS, concurrency is cooperative -- no data races possible. Replace channels with events or async queues.
+**Port rule:** Drop all Send/Sync/lifetime bounds. Default async in TS/Python is cooperative (no data races). However, Worker Threads (TS) and `threading` (Python) introduce real concurrency — synchronize shared mutable state with locks/atomics in those cases. Replace channels with events or async queues.
 
 ## Module Systems
 

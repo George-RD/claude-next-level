@@ -7,14 +7,6 @@
   },
   "plugins": [
     {
-      "name": "nest-test",
-      "description": "Minimal test to verify claude -p can run from inside a hook",
-      "version": "0.1.0",
-      "author": { "name": "George-RD" },
-      "source": "./nest-test",
-      "category": "development"
-    },
-    {
       "name": "grandslam-offer",
       "description": "Grand Slam Offer workshop with adversarial agent teams. Builds irresistible offers using Hormozi's $100M Offers methodology, stress-tested by marketer, strategist, and customer persona agents.",
       "version": "1.0.0",

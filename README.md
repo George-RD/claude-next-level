@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,100:16213e&height=200&section=header&text=claude-next-level&fontSize=42&fontColor=e0e0e0&animation=fadeIn&fontAlignY=35&desc=Plugins%20for%20Claude%20Code%20%26%20Cowork&descSize=16&descAlignY=55">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=200&section=header&text=claude-next-level&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Plugins%20for%20Claude%20Code%20%26%20Cowork&descSize=16&descAlignY=55" width="100%">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=200&section=header&text=claude-next-level&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Plugins%20for%20Claude%20Code%20%26%20Cowork&descSize=16&descAlignY=55" width="100%" alt="claude-next-level header">
 </picture>
 
 <p align="center">
@@ -61,7 +61,7 @@ Done. Each plugin adds slash commands — type `/` to see what's available.
 
 **Step 3.** Paste the repo URL and click **Sync**:
 
-```
+```text
 https://github.com/George-RD/claude-next-level
 ```
 
@@ -135,5 +135,5 @@ Found a bug? Got an idea? [Open an issue](https://github.com/George-RD/claude-ne
 This is an active project — things move fast and break sometimes. If something doesn't work, tell us.
 
 <picture>
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,100:16213e&height=100&section=footer" width="100%">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,100:16213e&height=100&section=footer" width="100%" alt="footer">
 </picture>

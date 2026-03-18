@@ -31,12 +31,22 @@
       "category": "development"
     },
     {
+      "name": "ralph-wiggum-toolkit",
+      "description": "Recipe-based autonomous development loops. Greenfield recipe: JTBD specs to plan to build. Port recipe: extract behavioral specs from existing codebase, port to target language. Implements Geoffrey Huntley's Ralph methodology with manifest-driven progress tracking.",
+      "version": "1.0.0",
+      "author": { "name": "George-RD" },
+      "source": "./ralph-wiggum-toolkit",
+      "category": "development"
+    },
+    {
       "name": "ralph-wiggum",
       "description": "Spec-driven autonomous development loops implementing Geoffrey Huntley's Ralph methodology. Three phases: define JTBD requirements, plan implementation, build in loops. Parallel subagents, IMPLEMENTATION_PLAN.md as shared state, specs/* as source of truth.",
       "version": "1.0.0",
       "author": { "name": "George-RD" },
       "source": "./ralph-wiggum",
-      "category": "development"
+      "category": "development",
+      "deprecated": true,
+      "deprecation_message": "Replaced by ralph-wiggum-toolkit. Install ralph-wiggum-toolkit and use /ralph instead of /ralph-wiggum:*"
     },
     {
       "name": "jj-commands",
@@ -52,7 +62,9 @@
       "version": "1.0.0",
       "author": { "name": "George-RD" },
       "source": "./repo-clone",
-      "category": "development"
+      "category": "development",
+      "deprecated": true,
+      "deprecation_message": "Replaced by ralph-wiggum-toolkit. Install ralph-wiggum-toolkit and use /ralph init --recipe port instead of /repo-clone"
     }
   ]
 }

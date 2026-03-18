@@ -41,9 +41,9 @@ escape_sed_replacement() {
   printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'
 }
 
-# Escape a string for safe embedding in JSON values
+# Escape a string for safe embedding in JSON values inside a heredoc
 escape_json_value() {
-  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\$/\\$/g' -e 's/`/\\`/g'
 }
 
 # ============================================================

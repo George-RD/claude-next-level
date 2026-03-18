@@ -119,5 +119,5 @@ or the target language lacks fundamental capabilities the source relies on.
 
 ## Ralph Loop Integration
 
-This methodology runs on Ralph loops. See `docs/ralph-reference.md` for the
-full technique reference, loop mechanics, and prompt template conventions.
+This methodology runs on Ralph loops. Run `/ralph help` for the full
+technique reference, loop mechanics, and prompt template conventions.

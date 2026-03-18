@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "source_lang": "",
+  "target_lang": "",
+  "source_root": "",
+  "target_root": "",
+  "test_command": "",
+  "build_command": "",
+  "default_model": "haiku",
+  "created": "",
+  "phases": {
+    "extract-tests": {
+      "status": "pending",
+      "files": {}
+    },
+    "extract-src": {
+      "status": "pending",
+      "files": {}
+    },
+    "plan": {
+      "status": "pending"
+    },
+    "build": {
+      "status": "pending"
+    },
+    "audit": {
+      "status": "pending"
+    }
+  }
+}

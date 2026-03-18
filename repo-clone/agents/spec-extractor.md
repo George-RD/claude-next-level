@@ -1,6 +1,8 @@
 ---
 name: spec-extractor
 description: |
+  Note: For headless/loop execution, use `claude -p --model haiku` directly instead of this agent. This agent is for interactive use within a Claude session.
+
   Use this agent for extracting behavioral specifications from source code or test files during codebase porting. Spawned by the scheduler context during stages 1 (extract-tests) and 2 (extract-src) to process files in parallel.
 
   <example>

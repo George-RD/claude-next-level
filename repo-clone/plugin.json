@@ -1,14 +1,14 @@
 {
   "name": "repo-clone",
-  "version": "1.0.0",
-  "description": "Automates codebase porting between languages using a Ralph loop architecture. Primary context acts as scheduler, spawning subagents for spec extraction and parity checking across 6 stages: freeze, extract-tests, extract-source, plan, build, audit.",
+  "version": "2.0.0",
+  "description": "Manifest-driven codebase porting between languages. Scans source repos, builds a manifest.json tracking every file through extract-tests, extract-src, plan, build, and audit phases. Designed for headless execution with claude -p --model haiku in a loop.",
   "author": {
     "name": "George-RD"
   },
   "keywords": [
     "porting",
     "migration",
-    "ralph-loop",
+    "manifest-driven",
     "code-translation",
     "language-migration",
     "clone",

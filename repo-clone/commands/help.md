@@ -1,6 +1,6 @@
 ---
 name: help
-description: "Explain the repo-clone workflow, Ralph loop setup, and PROMPT file architecture"
+description: "Explain the repo-clone workflow, manifest-driven execution, and PROMPT file architecture"
 allowed-tools: ["Read"]
 ---
 
@@ -12,13 +12,26 @@ Read and present the following information to the user.
 
 ## What is repo-clone?
 
-repo-clone automates codebase porting between languages using **Ralph loops** -- autonomous iteration loops where each cycle gets fresh context and all continuity lives on disk. Instead of interactively guiding an AI through a port, you set up prompt files that drive extraction and porting in a stateless loop.
+repo-clone automates codebase porting between languages using **manifest-driven headless loops** -- autonomous iteration loops where each cycle gets fresh context and all continuity lives on disk. Instead of interactively guiding an AI through a port, you set up prompt files and a manifest that drive extraction and porting in a stateless loop.
 
 Key ideas:
 
-- **Fresh context every iteration.** Each loop cycle starts a new Claude session with no memory of previous runs. State persists through files: `IMPLEMENTATION_PLAN.md`, specs, and git history.
+- **Fresh context every iteration.** Each loop cycle starts a new Claude session with no memory of previous runs. State persists through files: `porting/manifest.json`, `IMPLEMENTATION_PLAN.md`, specs, and git history.
 - **Citations are the key innovation.** Every behavioral claim in a spec cites the original source code (`[source:path/file:line-range]`). During porting, the agent follows citations back to the original to verify behavior -- preventing hallucinated implementations.
-- **Two phases, two loops.** Spec extraction and porting run as separate loops with separate PROMPT files.
+- **Manifest tracks every file.** `porting/manifest.json` lists every test and source file with its processing status. Each loop iteration picks the next pending file, processes it, and marks it done.
+- **Haiku for throughput.** Empirical testing shows Haiku captures 100% of test-observable behaviors at a fraction of the cost. Use `--model haiku` for extraction loops.
+
+---
+
+## The Manifest (porting/manifest.json)
+
+The manifest is the central coordination mechanism. It tracks:
+
+- **Project metadata**: source/target languages, roots, commands
+- **Phase status**: each phase (extract-tests, extract-src, plan, build, audit) has an overall status
+- **Per-file tracking**: within extract phases, every file has its own status (pending/done)
+
+Each loop iteration reads the manifest, finds the next pending file, processes it, and updates the manifest. This enables stateless loops -- no memory between iterations, all state on disk.
 
 ---
 
@@ -26,20 +39,30 @@ Key ideas:
 
 `/repo-clone init` scaffolds these files into the project root:
 
-### PROMPT_extract.md
+### PROMPT_extract_tests.md
 
-Drives the **spec extraction loop**. Each iteration:
+Drives the **test spec extraction loop**. Each iteration:
 
-1. Reads source code at the configured source root
-2. Checks which modules already have specs
-3. Extracts behavioral specifications for unprocessed modules
-4. Writes specs to `specs/tests/` (from test files) and `specs/src/` (from source modules) with `[source:file:line-range]` citations
-5. Updates `IMPLEMENTATION_PLAN.md` with extraction progress
+1. Reads the manifest to find the next pending test file
+2. Extracts behavioral specifications from the test file
+3. Writes specs to `specs/tests/{basename}_spec.md` with `[test:file:line-range]` citations
+4. Marks the file as done in the manifest
+5. Commits and pushes
+
+Run: `while :; do cat PROMPT_extract_tests.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
+
+### PROMPT_extract_src.md
+
+Drives the **source spec extraction loop**. Each iteration:
+
+1. Reads the manifest to find the next pending source file
+2. Extracts behavioral specifications from the source file
+3. Writes specs to `specs/src/{basename}_spec.md` with `[source:file:line-range]` citations
+4. Cross-references test specifications where behaviors overlap
+5. Marks the file as done in the manifest
 6. Commits and pushes
 
-Run: `while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done`
-
-> **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
+Run: `while :; do cat PROMPT_extract_src.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
 
 ### PROMPT_port.md
 
@@ -52,7 +75,9 @@ Drives the **porting loop**. Each iteration:
 5. Runs tests; updates the plan with findings
 6. Commits and pushes on success
 
-Run: `while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done`
+Run: `while :; do cat PROMPT_port.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
+
+> **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
 
 ### AGENTS.md
 
@@ -78,13 +103,33 @@ This is the primary coordination mechanism between loop iterations.
 
 ## Supporting Files
 
+### porting/manifest.json
+
+The central tracking file. Contains per-file status for each phase:
+
+```json
+{
+  "phases": {
+    "extract-tests": {
+      "status": "in-progress",
+      "files": {
+        "src/tests/auth_test.rs": {"status": "done"},
+        "src/tests/config_test.rs": {"status": "pending"}
+      }
+    }
+  }
+}
+```
+
+Each loop iteration reads this, finds the next `"pending"` file, processes it, and updates the status to `"done"`.
+
 ### porting/SEMANTIC_MISMATCHES.md
 
 Created during init with known divergences for the language pair (error handling, type systems, concurrency, module systems). Agents consult this before implementing to avoid naive translations.
 
 ### specs/tests/
 
-Behavioral specifications extracted from test files. Each spec describes WHAT a module does (not HOW) with citations to the original test code (`[source:path/file:line-range]`).
+Behavioral specifications extracted from test files. Each spec describes WHAT a module does (not HOW) with citations to the original test code (`[test:path/file:line-range]`).
 
 ### specs/src/
 
@@ -92,32 +137,26 @@ Behavioral specifications extracted from source modules. Each spec captures modu
 
 ### porting/PORT_STATE.md
 
-Tracks which stages are complete. Stages 0-2 map to the extraction loop (`PROMPT_extract.md`), stages 3-4 to the porting loop (`PROMPT_port.md`), and stage 5 to the parity audit.
-
-Tracks overall porting progress across 6 stages (Freeze, Extract Tests, Extract Source, Plan, Build, Audit). Used by `/repo-clone status` to report progress.
+Human-readable view of the manifest state. Regenerated by `/repo-clone status` from `porting/manifest.json`. Used for quick visual progress checks.
 
 ---
 
 ## Running the Loops
 
-### Option A: Using ralph-wiggum's loop.sh
-
-If the project has ralph-wiggum configured:
+### Headless bash loops (recommended)
 
 ```bash
-./loop.sh plan     # Run planning/extraction
-./loop.sh build    # Run porting
+# Phase 1: Extract test specs
+while :; do cat PROMPT_extract_tests.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done
+
+# Phase 2: Extract source specs
+while :; do cat PROMPT_extract_src.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done
+
+# Phase 3: Port using specs
+while :; do cat PROMPT_port.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done
 ```
 
-### Option B: Bare bash loops
-
-```bash
-# Phase 1: Extract specs from source
-while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done
-
-# Phase 2: Port using specs
-while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done
-```
+Each iteration reads the manifest, finds the next pending file, processes it, and marks it done. The loop naturally terminates when all files are processed (the agent finds no pending work).
 
 Stop anytime with Ctrl+C. The loop picks up where it left off because all state is on disk.
 
@@ -138,11 +177,11 @@ Without citations, the agent would implement from spec descriptions alone -- whi
 
 ## Observing and Controlling
 
-- **Check progress:** `/repo-clone status` or read `porting/PORT_STATE.md`
+- **Check progress:** `/repo-clone status` or read `porting/manifest.json`
 - **Review specs:** Browse `specs/tests/` and `specs/src/`
 - **Check the plan:** Read `IMPLEMENTATION_PLAN.md`
 - **Resume:** Restart the loop. Fresh context picks up from disk state.
-- **Manual override:** Edit `IMPLEMENTATION_PLAN.md` or `PORT_STATE.md` to reprioritize or skip tasks.
+- **Manual override:** Edit `porting/manifest.json`, `IMPLEMENTATION_PLAN.md`, or `PORT_STATE.md` to reprioritize or skip tasks.
 
 ---
 
@@ -150,8 +189,8 @@ Without citations, the agent would implement from spec descriptions alone -- whi
 
 | Command | Purpose |
 |---------|---------|
-| `/repo-clone init <source> <target>` | Scaffold porting project with PROMPT files and AGENTS.md |
-| `/repo-clone status` | Show progress, next action, quality gate status |
+| `/repo-clone init <source> <target>` | Scaffold porting project with manifest, PROMPT files, and AGENTS.md |
+| `/repo-clone status` | Show progress from manifest, next action, quality gate status |
 | `/repo-clone:help` | This guide |
 
 Full methodology: `references/methodology.md`

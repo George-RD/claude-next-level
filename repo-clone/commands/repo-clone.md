@@ -7,7 +7,7 @@ allowed-tools: ["Read", "Write", "Bash", "Glob", "Grep"]
 
 # /repo-clone Command
 
-This is the **interactive** entry point for the repo-clone plugin. It is used for project setup and status checking. The actual porting work is driven by the ralph loop using the SKILL.md directly — not this command.
+This is the **interactive** entry point for the repo-clone plugin. It is used for project setup and status checking. The actual porting work is driven by headless `claude -p --model haiku` loops using the PROMPT files -- not this command.
 
 ## Determine Mode
 
@@ -51,7 +51,42 @@ Use this table to set `target_root` and `test_command` based on the target langu
 
 Use this table for both source (auto-detect) and target (from user choice) languages. If a language is not in the table, ask the user for the commands.
 
-### 4. Create Directory Structure
+### 4. Scan and Categorize
+
+Scan the source repo for all files under the detected source root. Categorize each file as one of: **test**, **source**, **config**, **asset**, **doc**.
+
+Use language-specific patterns to identify test files:
+
+| Pattern | Language |
+|---------|----------|
+| `test/`, `tests/`, `__tests__/` | Directory-based (any) |
+| `_test.dart` | Dart |
+| `test_*.py`, `*_test.py` | Python |
+| `*_test.go` | Go |
+| `*_spec.rb`, `*_test.rb` | Ruby |
+| `*.test.ts`, `*.spec.ts`, `*.test.js`, `*.spec.js` | TypeScript/JavaScript |
+| `*_test.rs`, `tests/` | Rust |
+| `*Test.java`, `*Tests.java` | Java |
+| `*_test.swift`, `*Tests.swift` | Swift |
+
+Config files: `*.json`, `*.yaml`, `*.yml`, `*.toml`, `*.ini`, `*.cfg`, `Makefile`, `Dockerfile`, `*.lock`
+Asset files: images, fonts, binaries, generated files
+Doc files: `*.md`, `*.txt`, `*.rst`, `LICENSE`, `README*`
+
+Show the user a summary:
+
+```text
+Scan Results:
+  Test files:   N
+  Source files:  M
+  Config files:  K
+  Assets (skip): J
+  Docs (skip):   L
+```
+
+Recommend phases: if tests found, recommend extract-tests + extract-src. If no tests found, recommend extract-src only.
+
+### 5. Create Directory Structure
 
 Create the directory structure:
 
@@ -62,9 +97,20 @@ specs/
 porting/
 ```
 
-### 5. Write PORT_STATE.md
+### 6. Build manifest.json
 
-Write `porting/PORT_STATE.md` with the following content (substitute actual values):
+Read the manifest template from the plugin's `data/templates/manifest-template.json`. Populate it with detected values:
+
+- Set `source_lang`, `target_lang`, `source_root`, `target_root`, `test_command`, `build_command`, `created`
+- Populate `phases.extract-tests.files` with every detected test file, each as `"<filepath>": {"status": "pending"}`
+- Populate `phases.extract-src.files` with every detected source file, each as `"<filepath>": {"status": "pending"}`
+- If no test files were found, set `phases.extract-tests.status` to `"skipped"`
+
+Write the result to `porting/manifest.json`.
+
+### 7. Write PORT_STATE.md
+
+Write `porting/PORT_STATE.md` as a human-readable view of the manifest state (substitute actual values):
 
 ```yaml
 ---
@@ -92,21 +138,25 @@ created: "<today's date YYYY-MM-DD>"
 | 5 | Audit | pending |
 ```
 
-### 6. Scaffold PROMPT Files and AGENTS.md
+### 8. Scaffold PROMPT Files and AGENTS.md
 
-Copy templates from the plugin's `references/templates/` directory into the project root, substituting detected values.
+Copy templates from the plugin's `data/templates/` directory into the project root, substituting detected values.
 
-#### 6a. Copy PROMPT_extract.md
+#### 8a. Copy PROMPT_extract_tests.md
 
-Read `references/templates/PROMPT_extract.md` from the plugin directory. Replace `{SOURCE_ROOT}` with the detected `source_root`. Write the result to `PROMPT_extract.md` in the project root.
+Read `data/templates/PROMPT_extract_tests.md` from the plugin directory. Write the result to `PROMPT_extract_tests.md` in the project root.
 
-#### 6b. Copy PROMPT_port.md
+#### 8b. Copy PROMPT_extract_src.md
 
-Read `references/templates/PROMPT_port.md` from the plugin directory. Replace `{SOURCE_ROOT}` with the detected `source_root` and `{TARGET_ROOT}` with the smart-defaults `target_root`. Write the result to `PROMPT_port.md` in the project root.
+Read `data/templates/PROMPT_extract_src.md` from the plugin directory. Write the result to `PROMPT_extract_src.md` in the project root.
 
-#### 6c. Copy AGENTS.md
+#### 8c. Copy PROMPT_port.md
 
-Read `references/templates/AGENTS_port.md` from the plugin directory. Replace the following placeholders using detected values and the smart defaults table:
+Read `data/templates/PROMPT_port.md` from the plugin directory. Write the result to `PROMPT_port.md` in the project root.
+
+#### 8d. Copy AGENTS.md
+
+Read `data/templates/AGENTS_port.md` from the plugin directory. Replace the following placeholders using detected values and the smart defaults table:
 
 | Placeholder | Value |
 |-------------|-------|
@@ -120,11 +170,11 @@ Read `references/templates/AGENTS_port.md` from the plugin directory. Replace th
 
 Write the result to `AGENTS.md` in the project root.
 
-#### 6d. Create SEMANTIC_MISMATCHES.md
+#### 8e. Create SEMANTIC_MISMATCHES.md
 
 Create `porting/SEMANTIC_MISMATCHES.md` with known divergences for the source/target language pair. Read `references/semantic-mappings.md` from the plugin directory and extract the relevant rows for the two languages. Include sections for: Error Handling, Type Systems, Concurrency, Module Systems, and Common Gotchas.
 
-#### 6e. Create IMPLEMENTATION_PLAN.md
+#### 8f. Create IMPLEMENTATION_PLAN.md
 
 Create an empty `IMPLEMENTATION_PLAN.md` in the project root:
 
@@ -132,16 +182,18 @@ Create an empty `IMPLEMENTATION_PLAN.md` in the project root:
 <!-- Generated by repo-clone init - will be populated during spec extraction and planning -->
 ```
 
-### 7. Confirm to User
+### 9. Confirm to User
 
 Tell the user:
 
-- What was created (directory structure, PORT_STATE.md, PROMPT files, AGENTS.md, SEMANTIC_MISMATCHES.md, IMPLEMENTATION_PLAN.md)
+- What was created (directory structure, manifest.json, PORT_STATE.md, PROMPT files, AGENTS.md, SEMANTIC_MISMATCHES.md, IMPLEMENTATION_PLAN.md)
 - The detected/chosen settings (languages, roots, test commands)
+- The scan results (N test files, M source files tracked in manifest)
 - How to run the porting loops:
-  - `./loop.sh plan` to analyze specs and create the porting plan (if using ralph-wiggum's loop.sh)
-  - Or run the extraction loop first: `while :; do cat PROMPT_extract.md | claude -p --dangerously-skip-permissions ; done`
-  - Then run the porting loop: `while :; do cat PROMPT_port.md | claude -p --dangerously-skip-permissions ; done`
+  - **Extract test specs:** `while :; do cat PROMPT_extract_tests.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
+  - **Extract source specs:** `while :; do cat PROMPT_extract_src.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
+  - **Port implementation:** `while :; do cat PROMPT_port.md | claude -p --model haiku --dangerously-skip-permissions; sleep 5; done`
+  - Each iteration will read the manifest, find the next pending file, extract its spec, and mark it done. The loop terminates when all files are processed.
 - **Safety:** `--dangerously-skip-permissions` bypasses all tool approval. Run only in sandboxed environments (Docker, Fly, E2B) or trusted repos.
 - That they can check progress anytime with `/repo-clone status`
 - That `/repo-clone:help` explains the full workflow
@@ -150,63 +202,64 @@ Tell the user:
 
 ## Status Mode (`/repo-clone status`)
 
-Read `porting/PORT_STATE.md` and display a progress summary.
+Read from `porting/manifest.json` and display a progress summary.
 
 ### 1. Read State
 
-Read `porting/PORT_STATE.md`. Parse the YAML frontmatter to extract all fields. Parse the markdown table for stage statuses.
+Read `porting/manifest.json`. Parse the JSON to extract all fields including per-file status within each phase.
 
 ### 2. Display Progress Table
 
-Show a formatted summary:
+Show a formatted summary with per-file progress:
 
 ```text
 PORT STATUS: <source_lang> -> <target_lang>
 ================================================
 
-| Stage | Name           | Status    |
-|-------|----------------|-----------|
-| 0     | Freeze         | <status>  |
-| 1     | Extract Tests  | <status>  |
-| 2     | Extract Source | <status>  |
-| 3     | Plan           | <status>  |
-| 4     | Build          | <status>  |
-| 5     | Audit          | <status>  |
+| Phase          | Status    | Progress        |
+|----------------|-----------|-----------------|
+| Extract Tests  | <status>  | N/M files done  |
+| Extract Source | <status>  | N/M files done  |
+| Plan           | <status>  |                 |
+| Build          | <status>  |                 |
+| Audit          | <status>  |                 |
 
-Current Stage: <current_stage>
-Build Iterations: <build_iterations>
-Build Failures: <build_failures>
+Model: <default_model>
 Created: <created>
 ```
 
+Count files with `"status": "done"` vs total files in each phase to compute progress.
+
 ### 3. Show Next Action
 
-Based on the current stage, recommend the next action:
+Based on the phase statuses, recommend the next action:
 
-- **Stage 0**: "Stage 0 is handled by the init command. Run `/repo-clone init` first."
-- **Stage 1**: "Next: Ralph loop will extract test specifications automatically."
-- **Stage 2**: "Next: Ralph loop will extract source specifications automatically."
-- **Stage 3**: "Next: Ralph loop will synthesize IMPLEMENTATION_PLAN.md from all specs."
-- **Stage 4**: "Next: Ralph loop is building. Check IMPLEMENTATION_PLAN.md for task progress. Build iterations: <n>, failures: <n>."
-- **Stage 5**: "Next: Ralph loop will run parity audit. Almost done."
+- **extract-tests pending**: "Next: Run the extract-tests loop to extract behavioral specs from test files."
+- **extract-src pending** (after tests done): "Next: Run the extract-src loop to extract behavioral specs from source files."
+- **plan pending**: "Next: Synthesize IMPLEMENTATION_PLAN.md from all specs."
+- **build pending**: "Next: Run the porting loop to implement tasks from the plan."
+- **audit pending**: "Next: Run parity audit. Almost done."
 - **All complete**: "Porting complete. Review porting/PORT_AUDIT.md for the final parity report."
 
 ### 4. Show Quality Gate Status
 
-For the current stage, show what's needed to advance:
+For the current phase, show what's needed to advance:
 
-- 0 -> 1: SEMANTIC_MISMATCHES.md must exist in `porting/` (created by init; BASELINE.md and OUT_OF_SCOPE.md are created by the first extraction loop iteration)
-- 1 -> 2: Every test file must have a corresponding spec in `specs/tests/`
-- 2 -> 3: Every source module must have a corresponding spec in `specs/src/`
-- 3 -> 4: `IMPLEMENTATION_PLAN.md` must contain dependency-ordered tasks (not just the empty init placeholder)
-- 4 -> 5: All tasks in `IMPLEMENTATION_PLAN.md` marked DONE, test_command passes
-- 5 -> done: PORT_AUDIT.md shows no critical gaps
+- extract-tests -> extract-src: Every test file in the manifest must have a corresponding spec in `specs/tests/`
+- extract-src -> plan: Every source file in the manifest must have a corresponding spec in `specs/src/`
+- plan -> build: `IMPLEMENTATION_PLAN.md` must contain dependency-ordered tasks (not just the empty init placeholder)
+- build -> audit: All tasks in `IMPLEMENTATION_PLAN.md` marked DONE, test_command passes
+- audit -> done: PORT_AUDIT.md shows no critical gaps
+
+### 5. Regenerate PORT_STATE.md
+
+After reading the manifest, regenerate `porting/PORT_STATE.md` from the manifest state so the human-readable view stays in sync.
 
 ---
 
 ## Fallback Mode (no arguments, no state)
 
-If `porting/PORT_STATE.md` exists, behave as **Status Mode**.
+If `porting/manifest.json` exists, behave as **Status Mode**.
 
 If it does not exist, show usage help:
 
@@ -221,7 +274,7 @@ Usage:
 Example:
   /repo-clone init rust typescript
 
-The ralph loop drives the actual porting work. This command is for
+The headless loop drives the actual porting work. This command is for
 interactive setup and status checking only.
 ```
 

@@ -213,7 +213,9 @@ MANIFEST_EOF
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "Next steps:"
   echo "  1. Edit AGENTS.md with your build/test/lint commands"
-  echo "  2. Update [project-specific goal] in PROMPT_plan.md"
+  if [[ -z "$GOAL" ]]; then
+    echo "  2. Update [project-specific goal] in PROMPT_plan.md"
+  fi
   echo "  3. Write specs: /ralph spec"
   echo "  4. Run planning: /ralph plan"
   echo "  5. Run building: /ralph build"

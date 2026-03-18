@@ -4,8 +4,6 @@ description: "Full methodology guide for Ralph Wiggum Toolkit"
 
 # Ralph Wiggum Toolkit — Full Guide
 
-Explain the following to the user:
-
 ## What is Ralph Wiggum Toolkit?
 
 Ralph Wiggum Toolkit implements Geoffrey Huntley's spec-driven autonomous development methodology with a **recipe-based architecture**. A bash loop feeds the same prompt to Claude repeatedly — each iteration gets a fresh context window but sees its previous work through files on disk.

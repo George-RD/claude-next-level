@@ -30,8 +30,8 @@ elif [[ "${1:-}" == "plan-work" ]]; then
     MODE="plan-work"
     PROMPT_FILE="PROMPT_plan.md"
     if [[ -z "${2:-}" ]]; then
-        echo "Error: plan-work requires a work description"
-        echo "Usage: ./loop.sh plan-work \"description of the work\""
+        echo "Error: plan-work requires a work description" >&2
+        echo "Usage: ./loop.sh plan-work \"description of the work\"" >&2
         exit 1
     fi
     WORK_SCOPE="$2"

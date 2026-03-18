@@ -1,8 +1,9 @@
 # Named Guarantee Guidance — Feature Spec
 
+**Status**: IMPLEMENTED (PR #46, merged 2026-03-18)
 **Issue**: #45
 **Plugin**: grandslam-offer
-**Target**: `skills/grandslam-offer/SKILL.md` — Phase 5, Guarantees section (lines 669-679)
+**Target**: `skills/grandslam-offer/SKILL.md` — Phase 5, Guarantees section
 **Research**: `docs/plans/hormozi-guarantee-naming-research.md`
 
 ---

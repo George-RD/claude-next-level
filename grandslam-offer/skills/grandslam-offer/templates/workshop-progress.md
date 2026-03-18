@@ -35,6 +35,11 @@ Generate a single self-contained HTML file. All CSS and JS inline. No external d
 </head>
 <body>
     <header>
+        <nav class="page-nav">
+            <a href="./{{PROJECT_NAME}}-offer-summary.html" class="nav-link">Offer Summary</a>
+            <a href="./{{PROJECT_NAME}}-workshop-progress.html" class="nav-link active">Workshop Progress</a>
+            <a href="./{{PROJECT_NAME}}-research-dashboard.html" class="nav-link">Research Dashboard</a>
+        </nav>
         <h1>Workshop Progress — {{BUSINESS_NAME}}</h1>
         <p class="subtitle">Phase {{CURRENT_PHASE}} of 5 | {{COMPLETION_STATUS}}</p>
     </header>
@@ -192,6 +197,10 @@ Apply these CSS rules inline in the `<style>` tag:
 - `h2`: `font-size: 1.75rem; font-weight: 600; color: #fff; border-left: 4px solid #4a9eff; padding-left: 1rem; margin-bottom: 1.5rem`
 - `section`: `margin-bottom: 3rem`
 - `.subtitle`: `color: #888; font-size: 1.1rem`
+- `.page-nav`: `display: flex; gap: 0.5rem; justify-content: center; padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid #2a2a2a`
+- `.nav-link`: `color: #888; text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s`
+- `.nav-link:hover`: `color: #4a9eff; background: rgba(74,158,255,0.1)`
+- `.nav-link.active`: `color: #4a9eff; background: rgba(74,158,255,0.15); font-weight: 700`
 
 **Timeline:**
 

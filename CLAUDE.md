@@ -6,11 +6,13 @@ Claude Code plugin marketplace: curated plugins for workflow discipline, busines
 
 | Directory | Plugin | Description |
 |-----------|--------|-------------|
+| `ralph-wiggum-toolkit/` | ralph-wiggum-toolkit v1.0.0 | Recipe-based autonomous dev loops (greenfield + port recipes) |
 | `next-level/` | next-level v0.3.0 | Workflow discipline: TDD enforcement, spec-driven dev, verification guards, linting |
 | `grandslam-offer/` | grandslam-offer | $100M Offers workshop with adversarial agent teams |
 | `hundred-million-leads/` | hundred-million-leads | $100M Leads workshop with adversarial agent teams |
 | `pr-review-workflow/` | pr-review-workflow | Parallel PR review with agent teams |
-| `nest-test/` | nest-test | Test harness for nested claude -p in hooks |
+| `ralph-wiggum/` | ralph-wiggum (deprecated) | Replaced by ralph-wiggum-toolkit greenfield recipe |
+| `repo-clone/` | repo-clone (deprecated) | Replaced by ralph-wiggum-toolkit port recipe |
 
 ## Key Files
 

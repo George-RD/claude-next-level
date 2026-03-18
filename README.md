@@ -4,7 +4,7 @@
 </picture>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/plugins-7-blue?style=flat-square" alt="Plugins">
+  <img src="https://img.shields.io/badge/plugins-8-blue?style=flat-square" alt="Plugins">
   <img src="https://img.shields.io/badge/Claude_Code-compatible-green?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTEyIDJMMyA3djEwbDkgNSA5LTVWN2wtOS01eiIvPjwvc3ZnPg==" alt="Claude Code">
   <img src="https://img.shields.io/badge/Cowork-compatible-green?style=flat-square" alt="Cowork">
   <img src="https://img.shields.io/github/last-commit/George-RD/claude-next-level?style=flat-square&color=purple" alt="Last commit">
@@ -27,11 +27,12 @@ Business strategy workshops, PR automation, spec-driven development loops, and m
 
 | Plugin | Status | What it does |
 |--------|--------|-------------|
-| **Repo Clone** | Active | Automates porting a codebase between languages (e.g. Go to Rust). Manifest-driven, 6 stages: freeze, extract tests, extract source, plan, build, audit. Built on [Geoffrey Huntley's Ralph methodology](https://ghuntley.com/specs) — the closest thing here to the "true Ralph" loop. Currently in active use and testing. |
-| **Ralph Wiggum** | Refactoring | Spec-driven autonomous dev loops for greenfield projects. Define JTBD requirements, plan, then build in loops with parallel subagents. Specs are the source of truth, not vibes. Being consolidated with Repo Clone (see [Roadmap](#roadmap)). |
+| **Ralph Wiggum Toolkit** | Active | Recipe-based autonomous dev loops. **Greenfield recipe**: JTBD specs → plan → build for new features. **Port recipe**: extract behavioral specs from an existing codebase, port to a target language with citation-backed fidelity. Built on [Geoffrey Huntley's Ralph methodology](https://ghuntley.com/specs). Unified `/ralph` command namespace. |
 | **Cycle** | Stable | PR review on autopilot. Point it at one or many PRs and it shepherds them through review — dispatches fix agents, manages worktrees, loops until clean, merges. |
 | **Chief of Staff** | Stable | Meta-orchestrator. Coordinates concurrent workflows across plugins, manages agent waves, tracks session state. Short alias: `/cos`. |
 | **Jj Commands** | Stable | Jujutsu (jj) version control workflows — if you use jj instead of git, this handles describe, push, bookmark, PR creation, and conflict resolution. |
+| ~~Ralph Wiggum~~ | Deprecated | Replaced by Ralph Wiggum Toolkit (greenfield recipe). |
+| ~~Repo Clone~~ | Deprecated | Replaced by Ralph Wiggum Toolkit (port recipe). |
 
 ---
 
@@ -109,7 +110,7 @@ graph LR
 
 **What's happening now:**
 
-- **Ralph Toolkit consolidation** — Repo Clone and Ralph Wiggum are merging into a single plugin. They're the same machine with different fuel: one shared loop engine, pluggable recipes. The `port` recipe (from Repo Clone) is further along and actively being used. The `greenfield` recipe (from Ralph Wiggum) is being refactored to use the same core. This simplifies the install and makes it straightforward to add new recipe types later.
+- **Ralph Toolkit v1.0.0 shipped** — Repo Clone and Ralph Wiggum have been merged into a single plugin with a shared loop engine and pluggable recipes. The `port` recipe (from Repo Clone) and `greenfield` recipe (from Ralph Wiggum) both work through the unified `/ralph` command. The old plugins remain installable but are deprecated.
 
 - **Hundred Million Leads** — Built but needs real-world testing. The Grandslam Offer plugin has been through several iterations; HML still needs the same treatment.
 
@@ -119,6 +120,7 @@ graph LR
 
 - More Ralph recipes (testing, migration, documentation generation)
 - Cross-plugin coordination improvements via Chief of Staff
+- Remove deprecated ralph-wiggum and repo-clone plugins (v2.0.0 timeline)
 
 ---
 

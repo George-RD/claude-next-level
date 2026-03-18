@@ -1,0 +1,30 @@
+{
+  "name": "port",
+  "description": "Extract behavioral specs from an existing codebase, then port to target language.",
+  "version": "1.0.0",
+  "phases": ["extract-tests", "extract-src", "plan", "build", "audit"],
+  "loop_phases": ["plan", "build"],
+  "headless_phases": ["extract-tests", "extract-src"],
+  "init_args": [
+    {
+      "name": "source-lang",
+      "positional": 0,
+      "description": "Source language (e.g. dart, rust, python)",
+      "required": true
+    },
+    {
+      "name": "target-lang",
+      "positional": 1,
+      "description": "Target language (e.g. typescript, python, go)",
+      "required": true
+    }
+  ],
+  "default_model": "haiku",
+  "prompt_map": {
+    "extract-tests": "PROMPT_extract_tests.md",
+    "extract-src": "PROMPT_extract_src.md",
+    "plan": "PROMPT_port.md",
+    "build": "PROMPT_port.md"
+  },
+  "manifest_template": "manifest-template.json"
+}

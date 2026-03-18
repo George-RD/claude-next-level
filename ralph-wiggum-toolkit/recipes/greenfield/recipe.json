@@ -1,0 +1,29 @@
+{
+  "name": "greenfield",
+  "description": "User-written specs to plan to build. For new features and greenfield projects.",
+  "version": "1.0.0",
+  "phases": ["spec", "plan", "build"],
+  "loop_phases": ["plan", "build"],
+  "headless_phases": [],
+  "init_args": [
+    {
+      "name": "src-dir",
+      "flag": "--src-dir",
+      "description": "Source code directory",
+      "default": "src",
+      "required": false
+    },
+    {
+      "name": "goal",
+      "flag": "--goal",
+      "description": "Project goal for PROMPT_plan.md placeholder",
+      "required": false
+    }
+  ],
+  "default_model": "opus",
+  "prompt_map": {
+    "plan": "PROMPT_plan.md",
+    "build": "PROMPT_build.md"
+  },
+  "manifest_template": null
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Ralph Wiggum Toolkit stop hook for spec-driven development loops",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/core/hooks/stop-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

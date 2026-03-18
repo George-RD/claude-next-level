@@ -14,7 +14,7 @@
   - Value equation scores (Dream Outcome, Perceived Likelihood, Time Delay, Effort & Sacrifice)
   - The Stack: core offer + all bonuses with names, descriptions, and dollar values
   - Total stack value, actual price, savings percentage
-  - Enhancement elements (scarcity, urgency, guarantee details)
+  - Enhancement elements: scarcity, urgency, and guarantee details (guarantee name, type, terms, always-on vs proposal category, target fear, stacking layers)
   - Agent scores (Marketer, Strategist, each persona) with feedback
   - Overall consensus score and verdict
   - Next steps recommendations
@@ -34,6 +34,11 @@ Generate a single self-contained HTML file. All CSS and JS inline. No external d
 </head>
 <body>
     <header>
+        <nav class="page-nav">
+            <a href="./{{PROJECT_NAME}}-offer-summary.html" class="nav-link active">Offer Summary</a>
+            <a href="./{{PROJECT_NAME}}-workshop-progress.html" class="nav-link">Workshop Progress</a>
+            <a href="./{{PROJECT_NAME}}-research-dashboard.html" class="nav-link">Research Dashboard</a>
+        </nav>
         <div class="offer-badge">Grand Slam Offer</div>
         <h1>{{OFFER_NAME}}</h1>
         <p class="elevator-pitch">{{ELEVATOR_PITCH}}</p>
@@ -136,9 +141,20 @@ Generate a single self-contained HTML file. All CSS and JS inline. No external d
                     <h3>Urgency</h3>
                     <p>{{URGENCY_TEXT}}</p>
                 </div>
-                <div class="enhancement-card">
+                <div class="enhancement-card guarantee-card">
                     <h3>Guarantee</h3>
-                    <p>{{GUARANTEE_TEXT}}</p>
+                    <div class="guarantee-name">{{GUARANTEE_NAME}}</div>
+                    <div class="guarantee-type-badge {{GUARANTEE_TYPE_CLASS}}">{{GUARANTEE_TYPE}}</div>
+                    <p>{{GUARANTEE_DESCRIPTION}}</p>
+                    <div class="guarantee-meta">
+                        <span class="guarantee-visibility {{VISIBILITY_CLASS}}">{{ALWAYS_ON_OR_PROPOSAL}}</span>
+                        <span class="guarantee-fear">Addresses: {{TARGET_FEAR}}</span>
+                    </div>
+                    <!-- If stacked, show layers -->
+                    <div class="guarantee-stack">
+                        <!-- Repeat for each layer -->
+                        <div class="guarantee-layer">{{LAYER_DESCRIPTION}}</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -231,6 +247,10 @@ Apply these CSS rules inline in the `<style>` tag:
 
 - `body`: `background: #0a0a0a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; padding: 2rem; max-width: 1400px; margin: 0 auto`
 - `header`: `text-align: center; border-bottom: 2px solid #2a2a2a; padding-bottom: 2rem; margin-bottom: 3rem`
+- `.page-nav`: `display: flex; gap: 0.5rem; justify-content: center; padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid #2a2a2a`
+- `.nav-link`: `color: #888; text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s`
+- `.nav-link:hover`: `color: #4a9eff; background: rgba(74,158,255,0.1)`
+- `.nav-link.active`: `color: #4a9eff; background: rgba(74,158,255,0.15); font-weight: 700`
 - `.offer-badge`: `display: inline-block; background: linear-gradient(135deg, #4a9eff, #7b5cff); color: #fff; padding: 0.5rem 1.25rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem`
 - `h1`: `font-size: 3rem; font-weight: 800; color: #fff; margin-bottom: 1rem; line-height: 1.2`
 - `.elevator-pitch`: `font-size: 1.25rem; color: #c0c0c0; max-width: 800px; margin: 0 auto 1.5rem; line-height: 1.8`
@@ -273,6 +293,20 @@ Apply these CSS rules inline in the `<style>` tag:
 - `.enhancement-card`: `background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 1.5rem; transition: border-color 0.2s`
 - `.enhancement-card:hover`: `border-color: #4a9eff`
 - `.enhancement-card h3`: `font-size: 1.1rem; color: #4a9eff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem`
+- `.guarantee-card`: `grid-column: span 1` (allow wider when data is rich — agent may span full width)
+- `.guarantee-name`: `font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem`
+- `.guarantee-type-badge`: `display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem`
+- `.guarantee-type-badge.unconditional`: `background: rgba(34,197,94,0.15); color: #22c55e`
+- `.guarantee-type-badge.conditional`: `background: rgba(74,158,255,0.15); color: #4a9eff`
+- `.guarantee-type-badge.anti`: `background: rgba(239,68,68,0.15); color: #ef4444`
+- `.guarantee-type-badge.performance`: `background: rgba(234,179,8,0.15); color: #eab308`
+- `.guarantee-meta`: `display: flex; gap: 1rem; align-items: center; margin-top: 0.75rem; flex-wrap: wrap`
+- `.guarantee-visibility`: `font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px`
+- `.guarantee-visibility.always-on`: `background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.3)`
+- `.guarantee-visibility.proposal`: `background: rgba(234,179,8,0.1); color: #eab308; border: 1px solid rgba(234,179,8,0.3)`
+- `.guarantee-fear`: `font-size: 0.8rem; color: #888`
+- `.guarantee-stack`: `margin-top: 0.75rem; border-top: 1px solid #2a2a2a; padding-top: 0.75rem`
+- `.guarantee-layer`: `font-size: 0.85rem; color: #c0c0c0; padding: 0.25rem 0; border-left: 2px solid #4a9eff; padding-left: 0.75rem; margin-bottom: 0.5rem`
 
 **Agent Scores:**
 
@@ -338,8 +372,30 @@ function exportOffer() {
     output += `\n${'='.repeat(60)}\nENHANCEMENT\n\n`;
     document.querySelectorAll('.enhancement-card').forEach(card => {
         const h3 = card.querySelector('h3');
-        const p = card.querySelector('p');
-        if (h3 && p) output += `${h3.textContent}:\n${p.textContent}\n\n`;
+        if (!h3) return;
+
+        if (card.classList.contains('guarantee-card')) {
+            const name = card.querySelector('.guarantee-name');
+            const type = card.querySelector('.guarantee-type-badge');
+            const desc = card.querySelector('p');
+            const vis = card.querySelector('.guarantee-visibility');
+            const fear = card.querySelector('.guarantee-fear');
+            output += `${h3.textContent}:\n`;
+            if (name) output += `Name: ${name.textContent}\n`;
+            if (type) output += `Type: ${type.textContent}\n`;
+            if (desc) output += `${desc.textContent}\n`;
+            if (vis) output += `Category: ${vis.textContent}\n`;
+            if (fear) output += `${fear.textContent}\n`;
+            const layers = card.querySelectorAll('.guarantee-layer');
+            if (layers.length > 0) {
+                output += 'Stack:\n';
+                layers.forEach(l => { output += `  - ${l.textContent}\n`; });
+            }
+            output += '\n';
+        } else {
+            const p = card.querySelector('p');
+            if (p) output += `${h3.textContent}:\n${p.textContent}\n\n`;
+        }
     });
 
     // Agent Scores

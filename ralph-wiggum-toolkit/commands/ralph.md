@@ -19,6 +19,7 @@ Parse the user's arguments to determine which subcommand to run. The first posit
 | `build` | Run build loop |
 | `status` | Show project state |
 | `cancel` | Cancel active loop |
+| `retro` | Run retrospective pipeline (all phases or specific phase) |
 | `help` | Show full methodology guide |
 | (none) | Show usage help |
 
@@ -200,6 +201,104 @@ Always include "I'll take it from here" as the last option so the user can opt o
 
 ---
 
+## `retro` — Run Retrospective Pipeline
+
+Run a post-project retrospective analysis across multiple phases.
+
+### Arguments
+
+- `/ralph retro` — Run all pending phases in order
+- `/ralph retro --phase codegap` — Run only one specific phase
+- `/ralph retro --from-phase implgap` — Run from a specific phase forward
+
+Valid phase names: `codegap`, `implgap`, `plugingap`, `synthesis`, `explanations`, `todo`
+
+### Init Completion (first run)
+
+If `retro/retro_state.md` does not exist, complete the retrospective init before running phases:
+
+1. **Detect source recipe:**
+   - Read `ralph/manifest.json` → use `"recipe"` field (greenfield or port)
+   - If not found, check `porting/manifest.json` → treat as port (legacy)
+   - If neither exists but `IMPLEMENTATION_PLAN.md` exists → treat as uninitialized greenfield
+   - If nothing found → error: "No Ralph project found. Run `/ralph init` first."
+
+2. **Detect project directory:** Use the absolute path of the current working directory.
+
+3. **Encode session JSONL path:** Take the absolute project path, replace all `/` with `-`, prepend `~/.claude/projects/` to form the session directory path.
+
+4. **For port recipe:** Extract `source_lang`, `target_lang`, `target_root` from `ralph/manifest.json` (or `porting/manifest.json` for legacy).
+
+5. **For greenfield recipe:** Detect `src_dir` from `ralph/manifest.json` (default: `src`).
+
+6. **Detect spec_root and impl_root:**
+   - Port: `spec_root` = `specs/`, `impl_root` = value of `target_root` from manifest
+   - Greenfield: `spec_root` = `specs/`, `impl_root` = value of `src_dir` from manifest
+
+7. **Write `retro/retro_state.md`:** Read the template from `recipes/retrospective/templates/retro_state_template.md`, substitute all placeholders (`{PROJECT_NAME}` (directory basename), `{PROJECT_DIR}`, `{DATE}` (today), `{SOURCE_RECIPE}`, `{SESSION_PATH}`, `{SPEC_ROOT}`, `{IMPL_ROOT}`, `{SOURCE_LANG}`, `{TARGET_LANG}`), write to `retro/retro_state.md`.
+
+8. **Copy cross-reference standard:** Copy `recipes/retrospective/references/cross-ref-standard.md` to `retro/CROSS_REF_STANDARD.md`.
+
+9. **Apply AGENTS.md substitutions:** Replace placeholders in `AGENTS.md` with detected values (same pattern as port recipe init — substitute `{SOURCE_RECIPE}`, `{SPEC_ROOT}`, `{IMPL_ROOT}`, and any language-specific placeholders).
+
+### Phase Dispatch
+
+After init is complete (or was already complete):
+
+1. **Read phase status:** Parse `retro/retro_state.md` for the status of each phase (pending, running, done).
+
+2. **Determine phases to run:**
+   - No flags: run all phases with status `pending`, in order
+   - `--phase <name>`: run only that one phase (even if already done — re-run it)
+   - `--from-phase <name>`: run that phase and all subsequent phases
+
+3. **For each phase to run:**
+   - Read `recipes/retrospective/recipe.json` and look up the phase in `phase_models` to get the model name
+   - Update phase status to `running` in `retro/retro_state.md`
+   - Execute the phase prompt:
+
+     ```
+     claude -p --dangerously-skip-permissions --model {phase_model} --output-format stream-json < PROMPT_{phase}.md
+     ```
+
+   - On completion, update phase status to `done` in `retro/retro_state.md`
+
+4. **Completion:** When all phases are done, display a summary:
+
+   ```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Retrospective complete!
+
+   Outputs:
+     retro/codegap.md      — Code-spec gap analysis
+     retro/implgap.md      — Implementation gap analysis
+     retro/plugingap.md    — Plugin gap analysis
+     retro/synthesis.md    — Cross-cutting synthesis
+     retro/explanations.md — Session explanations
+     retro/todo.md         — Improvement TODO list
+
+   Next: Review retro/todo.md for actionable improvements.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ```
+
+### Status Integration
+
+When `/ralph status` is called and a `retro/` directory exists, append a retrospective status section:
+
+```
+Retrospective:
+  codegap       ✅ done
+  implgap       ✅ done
+  plugingap     ⏳ pending
+  synthesis     ⏳ pending
+  explanations  ⏳ pending
+  todo          ⏳ pending
+```
+
+Read phase statuses from `retro/retro_state.md`. Use `✅ done` for completed phases, `🔄 running` for in-progress, and `⏳ pending` for not-yet-started.
+
+---
+
 ## `cancel` — Cancel Active Loop
 
 Check if `.claude/ralph-wiggum.local.md` exists.
@@ -225,6 +324,7 @@ Usage:
   /ralph spec [topic]                    Phase 1: JTBD interview (greenfield)
   /ralph plan [--max-iterations N]       Run planning loop
   /ralph build [--max-iterations N]      Run build loop
+  /ralph retro                           Run retrospective pipeline
   /ralph status                          Show project state
   /ralph cancel                          Cancel active loop
   /ralph help                            Full methodology guide
@@ -232,6 +332,7 @@ Usage:
 Recipes:
   greenfield (default)   Spec → Plan → Build for new features
   port                   Extract behavioral specs → Port to target language
+  retrospective          Post-project analysis → Improvement TODO
 
 Examples:
   /ralph init                                    # Greenfield (default)

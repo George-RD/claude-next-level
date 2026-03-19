@@ -349,6 +349,42 @@ EOF
 }
 
 # ============================================================
+# RETROSPECTIVE INIT
+# Intentionally skips init_common — retrospective runs against
+# an existing project that already has specs/, ralph/,
+# IMPLEMENTATION_PLAN.md, and loop.sh.
+# ============================================================
+init_retrospective() {
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Ralph Wiggum Toolkit: Initializing (retrospective)"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  # Retrospective output directory
+  create_dir_if_missing "retro" "Retrospective output directory"
+
+  # Copy PROMPT files from recipe templates
+  create_if_missing "PROMPT_codegap.md" "$TEMPLATES/PROMPT_codegap.md" "PROMPT_codegap.md"
+  create_if_missing "PROMPT_implgap.md" "$TEMPLATES/PROMPT_implgap.md" "PROMPT_implgap.md"
+  create_if_missing "PROMPT_plugingap.md" "$TEMPLATES/PROMPT_plugingap.md" "PROMPT_plugingap.md"
+  create_if_missing "PROMPT_synthesis.md" "$TEMPLATES/PROMPT_synthesis.md" "PROMPT_synthesis.md"
+  create_if_missing "PROMPT_explanations.md" "$TEMPLATES/PROMPT_explanations.md" "PROMPT_explanations.md"
+  create_if_missing "PROMPT_todo.md" "$TEMPLATES/PROMPT_todo.md" "PROMPT_todo.md"
+  create_if_missing "AGENTS.md" "$TEMPLATES/AGENTS.md" "AGENTS.md"
+
+  # retro_state.md populated by /ralph command (needs interactive detection)
+
+  # Report
+  report_results
+
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Directory structure created."
+  echo "The /ralph retro command will complete the interactive init"
+  echo "(detect source recipe, build retro_state.md, run phases)."
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# ============================================================
 # MAIN: Parse arguments and dispatch
 # ============================================================
 
@@ -389,8 +425,9 @@ TEMPLATES="$RECIPE_DIR/templates"
 
 # Dispatch to recipe-specific init
 case "$RECIPE" in
-  greenfield) init_greenfield ;;
-  port)       init_port ;;
+  greenfield)     init_greenfield ;;
+  port)           init_port ;;
+  retrospective)  init_retrospective ;;
   *)
     echo "Error: Recipe '$RECIPE' has no init handler." >&2
     echo "Custom recipes require manual init." >&2

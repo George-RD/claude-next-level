@@ -79,7 +79,7 @@ These apply to both phases:
 ### EVR-001: {Theme title — describes the pattern, not a single gap}
 
 **Summary:** {One sentence describing this theme}
-**Upstream:** [gap:plugingap.md#PG-NNN], [gap:implgap.md#IG-NNN], [gap:codegap.md#CG-NNN]
+**Upstream:** [gap:plugingap.md#PG-NNN][gap:implgap.md#IG-NNN][gap:codegap.md#CG-NNN]
 **Pattern:** {What kept happening — the recurring behavior across the project}
 **Origin chain:** [gap:codegap.md#CG-NNN] -> [gap:implgap.md#IG-NNN] -> [gap:plugingap.md#PG-NNN]
 **Severity:** critical | high | medium | low

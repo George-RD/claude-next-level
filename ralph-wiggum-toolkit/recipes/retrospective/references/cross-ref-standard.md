@@ -11,7 +11,7 @@ Every gap item gets a stable ID at creation. IDs are immutable -- once assigned,
 
 ### Format
 
-```
+```text
 {PREFIX}-{NNN}
 ```
 
@@ -49,7 +49,7 @@ The text after the colon is for humans. It can be freely edited without breaking
 
 ### Basic Reference
 
-```
+```text
 [gap:{filename}#{stable-id}]
 ```
 
@@ -57,7 +57,7 @@ The filename is always the basename (no directory path) because all six document
 
 **Examples:**
 
-```
+```text
 [gap:codegap.md#CG-001]
 [gap:implgap.md#IG-003]
 [gap:synthesis.md#EVR-012]
@@ -75,13 +75,13 @@ Written as adjacent bracket tokens (no comma separator):
 
 Use `->` to show a traceability chain across documents:
 
-```
+```text
 [gap:codegap.md#CG-001] -> [gap:implgap.md#IG-002]
 ```
 
 Full chain example (used in TODO items):
 
-```
+```text
 [gap:codegap.md#CG-001] -> [gap:implgap.md#IG-002] -> [gap:plugingap.md#PG-003] -> [gap:synthesis.md#EVR-001] -> [gap:explanations.md#EXP-001]
 ```
 
@@ -150,13 +150,13 @@ A `TODO-` item's `**Full chain:**` field must trace back to a `CG-` item through
 
 Valid:
 
-```
+```text
 CG-001 -> IG-002 -> PG-003 -> EVR-001 -> EXP-001
 ```
 
 Invalid (skips plugin_gap):
 
-```
+```text
 CG-001 -> IG-002 -> EVR-001 -> EXP-001
 ```
 
@@ -331,7 +331,7 @@ This is valid but must be explicit -- the `**Upstream:**` field is always presen
 
 **Reference a gap item in prose:**
 
-```
+```text
 As identified in [gap:codegap.md#CG-001], the token refresh...
 ```
 

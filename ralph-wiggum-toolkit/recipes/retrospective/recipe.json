@@ -1,0 +1,41 @@
+{
+  "name": "retrospective",
+  "description": "Post-mortem audit of a completed Ralph project. Chains: codegap -> implementation gap -> plugin gap -> synthesis -> session explanations -> improvement TODO.",
+  "version": "1.0.0",
+  "phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "todo"],
+  "loop_phases": [],
+  "headless_phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "todo"],
+  "init_args": [
+    {
+      "name": "project-dir",
+      "flag": "--project-dir",
+      "description": "Path to the Ralph project being retrospected. Defaults to cwd.",
+      "required": false,
+      "default": "."
+    },
+    {
+      "name": "source-recipe",
+      "flag": "--source-recipe",
+      "description": "Recipe the project used: port or greenfield. Auto-detected from ralph/manifest.json if omitted.",
+      "required": false
+    }
+  ],
+  "default_model": "sonnet",
+  "phase_models": {
+    "codegap": "sonnet",
+    "implgap": "sonnet",
+    "plugingap": "sonnet",
+    "synthesis": "opus",
+    "explanations": "sonnet",
+    "todo": "opus"
+  },
+  "prompt_map": {
+    "codegap": "PROMPT_codegap.md",
+    "implgap": "PROMPT_implgap.md",
+    "plugingap": "PROMPT_plugingap.md",
+    "synthesis": "PROMPT_synthesis.md",
+    "explanations": "PROMPT_explanations.md",
+    "todo": "PROMPT_todo.md"
+  },
+  "manifest_template": null
+}

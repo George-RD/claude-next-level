@@ -2,10 +2,12 @@
 name: ralph
 description: >-
   Use for spec-driven development loops, porting code between languages,
-  migrating codebases, or autonomous build loops. Trigger phrases: "ralph loop",
-  "spec-driven", "build feature", "port", "clone to", "migrate to",
-  "translate to", "rewrite in", "convert from X to Y", "autonomous loop",
-  "implementation plan", "JTBD".
+  migrating codebases, retrospective analysis, or autonomous build loops.
+  Trigger phrases: "ralph loop", "spec-driven", "build feature", "port",
+  "clone to", "migrate to", "translate to", "rewrite in",
+  "convert from X to Y", "autonomous loop", "implementation plan", "JTBD",
+  "retrospective", "retro", "post-mortem", "what went wrong",
+  "audit the project", "improvement todo".
 ---
 
 # Ralph Wiggum Toolkit
@@ -39,5 +41,6 @@ Recipe-based autonomous development loops with spec-driven methodology.
 
 - **greenfield**: User-written specs → plan → build. For new features.
 - **port**: Extract behavioral specs → port to target language. For codebase migration.
+- **retrospective**: Analyze a completed Ralph project. Produces: codegap -> implementation gap -> plugin gap -> synthesis -> session explanation -> improvement TODO.
 
 Full guide: `/ralph help`

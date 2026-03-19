@@ -161,6 +161,43 @@ Show: specs count, AGENTS.md presence, IMPLEMENTATION_PLAN.md status, active loo
 
 Read manifest and show per-phase progress table with file counts. Regenerate `ralph/PORT_STATE.md`.
 
+### Interactive Next Steps
+
+After displaying status, analyze the project state and present the user with actionable options using AskUserQuestion. Tailor the options to the detected situation:
+
+**If WIP changes exist AND IMPLEMENTATION_PLAN.md has TODO tasks:**
+
+Use AskUserQuestion with these options:
+
+- "Reconcile WIP against the plan (recommended)" — Audit uncommitted changes against IMPLEMENTATION_PLAN.md, mark completed tasks as DONE, describe completed work with a VCS commit, then continue building
+- "Continue building from the plan" — Skip reconciliation, pick the next TODO task and start implementing
+- "Show me the plan first" — Display IMPLEMENTATION_PLAN.md so I can review before deciding
+- "I'll take it from here" — Just show the status, don't take any action
+
+**If all specs are done but no plan exists:**
+
+Use AskUserQuestion with:
+
+- "Create the implementation plan" — Run `/ralph plan` to synthesize a plan from specs
+- "I'll take it from here" — Just show the status
+
+**If plan exists with TODO tasks and no WIP:**
+
+Use AskUserQuestion with:
+
+- "Start building" — Run `/ralph build` to begin implementing from the plan
+- "Review the plan first" — Display IMPLEMENTATION_PLAN.md
+- "I'll take it from here" — Just show the status
+
+**If extraction phases are incomplete (port recipe):**
+
+Use AskUserQuestion with:
+
+- "Show me the extraction loop commands" — Display the headless loop commands to run
+- "I'll take it from here" — Just show the status
+
+Always include "I'll take it from here" as the last option so the user can opt out of any action.
+
 ---
 
 ## `cancel` — Cancel Active Loop

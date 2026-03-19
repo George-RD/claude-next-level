@@ -79,6 +79,7 @@ These apply to both phases:
 ### EVR-001: {Theme title — describes the pattern, not a single gap}
 
 **Summary:** {One sentence describing this theme}
+**Upstream:** [gap:plugingap.md#PG-NNN], [gap:implgap.md#IG-NNN], [gap:codegap.md#CG-NNN]
 **Pattern:** {What kept happening — the recurring behavior across the project}
 **Origin chain:** [gap:codegap.md#CG-NNN] -> [gap:implgap.md#IG-NNN] -> [gap:plugingap.md#PG-NNN]
 **Severity:** critical | high | medium | low
@@ -139,6 +140,7 @@ These apply to both phases:
 
 **Priority:** P0 | P1 | P2
 **Track:** project
+**Upstream:** [gap:explanations.md#EXP-NNN]
 **Explanation ref:** [gap:explanations.md#EXP-NNN]
 **Full chain:** [gap:codegap.md#CG-NNN] -> [gap:implgap.md#IG-NNN] -> [gap:plugingap.md#PG-NNN] -> [gap:synthesis.md#EVR-NNN] -> [gap:explanations.md#EXP-NNN]
 **Acceptance criteria:** {Specific, verifiable conditions that confirm the TODO is complete}
@@ -154,6 +156,7 @@ These apply to both phases:
 
 **Priority:** P0 | P1 | P2
 **Track:** plugin
+**Upstream:** [gap:explanations.md#EXP-NNN]
 **Explanation ref:** [gap:explanations.md#EXP-NNN]
 **Full chain:** [gap:codegap.md#CG-NNN] -> ... -> [gap:explanations.md#EXP-NNN]
 **Acceptance criteria:** {Specific, verifiable conditions}

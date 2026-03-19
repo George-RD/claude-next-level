@@ -65,10 +65,10 @@ The filename is always the basename (no directory path) because all six document
 
 ### Multiple Upstream References
 
-Comma-separated within the field value:
+Written as adjacent bracket tokens (no comma separator):
 
 ```markdown
-**Upstream:** [gap:codegap.md#CG-001], [gap:codegap.md#CG-004], [gap:codegap.md#CG-009]
+**Upstream:** [gap:codegap.md#CG-001][gap:codegap.md#CG-004][gap:codegap.md#CG-009]
 ```
 
 ### Chain Reference (Arrow Syntax)
@@ -118,7 +118,7 @@ grep -roh '\[gap:[^]]*\]' *.md | sort -u | while read -r ref; do
   inner="${inner%\]}"
   file="${inner%%#*}"
   id="${inner##*#}"
-  if ! grep -q "^##* $id" "$file" 2>/dev/null; then
+  if ! grep -qE "^#{3,} $id" "$file" 2>/dev/null; then
     echo "BROKEN REF: $ref"
   fi
 done
@@ -232,7 +232,7 @@ found { print }
 For sections with no subsections:
 
 ```bash
-grep -A 1000 "^## CG-001" file.md | awk 'NR==1{print;next} /^## /{exit} {print}'
+grep -A 1000 "^### CG-001" file.md | awk 'NR==1{print;next} /^### /{exit} {print}'
 ```
 
 ### Parse a Cross-Reference
@@ -296,7 +296,7 @@ Multiple items in document N-1 may map to a single item in document N. Example: 
 ```markdown
 ### IG-007: Plan missed auth-related gaps
 
-**Upstream:** [gap:codegap.md#CG-001], [gap:codegap.md#CG-004], [gap:codegap.md#CG-009]
+**Upstream:** [gap:codegap.md#CG-001][gap:codegap.md#CG-004][gap:codegap.md#CG-009]
 ```
 
 This is valid.

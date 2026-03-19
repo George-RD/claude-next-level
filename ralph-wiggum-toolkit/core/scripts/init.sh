@@ -355,6 +355,16 @@ EOF
 # IMPLEMENTATION_PLAN.md, and loop.sh.
 # ============================================================
 init_retrospective() {
+  # ── Consistency Contract ──────────────────────────────────────
+  # Files referenced by PROMPT templates that must exist at runtime.
+  # If you add a new "0x. Read ..." step to any PROMPT, add it here
+  # and add a create_if_missing call below.
+  #
+  # Referenced by all 6 PROMPTs:
+  #   retro/retro_state.md       (written by /ralph retro init)
+  #   AGENTS.md                  (copied below)
+  #   retro/CROSS_REF_STANDARD.md (copied below)
+  # ─────────────────────────────────────────────────────────────
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "Ralph Wiggum Toolkit: Initializing (retrospective)"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -370,6 +380,7 @@ init_retrospective() {
   create_if_missing "PROMPT_explanations.md" "$TEMPLATES/PROMPT_explanations.md" "PROMPT_explanations.md"
   create_if_missing "PROMPT_todo.md" "$TEMPLATES/PROMPT_todo.md" "PROMPT_todo.md"
   create_if_missing "AGENTS.md" "$TEMPLATES/AGENTS.md" "AGENTS.md"
+  create_if_missing "retro/CROSS_REF_STANDARD.md" "$RECIPE_DIR/references/cross-ref-standard.md" "CROSS_REF_STANDARD.md"
 
   # retro_state.md populated by /ralph command (needs interactive detection)
 

@@ -61,6 +61,18 @@ run_plan_mode() {
     vcs_push "$CURRENT_BRANCH"
   done
 
+  # After planning, run plan-to-state if tasks.json was produced
+  if [[ -f "ralph/tasks.json" ]] && [[ -f "$RALPH_STATE_FILE" ]]; then
+    echo ""
+    echo "Running plan-to-state validation..."
+    PLAN_TO_STATE="$SCRIPT_DIR/plan-to-state.sh"
+    if [[ -x "$PLAN_TO_STATE" ]]; then
+      "$PLAN_TO_STATE"
+    else
+      echo "Warning: plan-to-state.sh not found or not executable" >&2
+    fi
+  fi
+
   exit 0
 }
 

@@ -48,25 +48,33 @@ write_state() {
 assemble_current_task() {
   local task_id=$1
 
-  # Extract all task fields + state metadata in one jq call
-  local task_data
-  task_data=$(jq -r --arg tid "$task_id" '
+  # Extract all task fields + state metadata in one jq call (NUL-delimited to
+  # preserve empty fields — @tsv collapses consecutive tabs in bash `read`)
+  local task_json
+  task_json=$(jq -r --arg tid "$task_id" '
     (.tasks[] | select(.id == $tid)) as $t |
-    if $t then
-      [$t.id, $t.description, ($t.acceptance // "See spec"),
-       ($t.spec // ""), ($t.parentId // ""),
-       .taskIteration, .maxTaskIterations,
-       ([$t.dependencies[]?] | join(","))] | @tsv
-    else "NOT_FOUND" end
+    if $t then {
+      id: $t.id, desc: $t.description, acceptance: ($t.acceptance // "See spec"),
+      spec: ($t.spec // ""), parentId: ($t.parentId // ""),
+      taskIter: .taskIteration, maxTaskIter: .maxTaskIterations,
+      deps: ([$t.dependencies[]?] | join(","))
+    } else null end
   ' "$RALPH_STATE_FILE")
 
-  if [[ "$task_data" == "NOT_FOUND" ]]; then
+  if [[ "$task_json" == "null" ]] || [[ -z "$task_json" ]]; then
     echo "Error: Task '$task_id' not found in state.json" >&2
     return 1
   fi
 
   local id desc acceptance spec_file parent_id task_iter max_task_iter deps_csv
-  IFS=$'\t' read -r id desc acceptance spec_file parent_id task_iter max_task_iter deps_csv <<< "$task_data"
+  id=$(echo "$task_json" | jq -r '.id')
+  desc=$(echo "$task_json" | jq -r '.desc')
+  acceptance=$(echo "$task_json" | jq -r '.acceptance')
+  spec_file=$(echo "$task_json" | jq -r '.spec')
+  parent_id=$(echo "$task_json" | jq -r '.parentId')
+  task_iter=$(echo "$task_json" | jq -r '.taskIter')
+  max_task_iter=$(echo "$task_json" | jq -r '.maxTaskIter')
+  deps_csv=$(echo "$task_json" | jq -r '.deps')
 
   {
     echo "# Current Task"
@@ -107,11 +115,16 @@ assemble_current_task() {
 # CHANGED FILE DETECTION
 # ============================================================
 detect_changed_files() {
-  {
-    git diff --name-only HEAD 2>/dev/null
-    git diff --cached --name-only 2>/dev/null
-    git ls-files --others --exclude-standard 2>/dev/null
-  } | sort -u > "$RALPH_CHANGED_FILES"
+  if [[ "$(_ralph_vcs)" == "jj" ]]; then
+    # JJ: list files changed in the current change
+    jj diff --name-only 2>/dev/null | sort -u > "$RALPH_CHANGED_FILES"
+  else
+    {
+      git diff --name-only HEAD 2>/dev/null
+      git diff --cached --name-only 2>/dev/null
+      git ls-files --others --exclude-standard 2>/dev/null
+    } | sort -u > "$RALPH_CHANGED_FILES"
+  fi
 }
 
 # ============================================================

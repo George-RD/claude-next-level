@@ -110,10 +110,16 @@ if [[ "$MODE" == "build" ]] && [[ -f "$RALPH_STATE_FILE" ]]; then
   # v2 build mode: use coordinator prompt and assemble initial task
   V2_BUILD=true
 
-  # Determine the first pending task from state.json
-  CURRENT_TASK_ID=$(jq -r '
-    .tasks[] | select(.status == "pending" or .status == "in-progress") | .id
-  ' "$RALPH_STATE_FILE" | head -1)
+  # Resume from persisted currentTaskId (set by state machine after fix tasks, etc.)
+  # Only fall back to scanning if currentTaskId is null/empty (fresh start)
+  CURRENT_TASK_ID=$(jq -r '.currentTaskId // empty' "$RALPH_STATE_FILE")
+
+  if [[ -z "$CURRENT_TASK_ID" ]]; then
+    # No currentTaskId persisted — find first actionable task
+    CURRENT_TASK_ID=$(jq -r '
+      [.tasks[] | select(.status == "pending" or .status == "in-progress")] | .[0].id // empty
+    ' "$RALPH_STATE_FILE")
+  fi
 
   if [[ -z "$CURRENT_TASK_ID" ]]; then
     echo "Error: No pending or in-progress tasks in $RALPH_STATE_FILE" >&2

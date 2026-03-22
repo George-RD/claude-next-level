@@ -104,11 +104,8 @@ if [[ -n "${PROMPT_FILE_OVERRIDE:-}" ]]; then
 fi
 
 # Build the prompt
-V2_BUILD=false
-
 if [[ "$MODE" == "build" ]] && [[ -f "$RALPH_STATE_FILE" ]]; then
   # v2 build mode: use coordinator prompt and assemble initial task
-  V2_BUILD=true
 
   # Resume from persisted currentTaskId (set by state machine after fix tasks, etc.)
   # Only fall back to scanning if currentTaskId is null/empty (fresh start)

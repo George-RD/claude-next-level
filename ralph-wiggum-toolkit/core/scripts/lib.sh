@@ -395,7 +395,8 @@ create_fix_task() {
     --arg desc "Fix Tier $tier failures for $parent_id" \
     --arg spec "$parent_spec" \
     --arg acc "All Tier $tier quality gates pass" \
-    '.tasks += [{
+    '(.tasks[] | select(.id == $pid)).status = "done" |
+    .tasks += [{
       id: $fid, description: $desc, spec: $spec, acceptance: $acc,
       status: "pending", dependencies: [], attempts: 0, parentId: $pid
     }] | .currentTaskId = $fid | .taskIteration = 1'

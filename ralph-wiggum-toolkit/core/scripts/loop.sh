@@ -26,6 +26,16 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 
 # ============================================================
+# EARLY INITIALIZATION (needed by plan mode which dispatches before full init)
+# ============================================================
+
+# Detect current branch (git or jj)
+CURRENT_BRANCH=""
+if command -v git &>/dev/null && git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
+  CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+fi
+
+# ============================================================
 # PLAN MODE — Simple loop, no gates
 # ============================================================
 run_plan_mode() {
@@ -43,7 +53,8 @@ run_plan_mode() {
     echo -e "\n======================== RALPH PLAN ITERATION $iter ========================\n"
 
     if [[ "$MODE" == "plan-work" ]]; then
-      WORK_SCOPE="$WORK_SCOPE" envsubst < "$plan_prompt" | claude -p \
+      export WORK_SCOPE
+      envsubst < "$plan_prompt" | claude -p \
         --dangerously-skip-permissions \
         --output-format=stream-json \
         --model "$CLAUDE_MODEL" \
@@ -121,14 +132,8 @@ elif [[ -n "${1:-}" ]]; then
 fi
 
 # ============================================================
-# INITIALIZATION
+# INITIALIZATION (CURRENT_BRANCH already set above)
 # ============================================================
-
-# Detect current branch (git or jj)
-CURRENT_BRANCH=""
-if command -v git &>/dev/null && git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
-  CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
-fi
 
 # Read model + maxIterations + taskCount in one jq call
 CLAUDE_MODEL="opus"
@@ -224,7 +229,7 @@ while true; do
   fi
 
   # Check if current task exists and is pending
-  TASK_STATUS=$(jq -r ".tasks[] | select(.id == \"$TASK_ID\") | .status" "$RALPH_STATE_FILE")
+  TASK_STATUS=$(jq -r --arg tid "$TASK_ID" '.tasks[] | select(.id == $tid) | .status' "$RALPH_STATE_FILE")
   if [[ "$TASK_STATUS" == "done" ]]; then
     # Try to advance past done tasks
     if ! advance_task; then
@@ -283,7 +288,12 @@ while true; do
       log_iteration 3 false "code" "tier3_fail" "$DURATION_MS"
 
       # Create a cleanup fix task from the last completed task
-      LAST_DONE_ID=$(jq -r '[.tasks[] | select(.status == "done")] | last | .id // "T000"' "$RALPH_STATE_FILE")
+      LAST_DONE_ID=$(jq -r '[.tasks[] | select(.status == "done")] | last | .id // empty' "$RALPH_STATE_FILE")
+
+      if [[ -z "$LAST_DONE_ID" ]]; then
+        echo "ESCALATION: Tier 3 failed but no completed tasks to create fix task from" >&2
+        exit 2
+      fi
 
       if ! create_fix_task "$LAST_DONE_ID" 3; then
         echo "ESCALATION: Cannot create more fix tasks" >&2

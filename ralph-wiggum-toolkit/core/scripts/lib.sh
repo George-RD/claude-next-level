@@ -238,7 +238,8 @@ vcs_push() {
 
 tag_iteration() {
   local iter=$1
-  local tag="ralph/iter-$(printf '%03d' "$iter")"
+  local tag
+  tag="ralph/iter-$(printf '%03d' "$iter")"
   if [[ "$(_ralph_vcs)" == "jj" ]]; then
     jj bookmark set "$tag" 2>/dev/null || true
   else
@@ -382,14 +383,9 @@ create_fix_task() {
 
   local fix_id="${root_id}.$((fix_count + 1))"
 
-  # Read parent desc + spec in one call
-  local parent_data
-  parent_data=$(jq -r --arg pid "$parent_id" '
-    .tasks[] | select(.id == $pid) | [.description, (.spec // "")] | @tsv
-  ' "$RALPH_STATE_FILE")
-
-  local parent_desc parent_spec
-  IFS=$'\t' read -r parent_desc parent_spec <<< "$parent_data"
+  # Read parent spec
+  local parent_spec
+  parent_spec=$(jq -r --arg pid "$parent_id" '.tasks[] | select(.id == $pid) | .spec // ""' "$RALPH_STATE_FILE")
 
   write_state --arg fid "$fix_id" --arg pid "$parent_id" \
     --arg desc "Fix Tier $tier failures for $parent_id" \

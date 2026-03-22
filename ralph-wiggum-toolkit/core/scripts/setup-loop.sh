@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib.sh"
+
 # Parse arguments
 MODE=""
 PROMPT_PARTS=()
@@ -100,13 +103,59 @@ if [[ -n "${PROMPT_FILE_OVERRIDE:-}" ]]; then
   PROMPT_FILE="$PROMPT_FILE_OVERRIDE"
 fi
 
-if [[ ! -f "$PROMPT_FILE" ]]; then
-  echo "Error: $PROMPT_FILE not found. Run /ralph init first." >&2
-  exit 1
-fi
-
 # Build the prompt
-PROMPT=$(cat "$PROMPT_FILE")
+if [[ "$MODE" == "build" ]] && [[ -f "$RALPH_STATE_FILE" ]]; then
+  # v2 build mode: use coordinator prompt and assemble initial task
+
+  # Resume from persisted currentTaskId (set by state machine after fix tasks, etc.)
+  # Only fall back to scanning if currentTaskId is null/empty (fresh start)
+  CURRENT_TASK_ID=$(jq -r '.currentTaskId // empty' "$RALPH_STATE_FILE")
+
+  if [[ -z "$CURRENT_TASK_ID" ]]; then
+    # No currentTaskId persisted — find first actionable task
+    CURRENT_TASK_ID=$(jq -r '
+      [.tasks[] | select(.status == "pending" or .status == "in-progress")] | .[0].id // empty
+    ' "$RALPH_STATE_FILE")
+  fi
+
+  if [[ -z "$CURRENT_TASK_ID" ]]; then
+    echo "Error: No pending or in-progress tasks in $RALPH_STATE_FILE" >&2
+    exit 1
+  fi
+
+  # Mark the task as in-progress if it's pending
+  jq --arg id "$CURRENT_TASK_ID" '
+    .tasks |= map(if .id == $id and .status == "pending" then .status = "in-progress" else . end)
+  ' "$RALPH_STATE_FILE" > "$RALPH_STATE_FILE.tmp" && mv "$RALPH_STATE_FILE.tmp" "$RALPH_STATE_FILE"
+
+  # Assemble the first current-task.md
+  assemble_current_task "$CURRENT_TASK_ID"
+
+  PROMPT='# Ralph v2 In-Session Build
+
+You are the coordinator. For each task:
+
+1. Read ralph/state.json for the current task
+2. Read ralph/current-task.md for the full task context
+3. Delegate implementation to a subagent via the Task tool
+   - Pass: ralph/current-task.md, AGENTS.md, ralph/last-gate-result.json
+   - The subagent writes code only
+4. When the subagent exits, the stop hook runs quality gates automatically
+5. You will receive the next task context or failure context
+6. Delegate the next task to a new subagent
+
+Do NOT implement code directly. Delegate everything via Task tool.
+Each subagent gets fresh context. This is intentional.'
+
+  echo "Ralph v2: Assembled $RALPH_CURRENT_TASK for task $CURRENT_TASK_ID"
+else
+  # v1 behavior: use prompt file as-is
+  if [[ ! -f "$PROMPT_FILE" ]]; then
+    echo "Error: $PROMPT_FILE not found. Run /ralph init first." >&2
+    exit 1
+  fi
+  PROMPT=$(cat "$PROMPT_FILE")
+fi
 
 if [[ "$MODE" == "plan-work" ]]; then
   if [[ -z "$WORK_SCOPE" ]]; then

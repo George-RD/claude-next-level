@@ -1,13 +1,13 @@
 {
   "name": "ralph-wiggum-toolkit",
-  "description": "Recipe-based autonomous development loops. Greenfield recipe: JTBD specs to plan to build. Port recipe: extract behavioral specs from existing codebase, port to target language. Implements Geoffrey Huntley's Ralph methodology with manifest-driven progress tracking.",
-  "version": "1.1.0",
+  "description": "Recipe-based autonomous development loops with mechanical quality enforcement. Greenfield recipe: JTBD specs → plan → build with tiered quality gates (compile, test, strict). Port recipe: extract behavioral specs, port to target language. State machine-driven progress tracking with cycle detection and fix task recovery.",
+  "version": "2.0.0",
   "author": {
     "name": "George-RD"
   },
   "keywords": [
     "ralph", "loop", "autonomous", "spec-driven", "jtbd",
-    "porting", "migration", "manifest-driven", "recipe",
-    "retrospective", "retro", "post-mortem", "audit"
+    "porting", "migration", "state-machine", "recipe",
+    "retrospective", "retro", "quality-gates", "enforcement"
   ]
 }

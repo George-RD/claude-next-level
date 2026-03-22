@@ -21,7 +21,21 @@ Parse the user's arguments to determine which subcommand to run. The first posit
 | `cancel` | Cancel active loop |
 | `retro` | Run retrospective pipeline (all phases or specific phase) |
 | `help` | Show full methodology guide |
-| (none) | Show usage help |
+| (none) | Smart entry point: detect state, route to init/status/resume |
+
+---
+
+## Recipe / State Detection (v2)
+
+All subcommands that need to know the active recipe use the following detection order:
+
+1. **v2 state machine:** `ralph/state.json` exists — read `"recipe"` and `"phase"` fields. This is the authoritative source for v2 projects.
+2. **v1 manifest:** `ralph/manifest.json` exists — read `"recipe"` field. Used for v1 projects or as fallback.
+3. **Legacy repo-clone:** `porting/manifest.json` exists — treat as port recipe.
+4. **Uninitialized greenfield:** No manifest but `PROMPT_plan.md`/`PROMPT_build.md` exist.
+5. **Nothing:** No project found.
+
+When `ralph/state.json` exists, the project is a v2 project and all v2 behaviors apply.
 
 ---
 
@@ -74,9 +88,9 @@ After `init.sh` creates the directory structure and copies PROMPT files, the `/r
 
 ## `plan` — Run Planning Loop
 
-Detect the active recipe, then call setup-loop with the correct prompt file:
+Detect the active recipe (see Recipe / State Detection above), then call setup-loop with the correct prompt file:
 
-1. Read `ralph/manifest.json` and extract the `"recipe"` field
+1. Read `ralph/state.json` (v2) or `ralph/manifest.json` (v1) and extract the `"recipe"` field
 2. If recipe is `port` (or `porting/manifest.json` exists as legacy): add `--prompt-file PROMPT_port.md`
 3. If recipe is `greenfield` (or no manifest): use default mode behavior (no `--prompt-file`)
 
@@ -101,6 +115,37 @@ After setup, you are in PLANNING mode. Follow the prompt that was loaded.
 - Use parallel subagents to study specs and source code simultaneously.
 - Search for TODOs, minimal implementations, placeholders, skipped/flaky tests.
 
+**Dual output requirement (v2):**
+
+The planning agent must output BOTH artifacts:
+
+1. **IMPLEMENTATION_PLAN.md** — Human-readable plan structured with `### T001` blocks for each task. Each block should include the task description, acceptance criteria, file paths, and dependency notes.
+2. **ralph/tasks.json** — Machine-readable JSON array of task objects. Each task object must have:
+   - `id` (string): Task ID matching `T\d+` pattern (e.g., `"T001"`, `"T002"`)
+   - `description` (string): What the task accomplishes
+   - `spec` (string): Path to the spec file this task implements (e.g., `"specs/auth.md"`)
+   - `acceptance` (string): Concrete completion criteria (must be verifiable)
+   - `dependencies` (array of strings): Task IDs that must be completed first (e.g., `["T001", "T003"]`). Use `[]` for tasks with no dependencies.
+
+The `### T001` blocks in IMPLEMENTATION_PLAN.md must correspond 1:1 with entries in ralph/tasks.json — same IDs, same count.
+
+**Post-plan validation (v2):**
+
+After the planning agent completes, run plan-to-state.sh to validate tasks.json and merge into state.json:
+
+```!
+"${CLAUDE_PLUGIN_ROOT}/core/scripts/plan-to-state.sh"
+```
+
+This script:
+
+- Validates that ralph/tasks.json is well-formed (correct types, no duplicate IDs, T\d+ pattern)
+- Cross-checks task count against IMPLEMENTATION_PLAN.md
+- Merges tasks into ralph/state.json with default status fields
+- Sets `awaitingApproval: true` so the user must review before building
+
+If validation fails, report the errors to the user and ask them to fix tasks.json or re-run planning.
+
 **When done:** The stop hook feeds the same prompt back. When the plan looks solid, output `<promise>PLAN COMPLETE</promise>` if a completion promise was set.
 
 CRITICAL: If a completion promise is set, you may ONLY output it when the statement is completely and unequivocally TRUE.
@@ -110,6 +155,22 @@ CRITICAL: If a completion promise is set, you may ONLY output it when the statem
 ## `build` — Run Build Loop
 
 Same recipe detection as `plan`. Run ONE of these based on detected recipe:
+
+### Pre-build approval gate (v2)
+
+Before starting the build loop, check for the v2 approval gate:
+
+1. Read `ralph/state.json`
+2. If `awaitingApproval` is `true`:
+   - Display the current state: phase, task count, first task ID and description
+   - Use AskUserQuestion with options:
+     - "I've reviewed the plan — start building" — Set `awaitingApproval: false` in state.json, then proceed to start the build loop
+     - "Show me the plan first" — Display IMPLEMENTATION_PLAN.md and ralph/tasks.json summary, then ask again
+     - "Cancel" — Do not start the build loop
+   - Only proceed to the build loop after `awaitingApproval` has been set to `false`
+3. If `awaitingApproval` is `false` (or no state.json exists): proceed directly to the build loop
+
+### Build loop dispatch
 
 **For greenfield** (default):
 
@@ -147,12 +208,46 @@ Detect the active recipe and render status accordingly.
 
 ### Recipe Detection Order
 
-1. `ralph/manifest.json` exists → read `"recipe"` field
-2. `porting/manifest.json` exists → treat as port (legacy repo-clone)
+1. `ralph/state.json` exists → v2 project, read `"recipe"` and `"phase"` fields
+2. `ralph/manifest.json` exists → v1 project, read `"recipe"` field
+3. `porting/manifest.json` exists → treat as port (legacy repo-clone)
    - Offer migration: "Found porting/manifest.json from repo-clone v2. Migrate to ralph/manifest.json? [y/N]"
    - Migration: add `"recipe": "port"` and `"version": "3.0.0"`, move to ralph/manifest.json
-3. No manifest but `PROMPT_plan.md`/`PROMPT_build.md` exist → treat as uninitialized greenfield
-4. Nothing → "No Ralph project found. Run `/ralph init` to get started."
+4. No manifest but `PROMPT_plan.md`/`PROMPT_build.md` exist → treat as uninitialized greenfield
+5. Nothing → "No Ralph project found. Run `/ralph init` to get started."
+
+### v2 Status (when ralph/state.json exists)
+
+When `ralph/state.json` is detected, display the v2-specific status dashboard:
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ralph v2 — Project Status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Recipe:     {recipe}
+Phase:      {phase}
+Iteration:  {iteration}
+
+Current Task: {currentTaskId} — {task description}
+Task Progress: {completed}/{total} tasks
+
+Gate History (last 5):
+  #{N}  {gate_name}  {pass/fail}  {timestamp or iteration}
+  #{N-1} ...
+
+Awaiting Approval: {yes/no}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Read all fields from `ralph/state.json`:
+
+- `recipe`, `phase`, `iteration`, `currentTaskId`, `awaitingApproval`
+- `tasks` array: count total, count those with `status: "done"` for progress
+- `currentTaskId`: look up the matching task in `tasks` array to get its description
+- `gateHistory` array (if present): show the last 5 entries with gate name, result, and iteration
+
+After the v2 status dashboard, also show the standard status information (specs count, AGENTS.md presence, IMPLEMENTATION_PLAN.md status, recent git commits) as supplementary context.
 
 ### Greenfield Status
 
@@ -165,6 +260,23 @@ Read manifest and show per-phase progress table with file counts. Regenerate `ra
 ### Interactive Next Steps
 
 After displaying status, analyze the project state and present the user with actionable options using AskUserQuestion. Tailor the options to the detected situation:
+
+**If v2 project with `awaitingApproval: true`:**
+
+Use AskUserQuestion with:
+
+- "Review and approve the plan" — Display IMPLEMENTATION_PLAN.md and tasks.json, then run the build approval flow
+- "Show v2 state details" — Display the full ralph/state.json contents
+- "I'll take it from here" — Just show the status, don't take any action
+
+**If v2 project in build phase with tasks remaining:**
+
+Use AskUserQuestion with:
+
+- "Continue building" — Run `/ralph build` to resume implementing from the current task
+- "Show the current task details" — Display the current task from state.json and its context
+- "Show me the plan" — Display IMPLEMENTATION_PLAN.md
+- "I'll take it from here" — Just show the status, don't take any action
 
 **If WIP changes exist AND IMPLEMENTATION_PLAN.md has TODO tasks:**
 
@@ -218,7 +330,8 @@ Valid phase names: `codegap`, `implgap`, `plugingap`, `synthesis`, `explanations
 If `retro/retro_state.md` does not exist, complete the retrospective init before running phases:
 
 1. **Detect source recipe:**
-   - Read `ralph/manifest.json` → use `"recipe"` field (greenfield or port)
+   - Read `ralph/state.json` → use `"recipe"` field (v2)
+   - If not found, read `ralph/manifest.json` → use `"recipe"` field (greenfield or port)
    - If not found, check `porting/manifest.json` → treat as port (legacy)
    - If neither exists but `IMPLEMENTATION_PLAN.md` exists → treat as uninitialized greenfield
    - If nothing found → error: "No Ralph project found. Run `/ralph init` first."
@@ -227,9 +340,9 @@ If `retro/retro_state.md` does not exist, complete the retrospective init before
 
 3. **Encode session JSONL path:** Take the absolute project path, replace all `/` with `-`, prepend `~/.claude/projects/` to form the session directory path.
 
-4. **For port recipe:** Extract `source_lang`, `target_lang`, `target_root` from `ralph/manifest.json` (or `porting/manifest.json` for legacy).
+4. **For port recipe:** Extract `source_lang`, `target_lang`, `target_root` from `ralph/state.json` or `ralph/manifest.json` (or `porting/manifest.json` for legacy).
 
-5. **For greenfield recipe:** Detect `src_dir` from `ralph/manifest.json` (default: `src`).
+5. **For greenfield recipe:** Detect `src_dir` from `ralph/state.json` or `ralph/manifest.json` (default: `src`).
 
 6. **Detect spec_root and impl_root:**
    - Port: `spec_root` = `specs/`, `impl_root` = value of `target_root` from manifest
@@ -287,15 +400,15 @@ When `/ralph status` is called and a `retro/` directory exists, append a retrosp
 
 ```
 Retrospective:
-  codegap       ✅ done
-  implgap       ✅ done
-  plugingap     ⏳ pending
-  synthesis     ⏳ pending
-  explanations  ⏳ pending
-  todo          ⏳ pending
+  codegap       done
+  implgap       done
+  plugingap     pending
+  synthesis     pending
+  explanations  pending
+  todo          pending
 ```
 
-Read phase statuses from `retro/retro_state.md`. Use `✅ done` for completed phases, `🔄 running` for in-progress, and `⏳ pending` for not-yet-started.
+Read phase statuses from `retro/retro_state.md`. Use `done` for completed phases, `running` for in-progress, and `pending` for not-yet-started.
 
 ---
 
@@ -314,29 +427,41 @@ Display the combined help from both methodologies. Defer to commands/help.md.
 
 ---
 
-## Fallback (no subcommand)
+## Phase Gates (v2)
 
-```text
-Ralph Wiggum Toolkit — Recipe-based autonomous dev loops
+When `ralph/state.json` exists, phase transitions are gated mechanically:
 
-Usage:
-  /ralph init [--recipe <name>] [args]   Initialize project with recipe
-  /ralph spec [topic]                    Phase 1: JTBD interview (greenfield)
-  /ralph plan [--max-iterations N]       Run planning loop
-  /ralph build [--max-iterations N]      Run build loop
-  /ralph retro                           Run retrospective pipeline
-  /ralph status                          Show project state
-  /ralph cancel                          Cancel active loop
-  /ralph help                            Full methodology guide
+| Transition | Gate | Mechanism |
+|-----------|------|-----------|
+| spec -> plan | User confirms specs are complete | `awaitingApproval: true` in state.json. User must review specs and confirm before planning begins. |
+| plan -> build | User reviews plan + tasks.json | `awaitingApproval: true` set by plan-to-state.sh after tasks are merged. User must review plan and approve before building. |
+| build -> done | Tier 3 quality gate passes | Mechanical — the build loop's quality gate determines completion. No human approval needed. |
 
-Recipes:
-  greenfield (default)   Spec → Plan → Build for new features
-  port                   Extract behavioral specs → Port to target language
-  retrospective          Post-project analysis → Improvement TODO
+The `awaitingApproval` field in state.json is the single source of truth for whether a phase transition is blocked. Subcommands must check this field before proceeding.
 
-Examples:
-  /ralph init                                    # Greenfield (default)
-  /ralph init --recipe port dart typescript       # Port recipe
-  /ralph plan --max-iterations 3                  # Plan with limit
-  /ralph build --completion-promise "all tests pass"  # Build with stop condition
-```
+---
+
+## Fallback (no subcommand) — Smart Entry Point
+
+When `/ralph` is invoked with no subcommand, act as an intelligent router. Detect the current project state and guide the user to the right next action.
+
+### Detection sequence
+
+1. **Check for active loop:** If `.claude/ralph-wiggum.local.md` exists AND its `session_id` matches the current session, an in-session loop is active. Read the `mode` and `iteration` fields. Tell the user:
+   - "You have an active Ralph [MODE] loop at iteration N."
+   - Use AskUserQuestion with options:
+     - "Continue the loop" — Re-read the prompt file and continue working
+     - "Cancel the loop" — Run the `cancel` logic (remove state file)
+     - "Show status" — Fall through to status display
+
+2. **Check for v2 state:** If `ralph/state.json` exists, this is a v2 project. Run the full `status` subcommand logic with v2 status dashboard and v2-aware interactive next steps.
+
+3. **Check for existing project:** Follow the remaining recipe detection order (ralph/manifest.json -> porting/manifest.json -> PROMPT files -> nothing).
+
+4. **If project found:** Run the full `status` subcommand logic (display status + interactive next steps). This is identical to what `/ralph status` does.
+
+5. **If no project found:** Welcome the user and help them get started. Use AskUserQuestion with:
+   - "Start a new feature (greenfield)" — Run `/ralph init`
+   - "Port an existing codebase" — Ask for source and target languages, then run `/ralph init --recipe port <source> <target>`
+   - "Run a retrospective on a completed project" — Run `/ralph init --recipe retrospective`
+   - "Show help" — Display the full help guide

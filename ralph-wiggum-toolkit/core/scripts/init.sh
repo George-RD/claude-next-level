@@ -191,7 +191,10 @@ detect_vcs() {
 # Helper: prefix with npx if tool is a devDependency
 _npx_prefix() {
   local tool="$1"
-  if _pkg_has_dev_dep "$tool"; then
+  local dep="$tool"
+  # Handle scoped package names
+  [[ "$tool" == "biome" ]] && dep="@biomejs/biome"
+  if _pkg_has_dev_dep "$dep"; then
     echo "npx $tool"
   else
     echo "$tool"

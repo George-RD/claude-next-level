@@ -36,10 +36,13 @@ read_state() {
 
 write_state() {
   # Usage: write_state [--arg k v | --argjson k v ...] 'filter'
-  # All arguments passed directly to jq.
-  local tmp
-  tmp=$(mktemp)
-  jq "$@" "$RALPH_STATE_FILE" > "$tmp" && mv "$tmp" "$RALPH_STATE_FILE"
+  # All arguments passed directly to jq. Uses flock to prevent concurrent clobber.
+  (
+    flock -x 200
+    local tmp
+    tmp=$(mktemp)
+    jq "$@" "$RALPH_STATE_FILE" > "$tmp" && mv "$tmp" "$RALPH_STATE_FILE"
+  ) 200>"${RALPH_STATE_FILE}.lock"
 }
 
 # ============================================================

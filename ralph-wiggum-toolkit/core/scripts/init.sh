@@ -599,17 +599,12 @@ EOF
   create_if_missing "PROMPT_build.md" "$TEMPLATES/PROMPT_build.md" "PROMPT_build.md"
 
   # Generate state.json (v2 - replaces manifest.json)
-  local SAFE_GOAL
-  SAFE_GOAL="$(escape_json_value "${GOAL:-}")"
-  local SAFE_SRC_DIR
-  SAFE_SRC_DIR="$(escape_json_value "$SRC_DIR")"
-
   generate_state_json "$(jq -n \
     --arg recipe "greenfield" \
     --arg vcs "$VCS" \
     --arg lang "$DETECTED_LANG" \
-    --arg goal "$SAFE_GOAL" \
-    --arg src_dir "$SAFE_SRC_DIR" \
+    --arg goal "${GOAL:-}" \
+    --arg src_dir "$SRC_DIR" \
     '{recipe: $recipe, vcs: $vcs, language: $lang, goal: $goal, src_dir: $src_dir}'
   )"
 

@@ -148,13 +148,7 @@ detect_tools() {
       # Linter detection
       if [[ -f "ruff.toml" ]] || [[ -f ".ruff.toml" ]]; then
         DETECTED_LINTER="ruff"
-      elif command -v python3 &>/dev/null && python3 -c "
-import sys
-try:
-    import toml; cfg = toml.load('pyproject.toml')
-    sys.exit(0 if 'ruff' in cfg.get('tool', {}) else 1)
-except: sys.exit(1)
-" 2>/dev/null; then
+      elif grep -qE '^\[tool\.ruff' pyproject.toml 2>/dev/null; then
         DETECTED_LINTER="ruff"
       elif [[ -f ".flake8" ]]; then
         DETECTED_LINTER="flake8"
@@ -163,26 +157,14 @@ except: sys.exit(1)
       # Type checker
       if [[ -f "mypy.ini" ]] || [[ -f ".mypy.ini" ]]; then
         DETECTED_TYPE_CHECKER="mypy"
-      elif command -v python3 &>/dev/null && python3 -c "
-import sys
-try:
-    import toml; cfg = toml.load('pyproject.toml')
-    sys.exit(0 if 'mypy' in cfg.get('tool', {}) else 1)
-except: sys.exit(1)
-" 2>/dev/null; then
+      elif grep -qE '^\[tool\.mypy' pyproject.toml 2>/dev/null; then
         DETECTED_TYPE_CHECKER="mypy"
       fi
 
       # Test runner
       if [[ -f "pytest.ini" ]] || [[ -f "conftest.py" ]]; then
         DETECTED_TEST_RUNNER="pytest"
-      elif command -v python3 &>/dev/null && python3 -c "
-import sys
-try:
-    import toml; cfg = toml.load('pyproject.toml')
-    sys.exit(0 if 'pytest' in cfg.get('tool', {}) else 1)
-except: sys.exit(1)
-" 2>/dev/null; then
+      elif grep -qE '^\[tool\.pytest' pyproject.toml 2>/dev/null; then
         DETECTED_TEST_RUNNER="pytest"
       fi
       ;;

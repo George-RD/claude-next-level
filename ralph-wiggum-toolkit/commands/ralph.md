@@ -220,7 +220,7 @@ Detect the active recipe and render status accordingly.
 
 When `ralph/state.json` is detected, display the v2-specific status dashboard:
 
-```
+```text
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Ralph v2 — Project Status
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -27,7 +27,7 @@ The plugins and their directories are:
 | grandslam-offer | `grandslam-offer/` | `grandslam-offer/plugin.json` |
 | hundred-million-leads | `hundred-million-leads/` | `hundred-million-leads/plugin.json` |
 | cycle | `cycle/` | `cycle/plugin.json` |
-| ralph-wiggum | `ralph-wiggum/` | `ralph-wiggum/plugin.json` |
+| ralph-wiggum-toolkit | `ralph-wiggum-toolkit/` | `ralph-wiggum-toolkit/plugin.json` |
 | nest-test | `nest-test/` | `nest-test/.claude-plugin/plugin.json` |
 | jj-commands | `jj-commands/` | `jj-commands/plugin.json` |
 
@@ -93,12 +93,19 @@ Use the actual commit messages, cleaned up (remove the conventional commit prefi
 
 ## Step 6: Update version files
 
-For each plugin being released:
+Use the bump-version script to update both files atomically:
 
-1. **Update `<plugin>/plugin.json`** (or `<plugin>/.claude-plugin/plugin.json` for nest-test): change the `"version"` field to the new version.
-2. **Update `.claude-plugin/marketplace.json`**: find the matching plugin entry by name and update its `"version"` field.
+```bash
+./scripts/bump-version.sh <plugin-name> <new-version>
+```
 
-Use the Edit tool for precise replacements. Do not rewrite entire files.
+This updates both `plugin.json` and `marketplace.json` in one shot. Run it for each plugin being released.
+
+To verify all versions are in sync afterwards:
+
+```bash
+./scripts/bump-version.sh --check
+```
 
 ## Step 7: Commit and tag
 

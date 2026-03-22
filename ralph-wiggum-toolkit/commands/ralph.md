@@ -43,7 +43,7 @@ When `ralph/state.json` exists, the project is a v2 project and all v2 behaviors
 
 Run the init script:
 
-```!
+```bash
 "${CLAUDE_PLUGIN_ROOT}/core/scripts/init.sh" $ARGUMENTS
 ```
 
@@ -96,7 +96,7 @@ Detect the active recipe (see Recipe / State Detection above), then call setup-l
 
 **For greenfield** (default):
 
-```!
+```bash
 "${CLAUDE_PLUGIN_ROOT}/core/scripts/setup-loop.sh" --mode plan $ARGUMENTS
 ```
 
@@ -133,7 +133,7 @@ The `### T001` blocks in IMPLEMENTATION_PLAN.md must correspond 1:1 with entries
 
 After the planning agent completes, run plan-to-state.sh to validate tasks.json and merge into state.json:
 
-```!
+```bash
 "${CLAUDE_PLUGIN_ROOT}/core/scripts/plan-to-state.sh"
 ```
 
@@ -174,7 +174,7 @@ Before starting the build loop, check for the v2 approval gate:
 
 **For greenfield** (default):
 
-```!
+```bash
 "${CLAUDE_PLUGIN_ROOT}/core/scripts/setup-loop.sh" --mode build $ARGUMENTS
 ```
 

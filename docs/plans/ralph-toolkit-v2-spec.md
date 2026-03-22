@@ -44,7 +44,7 @@ The agent never decides it is done. The gates decide.
 
 ### Loop Flow
 
-```
+```text
 loop.sh (enhanced)
   │
   ├─ 1. Read state: ralph/state.json
@@ -493,7 +493,7 @@ In-session mode uses the **coordinator-as-delegator pattern** with the stop hook
 
 ### Architecture
 
-```
+```text
 User runs /ralph build
   → setup-loop.sh writes .claude/ralph-wiggum.local.md
   → Main agent becomes coordinator (delegates, never implements)
@@ -550,7 +550,7 @@ Each subagent gets fresh context. This is intentional.
 
 ### Init flow
 
-```
+```text
 /ralph init [--recipe greenfield]
   → Detect recipe (greenfield default)
   → Scaffold: specs/, AGENTS.md, IMPLEMENTATION_PLAN.md

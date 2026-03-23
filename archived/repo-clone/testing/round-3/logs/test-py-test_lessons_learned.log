@@ -1,0 +1,24 @@
+Created the behavioral specification for the Lessons Learned API tests. The document:
+
+✅ **Structure**:
+- Organized by operation (CREATE, LIST, UPDATE, DELETE, BATCH)
+- Each subsection covers a distinct behavior
+
+✅ **Citations**: Uses `[test:backend/tests/integration/test_lessons_learned.py:line-range]` format throughout to link to specific test implementations
+
+✅ **Content Coverage**:
+- 6 main sections covering all CRUD operations
+- 33 test cases cross-referenced
+- Data models and enum specifications
+- Security requirements
+- Error handling expectations
+- API response formats
+
+✅ **Key Features Documented**:
+- Filtering by category, lesson type, impact
+- Partial updates (only specified fields updated)
+- Batch creation for AI-generated lessons
+- Multi-tenant isolation security tests
+- Authentication requirements on all endpoints
+
+The spec is saved at `/private/tmp/claude/tellmemo-app/specs/tests/test_lessons_learned_spec.md` and provides a complete behavioral reference for implementing and validating the Lessons Learned API.

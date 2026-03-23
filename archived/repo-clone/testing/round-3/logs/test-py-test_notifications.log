@@ -1,0 +1,26 @@
+Done! I've created a comprehensive behavioral specification for the Notifications API at `specs/tests/test_notifications_spec.md`.
+
+## Key Features of the Specification
+
+**Coverage**: Documents all 8 core endpoint groups:
+1. Create Notification (minimal & full fields)
+2. List Notifications (filtering, pagination, isolation)
+3. Get Unread Count
+4. Mark as Read (single notification)
+5. Bulk Mark as Read (specific IDs or all)
+6. Archive Notification
+7. Delete Notification
+8. Bulk Create Notifications
+9. Expired Notifications handling
+
+**Citations**: Every behavioral assertion links back to the test file using `[test:file:line-range]` format, making it easy to trace from specification back to implementation.
+
+**Structure**:
+- Request/response examples for each endpoint
+- Query parameters and their effects
+- Validation rules and error codes
+- Security & multi-tenant isolation requirements
+- State transition diagrams
+- Test fixtures documentation
+
+The spec serves as both a reference for developers and a traceability document connecting test coverage to API behavior.

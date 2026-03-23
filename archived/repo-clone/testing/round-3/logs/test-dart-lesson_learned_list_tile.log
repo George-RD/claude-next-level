@@ -1,0 +1,10 @@
+Done. I've created a behavioral specification document at `specs/tests/lesson_learned_list_tile_spec.md` that documents all the behaviors tested in the test file.
+
+The specification includes:
+- **10 behavioral requirements** extracted from the test cases, each with citations using `[test:file:line-range]` format
+- **Structured sections** for content display, project context, classifications, tags, dates, and interactivity
+- **Clear property definitions** for required and optional widget parameters
+- **Edge cases and constraints** to guide implementation
+- **Design notes** for visual consistency
+
+Each requirement is directly linked to its corresponding test location, enabling cross-reference between specification and test implementation.

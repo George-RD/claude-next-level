@@ -5,7 +5,7 @@ Read this to understand the design decisions, not the operational details.
 
 ---
 
-## Why Six Phases
+## Why Eight Phases
 
 Each phase answers exactly one question:
 
@@ -16,7 +16,11 @@ Each phase answers exactly one question:
 | 3. plugingap | Should the plugin workflow have caught them? |
 | 4. synthesis | What themes explain the gap pattern across the whole project? |
 | 5. explanations | WHY did each theme occur? (session history evidence) |
-| 6. todo | What concrete actions fix the gaps? (project + plugin tracks) |
+| 6. opsaudit | Did the agent follow the prescribed workflow? (operational discipline) |
+| 7. todo | What concrete actions fix the gaps? (project + plugin + operational tracks) |
+| 8. handover | What should happen next -- and in which repo? |
+
+Phases 5 and 6 can run in parallel -- opsaudit reads JSONL files independently of the behavioral chain.
 
 ### Why not collapse phases?
 
@@ -24,9 +28,12 @@ Collapsing phases loses the causal chain. If you merge codegap and implgap into 
 
 A gap that was never planned needs a planning improvement. A gap that was planned but built wrong needs a build-loop improvement. A gap the plugin should have caught needs a plugin improvement. You cannot assign the right fix without knowing which level failed.
 
-### Why not add more phases?
+### Why eight and not six?
 
-Six phases map to six analysis levels. Adding a seventh would either split an existing level (unnecessary granularity) or add a new level (what would it be?). The chain is complete: code-level -> plan-level -> workflow-level -> synthesis -> explanation -> action.
+The original six phases covered behavioral analysis (spec vs code) but missed two concerns:
+
+- **Operational audit (phase 6):** The retro audited *what was built* but not *how it was built*. Skipped commits, unused scripts, wrong model routing, and missing handoff are process failures, not code failures. They need their own analysis dimension with its own chain (OPS -> TODO).
+- **Handover (phase 8):** The retro produced findings but no actionable session-starter for the next person. TODO items need to be grouped into workstreams, split by repo (project vs plugin), and sequenced -- that's synthesis work that deserves its own phase.
 
 ---
 
@@ -69,8 +76,8 @@ The retrospective recipe is Layer 3 in a four-layer architecture:
 ```
 Layer 1: BUILD       /ralph build -- pick task, implement, test, commit, exit
 Layer 2: OBSERVE     Session JSONL / iteration journal -- captured during build
-Layer 3: ANALYZE     /ralph retro -- six-phase gap analysis (this recipe)
-Layer 4: IMPROVE     Apply Track B TODO items to the plugin itself
+Layer 3: ANALYZE     /ralph retro -- eight-phase gap + ops analysis (this recipe)
+Layer 4: IMPROVE     Apply Track B/C TODO items to the plugin and workflow
 ```
 
 ### Layers connect through files on disk
@@ -87,13 +94,13 @@ The loom architecture means each layer is independently debuggable and re-runnab
 
 ## Model Selection Rationale
 
-### Sonnet for Atomic Workers (Phases 1-3, 5)
+### Sonnet for Atomic Workers (Phases 1-3, 5-6)
 
-Gap-workers and session-historians perform structured comparison: read input A, read input B, classify the relationship. This is pattern matching with citation, not creative synthesis. Sonnet handles it with low variance (1.3-1.7x vs Haiku's 2.3-3.3x in empirical testing).
+Gap-workers, session-historians, and ops-auditors perform structured comparison: read input A, read input B, classify the relationship. This is pattern matching with citation, not creative synthesis. Sonnet handles it with low variance (1.3-1.7x vs Haiku's 2.3-3.3x in empirical testing).
 
-### Opus for Synthesis (Phases 4, 6)
+### Opus for Synthesis (Phases 4, 7-8)
 
-Cross-document synthesis and prioritization require genuine judgment. Phase 4 must find themes across three gap documents -- this is cross-cutting pattern recognition, not pairwise comparison. Phase 6 must prioritize and assign root causes. These tasks benefit from Opus's stronger reasoning.
+Cross-document synthesis, prioritization, and handover grouping require genuine judgment. Phase 4 must find themes across three gap documents -- this is cross-cutting pattern recognition, not pairwise comparison. Phase 7 must prioritize and assign root causes across behavioral and operational findings. Phase 8 must group TODO items into coherent workstreams and produce self-contained handover documents. These tasks benefit from Opus's stronger reasoning.
 
 ### Why not Haiku for workers?
 
@@ -112,12 +119,14 @@ Opus is slower and more expensive. Phases 1-3 spawn up to 50 parallel workers pe
 Every phase is a single-pass headless run: one `claude -p` call does its entire job and exits. There are no nested loops, no stop-hooks, no iteration within a phase.
 
 ```bash
-claude -p --model sonnet < PROMPT_codegap.md    # Phase 1: runs once, exits
-claude -p --model sonnet < PROMPT_implgap.md    # Phase 2: runs once, exits
-claude -p --model sonnet < PROMPT_plugingap.md  # Phase 3: runs once, exits
-claude -p --model opus   < PROMPT_synthesis.md  # Phase 4: runs once, exits
-claude -p --model sonnet < PROMPT_explanations.md # Phase 5: runs once, exits
-claude -p --model opus   < PROMPT_todo.md       # Phase 6: runs once, exits
+claude -p --model sonnet < PROMPT_codegap.md       # Phase 1: runs once, exits
+claude -p --model sonnet < PROMPT_implgap.md       # Phase 2: runs once, exits
+claude -p --model sonnet < PROMPT_plugingap.md     # Phase 3: runs once, exits
+claude -p --model opus   < PROMPT_synthesis.md     # Phase 4: runs once, exits
+claude -p --model sonnet < PROMPT_explanations.md  # Phase 5: runs once, exits
+claude -p --model sonnet < PROMPT_opsaudit.md      # Phase 6: runs once, exits (can parallel with 5)
+claude -p --model opus   < PROMPT_todo.md          # Phase 7: runs once, exits
+claude -p --model opus   < PROMPT_handover.md      # Phase 8: runs once, exits
 ```
 
 The sophistication comes from the chain of phases, not from any individual phase being complex. Each phase reads its predecessor's output from disk, does its analysis, writes its output to disk, and exits.
@@ -164,7 +173,7 @@ No existing tool or methodology in the Ralph ecosystem provides this. The retros
 | Context clearing between iterations | agentic-engineer | Each phase gets fresh context via `claude -p` |
 | File-based state | Huntley, playbook | All documents are files; no context carries between phases |
 | Backpressure as quality gate | Huntley | Each phase checks prerequisites before running |
-| Architect failures out permanently | Huntley | Track B TODO items change the plugin, not just the project |
+| Architect failures out permanently | Huntley | Track B/C TODO items change the plugin and workflow, not just the project |
 | The orchestration system is the product | agentic-engineer | The recipe is infrastructure, not a prompt |
 
 ---
@@ -173,11 +182,11 @@ No existing tool or methodology in the Ralph ecosystem provides this. The retros
 
 | Decision | Alternative Considered | Why This Way |
 |----------|----------------------|--------------|
-| 6 separate phases | Fewer merged phases | Preserves causal chain for root-cause attribution |
+| 8 separate phases | Fewer merged phases | Preserves causal chain for root-cause attribution; adds operational and handover dimensions |
 | Behavioral comparison | Line-by-line diff | Catches functional gaps, ignores idiom differences |
 | Session history after synthesis | Session history first | Themes provide a lens; raw history without hypothesis produces noise |
 | Stable IDs, not heading slugs | GitHub auto-slugs | Survives heading edits; assigned not derived |
 | Sonnet workers, Opus synthesis | Single model for all | Match model capability to task complexity; cost-effective |
 | Flat single-pass phases | Iterative phases with loops | Simplicity; sophistication from the chain, not from nesting |
 | Disk-as-state | In-memory context passing | Re-runnable, debuggable, human-readable, git-trackable |
-| Two tracks in TODO (project + plugin) | Single improvement list | Separates "fix this project" from "fix the process" |
+| Three tracks in TODO (project + plugin + operational) | Single improvement list | Separates "fix this project" from "fix the process" from "fix the workflow" |

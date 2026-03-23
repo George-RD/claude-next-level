@@ -1,0 +1,10 @@
+Done! I've created `specs/tests/auth_loading_screen_spec.md` with a comprehensive behavioral specification of the AuthLoadingScreen based on the test file. The specification includes:
+
+**Key sections:**
+- **Overview** - Purpose of the loading screen
+- **Visual Layout** - Each UI component (icon, app name, progress indicator, status text) with test citations
+- **Behavior** - Initialization and UX patterns
+- **Component Inventory** - Table summarizing all elements with line references
+- **Test Coverage** - Details on the test case and assertions
+
+All test assertions are linked using the `[test:file:line-range]` format, making it easy to trace from specification back to implementation.

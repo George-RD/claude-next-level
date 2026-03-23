@@ -1,0 +1,13 @@
+Done! I've created a comprehensive behavioral specification at `/private/tmp/claude/tellmemo-app/specs/tests/test_redis_pubsub_live_insights_spec.md` that documents:
+
+**Key Sections:**
+1. **Event Publishing** - How broadcast functions publish to Redis with correct channel/message format
+2. **Async Thread Safety** - Use of `asyncio.to_thread()` to prevent blocking the event loop
+3. **WebSocket Message Delivery** - Broadcasting to connected clients via the connection manager
+4. **Connection Lifecycle** - Subscribe on first connection, unsubscribe on last disconnect
+5. **Event Type Consistency** - Four supported event types (QUESTION_DETECTED, ACTION_TRACKED, TRANSCRIPTION_FINAL, MEETING_SUMMARY)
+6. **Thread Safety & Concurrency** - Async lock protection for connection state
+7. **Integration Points** - Redis config and WebSocket framework dependencies
+8. **Testing Strategy** - Explanation of mocking approach
+
+Every behavior is linked back to specific test line ranges using the `[test:backend/tests/integration/test_redis_pubsub_live_insights.py:line-range]` citation format for traceability.

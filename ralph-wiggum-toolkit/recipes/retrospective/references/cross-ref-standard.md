@@ -1,7 +1,7 @@
 # Cross-Reference Standard
 
 Reference document for agents operating within the retrospective audit chain.
-All six gap analysis documents use this standard for traceability.
+All retro documents use this standard for traceability.
 
 ---
 
@@ -26,7 +26,9 @@ Three-digit zero-padded number, prefixed by document type.
 | `plugingap.md` | `PG-` | `PG-001` |
 | `synthesis.md` | `EVR-` | `EVR-001` |
 | `explanations.md` | `EXP-` | `EXP-001` |
+| `opsaudit.md` | `OPS-` | `OPS-001` |
 | `todo.md` | `TODO-` | `TODO-001` |
+| `HANDOVER_PROJECT.md` | `HO-` | `HO-001` | *(project-repo only — not used in HANDOVER_PLUGIN.md)* |
 
 ### ID Rules
 
@@ -53,7 +55,7 @@ The text after the colon is for humans. It can be freely edited without breaking
 [gap:{filename}#{stable-id}]
 ```
 
-The filename is always the basename (no directory path) because all six documents live in the same `retro/` directory.
+The filename is always the basename (no directory path) because all retro documents live in the same `retro/` directory.
 
 **Examples:**
 
@@ -126,7 +128,7 @@ done
 
 ### Rule 2: Every Item Needs an Upstream Reference
 
-Every gap item heading in documents 2-6 must contain at least one `[gap:...]` reference to a prior document. `codegap.md` is the chain root and has no upstream.
+Every gap item heading must contain at least one `[gap:...]` reference to a prior document, except for chain roots. `codegap.md` and `opsaudit.md` are chain roots (no upstream). `HO-` items are standalone (see Rule 5).
 
 Exception: items discovered at a given analysis level (not traceable to an upstream gap) use:
 
@@ -159,6 +161,22 @@ Invalid (skips plugin_gap):
 ```text
 CG-001 -> IG-002 -> EVR-001 -> EXP-001
 ```
+
+### Rule 5: OPS and HO Chain Rules
+
+`OPS-` items originate from operational audit, not behavioral analysis. They have a separate chain:
+
+```text
+OPS-NNN -> TODO-NNN
+```
+
+`TODO-` items sourced from operational findings use `[gap:opsaudit.md#OPS-NNN]` as upstream. They do not need a CG→IG→PG→EVR→EXP chain.
+
+`HO-` items are human-authored observations added to `HANDOVER_PROJECT.md`. They are standalone -- no chain required. They need:
+
+- **Category** (free-form: workflow, ux, performance, missed-gap, etc.)
+- **Description** (what was observed)
+- **Suggested action** (optional)
 
 ---
 

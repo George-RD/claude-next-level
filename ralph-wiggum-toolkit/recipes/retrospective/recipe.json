@@ -1,10 +1,10 @@
 {
   "name": "retrospective",
-  "description": "Post-mortem audit of a completed Ralph project. Chains: codegap -> implementation gap -> plugin gap -> synthesis -> session explanations -> improvement TODO.",
-  "version": "1.0.0",
-  "phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "todo"],
+  "description": "Post-mortem audit of a completed Ralph project. Chains: codegap -> implementation gap -> plugin gap -> synthesis -> session explanations -> operational audit -> improvement TODO -> handover.",
+  "version": "2.0.0",
+  "phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "opsaudit", "todo", "handover"],
   "loop_phases": [],
-  "headless_phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "todo"],
+  "headless_phases": ["codegap", "implgap", "plugingap", "synthesis", "explanations", "opsaudit", "todo", "handover"],
   "init_args": [
     {
       "name": "project-dir",
@@ -27,7 +27,9 @@
     "plugingap": "sonnet",
     "synthesis": "opus",
     "explanations": "sonnet",
-    "todo": "opus"
+    "opsaudit": "sonnet",
+    "todo": "opus",
+    "handover": "opus"
   },
   "prompt_map": {
     "codegap": "PROMPT_codegap.md",
@@ -35,7 +37,9 @@
     "plugingap": "PROMPT_plugingap.md",
     "synthesis": "PROMPT_synthesis.md",
     "explanations": "PROMPT_explanations.md",
-    "todo": "PROMPT_todo.md"
+    "opsaudit": "PROMPT_opsaudit.md",
+    "todo": "PROMPT_todo.md",
+    "handover": "PROMPT_handover.md"
   },
   "manifest_template": null
 }

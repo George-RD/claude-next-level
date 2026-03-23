@@ -24,4 +24,6 @@
 | plugingap | pending | retro/plugingap.md | | |
 | synthesis | pending | retro/synthesis.md | | |
 | explanations | pending | retro/explanations.md | | |
+| opsaudit | pending | retro/opsaudit.md | | |
 | todo | pending | retro/todo.md | | |
+| handover | pending | retro/HANDOVER_PROJECT.md, retro/HANDOVER_PLUGIN.md | | |

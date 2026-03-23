@@ -14,7 +14,7 @@ description: |
 
   <example>
   Context: Phase 6 — generating improvement TODOs from the full document chain.
-  user: "Generate improvement TODOs from all 5 retro documents, split into Track A (project) and Track B (plugin)"
+  user: "Generate improvement TODOs from all 6 retro documents, split into Track A (project), Track B (plugin), and Track C (operational)"
   assistant: "I'll use ultrathink to produce prioritized, actionable TODO items with full traceability chains back to the original codegaps."
   <commentary>
   The retro-synthesizer transforms explanation themes into concrete actions. Each TODO traces back through the full chain and includes specific acceptance criteria and effort estimates.
@@ -109,14 +109,16 @@ These apply to both phases:
 - `retro/plugingap.md` — plugin gaps
 - `retro/synthesis.md` — synthesized themes (your Phase 4 output)
 - `retro/explanations.md` — session-correlated explanations
+- `retro/opsaudit.md` — operational audit findings
 
 ### Process
 
-1. Read all five documents. The explanation document is the primary input — it contains the richest context about why gaps exist.
+1. Read all six documents. The explanation document is the primary input for behavioral gaps. The opsaudit document is the primary input for operational/workflow gaps.
 2. For each explanation theme, determine the concrete actions needed to fix the gap and prevent recurrence.
-3. Split actions into two tracks:
+3. Split actions into three tracks:
    - **Track A: Project Improvements** — changes to the specific project's codebase, implementation, tests, or documentation
    - **Track B: Plugin Improvements** — changes to ralph-wiggum-toolkit recipes, phase PROMPTs, agent definitions, or methodology
+   - **Track C: Operational Improvements** — workflow enforcement, commit discipline, handoff quality improvements sourced from opsaudit.md
 4. Prioritize by impact and effort. P0 = blocks correctness, P1 = significant improvement, P2 = nice-to-have.
 5. Write concrete acceptance criteria for every item. "It works" is not acceptance criteria. "Running `npm test` passes all auth-related test cases including expired token handling" is acceptance criteria.
 
@@ -165,13 +167,28 @@ These apply to both phases:
 
 ### TODO-NNN: {Next plugin task}
 ...
+
+## Track C: Operational Improvements
+
+### TODO-NNN: {Actionable task description — verb phrase}
+
+**Priority:** P0 | P1 | P2
+**Track:** operational
+**Upstream:** [gap:opsaudit.md#OPS-NNN]
+**Full chain:** [gap:opsaudit.md#OPS-NNN]
+**Acceptance criteria:** {Specific, verifiable conditions}
+**Effort:** XS | S | M | L | XL
+**Action:** {Concrete: what workflow change, hook, or enforcement to add}
+
+### TODO-NNN: {Next operational task}
+...
 ```
 
 ## Quality Standards
 
 - **Themes over lists.** In Phase 4, resist the urge to create one EVR per CG item. Find the patterns. If you have more than 7 themes, you are not synthesizing — you are relabeling.
 - **Every TODO must be actionable by a single agent in a single session.** If a TODO requires multi-day coordination, break it down. "Rewrite the auth module" is too big. "Add expired token handling to `auth.ts:refreshToken()`" is right-sized.
-- **Full chains are mandatory.** Every TODO must trace back through the complete document chain. A TODO without a chain is an orphan with no justification.
+- **Full chains are mandatory.** Behavioral TODOs must trace back through the complete CG→EXP chain. Operational TODOs trace from OPS→TODO. A TODO without any upstream is an orphan with no justification.
 - **Acceptance criteria must be testable.** "Improved error handling" is not testable. "The function throws `ConfigError.NotFound` when the config file does not exist, verified by `test_config_missing` test case" is testable.
 - **Effort estimates are honest.** XS = under 30 minutes. S = 1-2 hours. M = half day. L = full day. XL = multi-day. Do not underestimate to make the list look better.
 - **Plugin improvements are specific.** "Improve the spec extraction phase" is useless. "Add a checklist item to `PROMPT_extract.md` requiring explicit enumeration of error conditions for every public function" is a plugin improvement.

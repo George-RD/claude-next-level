@@ -11,7 +11,7 @@
 
 ## Cross-Reference Standard
 
-All gap items use stable IDs: CG-NNN, IG-NNN, PG-NNN, EVR-NNN, EXP-NNN, TODO-NNN.
+All gap items use stable IDs: CG-NNN, IG-NNN, PG-NNN, EVR-NNN, EXP-NNN, OPS-NNN, TODO-NNN, HO-NNN.
 
 Cite upstream items with `[gap:filename.md#ID]` syntax. Chain refs use `->` arrows.
 

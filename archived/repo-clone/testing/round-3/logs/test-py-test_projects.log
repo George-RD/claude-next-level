@@ -1,0 +1,11 @@
+Done! I've created a comprehensive behavioral specification at `specs/tests/test_projects_spec.md` that documents all test coverage from `test_projects.py`.
+
+The specification includes:
+
+- **9 major sections** covering Project Creation, Listing, Retrieval, Updates, Archiving, Restoration, Deletion, Member Management, and Program/Portfolio Assignment
+- **Citation links** in the format `[test:file:line-range]` pointing to specific test implementations
+- **Detailed behavior descriptions** for each endpoint including request format, response structure, and HTTP status codes
+- **Error patterns** documenting validation rules, authorization checks, and business logic constraints
+- **Common patterns section** explaining standard response formats, timestamps, and fixture setup
+
+The spec is organized for readability while remaining fully traceable to the test code, making it useful both as standalone documentation and as a reference for developers implementing the API.

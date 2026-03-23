@@ -1,0 +1,13 @@
+Done! I've created a comprehensive behavioral specification for the `HierarchySearchBar` widget in `specs/tests/hierarchy_search_bar_spec.md`.
+
+The specification includes:
+
+- **Component Overview** - Purpose and context
+- **Props Documentation** - Required and optional parameters
+- **Visual Elements** - Search icon, hint text, clear button, filter button (all with test citations)
+- **Interaction Behaviors** - Search input, clear functionality, filter button behavior (with detailed test references)
+- **Requirements Summary** - Checklist of must-have features
+- **Test Coverage Matrix** - All 7 test cases mapped to features
+- **Implementation Notes** - Lifecycle, accessibility, and performance notes
+
+Each behavior is linked to its test using the `[test:file:line-range]` citation format, so readers can verify the specification against the actual test implementation.

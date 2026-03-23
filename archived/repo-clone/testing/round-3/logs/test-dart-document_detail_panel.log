@@ -1,0 +1,16 @@
+I've created a comprehensive behavioral specification for `DocumentDetailPanel` at `specs/tests/document_detail_panel_spec.md`.
+
+The specification documents three key behaviors:
+
+1. **Display Basic Document Information** — The panel shows the document title from the Content entity
+2. **Display Document Metadata Section** — A "Document Information" section is always present
+3. **Handle Unprocessed Documents** — The widget gracefully renders documents with no chunks or summary generated
+
+Each specification includes test references using the `[test:file:line-range]` citation format that links directly to the test code. The document also captures:
+
+- **Provider dependencies** for async data loading (documentDetailProvider, documentSummaryProvider)
+- **Input specification** with all required Content fields
+- **Design constraints** ensuring title visibility, required metadata section, and multi-type support
+- **Test infrastructure** details (pumpWidgetWithProviders helper)
+
+The spec is organized as a behavioral reference that clearly shows what the widget should do based on the test assertions.

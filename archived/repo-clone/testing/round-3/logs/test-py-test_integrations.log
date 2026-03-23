@@ -1,0 +1,22 @@
+Done! I've created a comprehensive behavioral specification document for the integrations test suite. Here's what I documented:
+
+**Document**: `specs/tests/test_integrations_spec.md`
+
+**Coverage includes:**
+
+1. **List Integrations** - Discover available integrations, connection status, and multi-tenant isolation
+2. **Connect Integration** - Support for Fireflies, Transcription, and AI Brain with project selection and validation
+3. **Disconnect Integration** - Secure removal with sensitive data cleanup
+4. **Test Connection** - Validation endpoints for each service type
+5. **Sync Integration** - Data synchronization with timestamp tracking
+6. **Fireflies Webhook** - Event processing with signature verification
+7. **Get Activity** - Activity logs with isolation and pagination
+
+**Key Features:**
+- ✅ **All test cases cited** using `[test:file:line-range]` format
+- ✅ **Security specs** - Authentication, authorization, multi-tenant isolation
+- ✅ **Error scenarios** - With exact status codes and error messages
+- ✅ **Request/response schemas** - JSON structures documented
+- ✅ **Integration types** - Fireflies, Transcription, AI Brain with their specific requirements
+
+The spec is organized by endpoint with clear requirement blocks, making it easy to understand expected behavior and verify implementation compliance.

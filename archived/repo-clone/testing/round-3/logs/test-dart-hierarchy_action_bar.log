@@ -1,0 +1,19 @@
+Done! I've created a comprehensive behavioral specification at `specs/tests/hierarchy_action_bar_spec.md` that documents the HierarchyActionBar widget's behavior based on its test cases.
+
+The specification includes:
+
+1. **Component Overview** - Purpose and role of the widget
+2. **Constructor Contract** - All parameters and their purposes  
+3. **8 Behavioral Specifications** - Each covering:
+   - Empty state rendering
+   - Selection count display
+   - Action buttons visibility
+   - Clear selection, move, and delete workflows
+   - Callback invocations
+   - Multi-item handling
+
+4. **State Transition Diagram** - Visual flow of the widget's states
+5. **Testing Coverage** - Summary of validation
+6. **Implementation Notes** - Technical details
+
+Each behavior is linked to test line ranges using the `[test:line-range]` format, making it easy to trace specifications back to their test evidence.

@@ -1,0 +1,28 @@
+Done! I've created a comprehensive behavioral specification document at **specs/tests/test_redis_pubsub_spec.md** that documents the Redis Pub/Sub integration test suite.
+
+## Key Features of the Specification
+
+1. **Organized by Feature** - 10 major sections covering:
+   - Connection setup
+   - Job update publishing (single & multiple)
+   - WebSocket manager integration
+   - Channel subscription/unsubscription
+   - Message reception
+   - Multiple client handling
+   - Lifecycle management
+   - Error handling (2 scenarios)
+   - Terminal job state management
+   - End-to-end flow
+
+2. **Implementation Citations** - Every requirement, test case, and behavior includes `[test:file:line-range]` citations linking directly to the test code that validates it
+
+3. **Clear Requirements** - Each section specifies:
+   - **Requirements**: What the system must do
+   - **Test Coverage**: Which tests validate the behavior
+   - **Code Examples**: Expected message formats and data structures
+
+4. **Reference Table** - Summary of key data structures (dicts, sets) used throughout the system
+
+5. **Channel Naming Convention** - Documented the `job_updates:{job_id}` pattern
+
+This specification serves as both a **conformance document** (what the system must do) and a **traceability matrix** (which tests verify which requirements).

@@ -1,0 +1,13 @@
+Created the behavioral specification at `specs/tests/dashboard_screen_v2_spec.md`. The spec includes:
+
+**Key sections**:
+- **State Management** — Loading and error states [test:dashboard_screen_v2_test.dart:90-129]
+- **Header & Welcome** — Time-based greetings and organization name [test:dashboard_screen_v2_test.dart:131-161]
+- **Content Sections** — AI Insights, Recent Projects, Recent Summaries [test:dashboard_screen_v2_test.dart:163-204]
+- **Empty State** — Guidance when no projects exist [test:dashboard_screen_v2_test.dart:206-219]
+- **Floating Action Buttons** — Context-aware FABs for desktop [test:dashboard_screen_v2_test.dart:221-259]
+- **Desktop Layout** — Quick Actions and Activity Timeline sidebar [test:dashboard_screen_v2_test.dart:264-302]
+- **Refresh** — Pull-to-refresh functionality [test:dashboard_screen_v2_test.dart:304-323]
+- **Data Display** — Multi-project rendering [test:dashboard_screen_v2_test.dart:325-338]
+
+All citations use the `[test:file:line-range]` format linking directly to implementation details in the test file. The spec also includes provider dependencies, responsive design breakpoints, known limitations, and a state flow diagram.

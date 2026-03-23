@@ -1,0 +1,13 @@
+✅ Created `specs/tests/activity_timeline_spec.md` — a comprehensive behavioral specification for the ActivityTimeline widget.
+
+The specification documents:
+
+- **Display Behavior**: Timeline rendering with CircleAvatars, cards, and timeline dots [test:78-100]
+- **Information Display**: Titles, descriptions, and formatted timestamps [test:178-202]
+- **Empty States**: "No activities yet" message when no data [test:107-113]
+- **Compact Mode**: Limited to 5 activities, no filter chips [test:117-152]
+- **State Management**: Riverpod provider integration [test:53-64]
+- **Responsiveness**: Screen size adaptation [test:205-212]
+- **Test Coverage**: 12 tests across 6 categories
+
+All behaviors are cited directly to test line ranges using the `[test:file:line-range]` format. The document includes data requirements, known limitations (polling mode testing), and implementation notes for developers.

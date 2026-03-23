@@ -1,0 +1,25 @@
+Done! I've created a comprehensive behavioral specification for the audio transcription API at `specs/tests/test_transcription_spec.md`.
+
+## Summary
+
+The specification documents:
+
+1. **6 Core Behaviors**:
+   - File size validation (with 5 test scenarios including boundary conditions)
+   - AI-based project matching
+   - Multi-tenant isolation
+   - Language support (auto-detection + 5 specific languages)
+   - Transcription service selection (Whisper, Replicate, Salad)
+   - Temporary file cleanup policies
+
+2. **Citations**: Every behavior is linked to specific test lines using `[test:file:line-range]` format
+
+3. **Structured Layout**:
+   - API endpoint details
+   - Request parameters table
+   - Response codes summary
+   - Test coverage matrix (6 test classes, 17 tests)
+   - Implementation notes with fixtures and configuration parameters
+   - Error message formats
+
+The spec serves as both documentation and a validation checklist for the transcription API implementation.

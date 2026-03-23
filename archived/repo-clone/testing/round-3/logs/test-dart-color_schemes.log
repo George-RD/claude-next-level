@@ -1,0 +1,9 @@
+Created behavioral specification at `specs/tests/color_schemes_spec.md`. The document:
+
+- **Structures the spec by concern**: Light theme, dark theme, semantic colors, meeting statuses, and project statuses
+- **Links each requirement to test assertions** using `[test:test/app/theme/color_schemes_test.dart:line-range]` citations
+- **Documents both constraints and purposes**: Not just what colors exist, but why they matter
+- **Captures alignment rules**: How semantic colors, meeting colors, and project colors relate to each other
+- **Includes implementation notes**: Key design patterns like immutability and Material 3 generation
+
+Each behavioral requirement is traceable directly to its corresponding test case(s) in the test file.

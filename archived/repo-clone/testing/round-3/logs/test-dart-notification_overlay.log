@@ -1,0 +1,12 @@
+Done! I've created a comprehensive behavioral specification for the `NotificationOverlay` widget at `specs/tests/notification_overlay_spec.md`.
+
+The specification documents:
+
+- **10 Core Behaviors**: Child rendering, toast visibility, notification handling, dismissal, directionality, and positioning
+- **Test Citations**: Each behavior references the exact test line ranges using `[test:file:line-range]` format
+- **Acceptance Criteria**: Clear expectations for each behavior
+- **State Management**: Integration with Riverpod's provider system
+- **Widget Structure**: Expected hierarchy and invariants
+- **Layout Details**: Positioning logic including safe area calculations
+
+The spec provides a complete behavioral contract that developers can use as reference documentation, independent of the test code itself.

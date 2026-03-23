@@ -1,0 +1,16 @@
+Done! I've created a comprehensive behavioral specification document at `specs/tests/test_ai_matching_spec.md` that documents the AI matching system based on the integration tests.
+
+**Key sections:**
+- **Overview** - Feature summary with complete test coverage reference
+- **Feature: Upload Endpoint** - Input schema, response format, status codes
+- **Behavior: New Project Creation** - When AI matches content to no existing project
+- **Behavior: Existing Project Matching** - When AI matches content to existing project
+- **Feature: Confidence Scoring** - Match confidence metadata (0-1 range)
+- **Content Type Support** - Meeting and email formats with examples
+- **Optional Date Field** - Behavior with/without content date
+- **Error Handling** - Invalid content types, short content, missing fields, auth failures
+- **Job Management** - Queue service integration and metadata requirements
+- **Test Fixtures** - Sample data descriptions
+- **Test Classes Summary** - Overview of all 11 tests across 5 test classes
+
+All code references use `[test:backend/tests/integration/test_ai_matching.py:line-range]` format for easy navigation to the test implementation.

@@ -1,0 +1,14 @@
+Done! I've created a comprehensive behavioral specification at `specs/tests/test_websocket_jobs_spec.md` that documents the WebSocket Job Updates system.
+
+**Key sections**:
+- **Connection Management**: Client ID assignment and echo behavior
+- **Subscription System**: Job-specific and project-wide subscriptions with management
+- **Real-time Updates**: Progress tracking and completion notifications
+- **Job Operations**: Status queries and remote cancellation
+- **Connection Health**: Ping/pong heartbeat mechanism
+- **Multi-client Support**: Concurrent connections with isolated subscriptions
+- **Error Handling**: Unknown actions and nonexistent job scenarios
+- **Known Limitations**: Security gap (no authentication) with planned implementation
+- **Test Fixtures & Utilities**: Documentation of helper components
+
+All sections include **citations** in the `[test:file:line-range]` format linking directly to the implementation, making it easy to cross-reference between spec and test code.

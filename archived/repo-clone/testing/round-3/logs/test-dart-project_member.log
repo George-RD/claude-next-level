@@ -1,0 +1,18 @@
+Done! I've created a comprehensive behavioral specification for `ProjectMember` at `specs/tests/project_member_spec.md`.
+
+The specification documents:
+
+1. **Properties** - Complete table of all entity fields with requirements
+2. **Constructor Behaviors** - Full and minimal construction patterns
+3. **copyWith Method** - All single and multi-field update patterns
+4. **JSON Serialization** - Complete/minimal deserialization, serialization, null field handling, and round-trip preservation
+5. **Edge Cases** - Empty strings, special characters, and long strings
+6. **Design Principles & Constraints** - Key patterns and limitations
+
+Each behavior section includes:
+- Clear description of the behavior
+- Example code demonstrating the pattern
+- Detailed assertion statements
+- Citation to the specific test lines using `[test:file:line-range]` format
+
+This spec serves as both documentation for developers and a reference for anyone needing to understand the expected behavior of the `ProjectMember` entity.

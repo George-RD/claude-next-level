@@ -1,0 +1,26 @@
+Done! I've created a comprehensive behavioral specification document for the Support Tickets API tests at `specs/tests/test_support_tickets_spec.md`.
+
+## Summary
+
+The specification documents all test coverage across 10 major sections:
+
+1. **Ticket Creation** - Request validation, supported types/priorities, error handling
+2. **Ticket Listing** - Filtering (status, priority, type, creator), pagination, sorting, multi-tenant isolation
+3. **Get Single Ticket** - Retrieval, 404 handling, UUID validation, tenant isolation
+4. **Update Ticket** - Field updates (status, priority, assignment, multi-field), validation, creator behavior
+5. **Delete Ticket** - Creator-only enforcement, cascade removal verification
+6. **Ticket Comments** - Public/internal comments, listing with internal flag filtering
+7. **List Comments** - Default public-only behavior, optional internal inclusion
+8. **Upload Attachment** - File upload with metadata, multipart handling
+9. **Download Attachment** - File retrieval with proper content-type headers
+10. **Cross-Cutting Concerns** - Multi-tenant isolation patterns, authentication requirements, status lifecycle
+
+Each section includes:
+- API endpoint specification
+- Request/response schemas
+- Validation rules and error responses
+- Multi-tenant isolation verification
+- Authentication requirements
+- Citations using `[test:file:line-range]` format linking back to the test implementation
+
+The spec serves as both documentation and a test coverage map for developers implementing or maintaining the API.

@@ -28,7 +28,7 @@ Three-digit zero-padded number, prefixed by document type.
 | `explanations.md` | `EXP-` | `EXP-001` |
 | `opsaudit.md` | `OPS-` | `OPS-001` |
 | `todo.md` | `TODO-` | `TODO-001` |
-| `HANDOVER_PROJECT.md` | `HO-` | `HO-001` |
+| `HANDOVER_PROJECT.md` | `HO-` | `HO-001` | *(project-repo only — not used in HANDOVER_PLUGIN.md)* |
 
 ### ID Rules
 

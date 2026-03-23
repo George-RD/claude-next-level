@@ -121,7 +121,7 @@ For each issue detected, produce an OPS-NNN fragment. Only produce findings wher
 
 ## JSONL Parsing Reference
 
-```
+```text
 Bash tool calls:
   msg.type == "assistant"
   msg.message.content[] where .type == "tool_use" AND .name == "Bash"

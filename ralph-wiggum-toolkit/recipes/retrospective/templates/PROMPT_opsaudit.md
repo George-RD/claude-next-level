@@ -2,7 +2,7 @@
 0b. Read @AGENTS.md for operational context.
 0c. Read `retro/CROSS_REF_STANDARD.md` for citation format.
 
-Prerequisite: `retro/synthesis.md` must exist. If not, output "ERROR: Run Phase 4 (synthesis) first. Use: /ralph retro --phase synthesis" and stop.
+Prerequisite: `retro/synthesis.md` and `retro/explanations.md` must exist. If either is missing, output "ERROR: Run prior phases first. Use: /ralph retro --from-phase synthesis" and stop.
 
 1. Discover session JSONL files: read session_path from `retro/retro_state.md`, list the directory. Each `.jsonl` is a session. If no sessions found, write `retro/opsaudit.md` noting session unavailability and exit normally.
 

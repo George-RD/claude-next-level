@@ -1,0 +1,9 @@
+{
+  "name": "chief-of-staff",
+  "description": "Meta-orchestrator for Claude Code: coordinates concurrent workflows across plugins (cycle, ralph-wiggum, team-execute), manages agent waves, tracks session state, and provides unified context handoff. Short alias: /cos.",
+  "version": "1.0.0",
+  "author": {
+    "name": "George-RD"
+  },
+  "keywords": ["orchestrator", "meta", "coordination", "agents", "waves", "handoff", "session", "dispatch", "cos"]
+}

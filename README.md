@@ -23,7 +23,7 @@ Business strategy workshops, PR automation, spec-driven development loops, and m
 | **Grandslam Offer** | Stable | Walks you through Alex Hormozi's *$100M Offers* methodology. Adversarial agent teams (marketer, strategist, customer personas) stress-test your offer at every step. You end up with a Grand Slam Offer — not a first draft. |
 | **Hundred Million Leads** | Early | Same adversarial approach, applied to Hormozi's *$100M Leads*. Builds your lead magnet, Core Four channel strategy, outreach scripts, and Rule of 100 execution plan. Not fully road-tested yet — feedback welcome. |
 
-### Development
+### Development  (WARNING - There are issues in the flow, use with Brain for now)
 
 | Plugin | Status | What it does |
 |--------|--------|-------------|

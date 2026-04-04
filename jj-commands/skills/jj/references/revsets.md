@@ -121,6 +121,9 @@ Use parentheses to override: `(x \| y) & z`
 # What have I been working on?
 jj log -r 'mine() & ~immutable()'
 
+# Show unpushed commits (not on any remote bookmark)
+jj log -r 'remote_bookmarks()..'
+
 # Show all changes on my feature branch
 jj log -r 'main..@'
 

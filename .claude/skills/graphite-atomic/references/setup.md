@@ -130,17 +130,17 @@ raw=$(printf '%s' "$input" | jq -r '.tool_input.command // empty') || fail_close
 #   -C <dir> form:   `git -C /tmp commit`
 GIT_PREFIX='(^|[[:space:]]|/)git[[:space:]]+(-C[[:space:]]+[^[:space:]]+[[:space:]]+)?'
 
-if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}(commit|push|rebase|merge)\b"; then
+if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}(commit|push|rebase|merge)([[:space:]]|$)"; then
   echo '{"decision":"block","reason":"Use gt (create/modify/submit/sync) per graphite-atomic skill. Manual git merge confuses the stack — let gt sync/restack or the merge queue handle it. Plain git reads like git status and git log are fine."}'
   exit 0
 fi
 
-if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}branch[[:space:]]+(-D|-d|--delete)\b"; then
+if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}branch[[:space:]]+(-D|-d|--delete)([[:space:]]|$)"; then
   echo '{"decision":"block","reason":"Use gt delete per graphite-atomic skill."}'
   exit 0
 fi
 
-if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}checkout[[:space:]]+(-b|-B)\b"; then
+if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}checkout[[:space:]]+(-b|-B)([[:space:]]|$)"; then
   echo '{"decision":"block","reason":"Use gt create per graphite-atomic skill."}'
   exit 0
 fi

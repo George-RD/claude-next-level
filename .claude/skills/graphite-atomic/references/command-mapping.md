@@ -20,6 +20,7 @@ Prefer `gt` for any command that affects branches or commit history in a Graphit
 | Move the current branch onto a new base | `gt move --onto <target>` | For reorganising stacks. |
 | Re-apply the stack on an updated base | `gt restack` | Fired automatically after `gt sync`; run manually after a conflict resolution. |
 | Continue after resolving a conflict | `gt continue` | Resumes `gt restack` once you've resolved and staged the fix. |
+| Abort an in-flight restack/rebase | `gt abort` | Standalone command — there is no `--abort` flag on `gt restack`. Reverts the working copy to the pre-command state. |
 | Trunk name | `gt trunk` | Returns the configured trunk; never assume `main`. |
 
 ## Raw git that is always safe

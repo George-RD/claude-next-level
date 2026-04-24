@@ -28,7 +28,7 @@ Pause and ask the orchestrator (or the user) before resolving any of:
 | Trunk moved; apply stack on new trunk | `gt sync` |
 | Re-apply stack after any base change | `gt restack` |
 | Conflict during restack; resolve then continue | resolve, `git add` the fix, `gt continue` |
-| Abort an in-flight restack | `gt restack --abort` |
+| Abort an in-flight restack | `gt abort` |
 
 ## After resolution
 

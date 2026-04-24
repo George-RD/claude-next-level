@@ -190,4 +190,4 @@ jj git colocation enable   # Shared working copy
 - **Not using `--colocate`**: Required for Git tool compatibility and GitHub workflows
 - **Expecting `git pull` equivalent**: Use `jj git fetch` followed by `jj rebase -b branch -d main@origin`
 - **Creating commits without descriptions**: Use `jj describe -m "message"` to set commit messages
-- **Mixing `new` and `commit`**: `jj new` finalizes current work, `jj commit` is for colocated Git sync
+- **Mixing `new` and `commit`**: `jj new` starts a new empty change on top; `jj commit` is shorthand for `jj describe` + `jj new` — it finalizes the current change with a message and starts a new one. Neither is a Git-sync command; use `jj git fetch`/`jj git push` for that.

@@ -143,4 +143,4 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 ## Notes
 
 - `.claude/skills/` is auto-loaded by Claude Code when working in this repo, so vendored skills are live here as well as backed up.
-- Source of truth for skill authorship: the `SKILL.md` frontmatter does not reliably carry an author field — I'm using habit/setup patterns to classify. When in doubt, the "Candidates" section above is where to triage.
+- Source of truth for skill authorship: the `SKILL.md` frontmatter does not reliably carry an author field — I'm using habit/setup patterns to classify. When in doubt, confirm authorship before vendoring.

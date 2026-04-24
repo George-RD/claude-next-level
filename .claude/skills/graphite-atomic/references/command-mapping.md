@@ -6,7 +6,7 @@ Prefer `gt` for any command that affects branches or commit history in a Graphit
 
 | Intent | gt command | Notes |
 |---|---|---|
-| New branch + first commit | `gt create -am "<subject>"` | Creates a branch, stages all tracked changes, commits. Each call adds one PR to the stack. |
+| New branch + first commit | `gt create -am "<subject>"` | Creates a branch, stages all unstaged changes (including untracked files — `-a`/`--all`), commits. Use `-um` instead for tracked-only semantics. Each call adds one PR to the stack. |
 | Amend the current PR | `gt modify -a` | Use for review feedback on the current branch. Stages and amends in one step. |
 | Add another commit on the same branch | `gt modify -c -am "<subject>"` | Keeps you on the current branch, adds a new commit. The PR gets a new commit, not a new branch. |
 | Publish the full stack | `gt submit --stack --no-interactive` | `--no-interactive` skips prompts, safe in agent sessions. |

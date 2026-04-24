@@ -77,6 +77,7 @@ This project uses Graphite for atomic commits and stacked PRs.
 - Target ≤250 lines, hard cap ≤400 lines per commit
 - One logical unit per commit. One commit per PR.
 - Prefer `gt` over `git` for anything that affects branches or history
+- Do not run `git merge` manually — let `gt sync` / `gt restack` or the Graphite merge queue handle merges; manual merges confuse the stack model
 - Full rules live in the `graphite-atomic` skill
 
 Trunk is `<trunk-branch>`. Publish the stack via `gt submit --stack --no-interactive`.

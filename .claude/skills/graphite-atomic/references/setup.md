@@ -45,11 +45,21 @@ This creates `.graphite_repo_config` inside the git common dir. In a non-worktre
 
 ## 3. Authenticate
 
+Before asking the user to run `gt auth`, the agent should probe whether auth already exists. Graphite does not expose a direct `gt auth status` command, but from a branch with commits on top of trunk the following reaches the Graphite API and fails with an auth error when unauthed:
+
+```bash
+gt submit --dry-run --no-interactive
+```
+
+Caveat: on a clean trunk with nothing to submit, `gt submit --dry-run` short-circuits with "Nothing to submit!" and exits 0 without hitting the API. It cannot confirm auth in that state. If there is no stack to probe, ask the user directly ("have you run `gt auth` in a recent session?") rather than having them re-auth blindly.
+
+When auth is genuinely missing:
+
 ```bash
 gt auth
 ```
 
-Opens a browser for OAuth. Required for `gt submit`. This needs the human's hands. An agent cannot complete browser OAuth on the user's behalf.
+Opens a browser for OAuth. Required for `gt submit`. This needs the human's hands — an agent cannot complete browser OAuth on the user's behalf.
 
 If the browser flow fails, reset and retry:
 
@@ -120,8 +130,8 @@ raw=$(printf '%s' "$input" | jq -r '.tool_input.command // empty') || fail_close
 #   -C <dir> form:   `git -C /tmp commit`
 GIT_PREFIX='(^|[[:space:]]|/)git[[:space:]]+(-C[[:space:]]+[^[:space:]]+[[:space:]]+)?'
 
-if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}(commit|push|rebase)\b"; then
-  echo '{"decision":"block","reason":"Use gt (create/modify/submit) per graphite-atomic skill. Plain git reads like git status and git log are fine."}'
+if printf '%s' "$raw" | grep -Eq "${GIT_PREFIX}(commit|push|rebase|merge)\b"; then
+  echo '{"decision":"block","reason":"Use gt (create/modify/submit/sync) per graphite-atomic skill. Manual git merge confuses the stack — let gt sync/restack or the merge queue handle it. Plain git reads like git status and git log are fine."}'
   exit 0
 fi
 
@@ -167,7 +177,7 @@ The hook is optional. The skill alone is usually sufficient. Add it only if you 
 
 Add to `.cflx.jsonc` under the `apply_prompt` key. Append this paragraph to the existing prompt. **Substitute placeholders** (`<phase-id>`, `<trunk-branch>`) at configuration time with literals for the project (e.g., `phase-8` for phase-8-summariser):
 
-```
+```text
 You have access to the graphite-atomic skill. Each time you complete a logical unit of work under the 400-line cap, create a new branch and commit:
 
     gt create -am "<type>(<phase-id>): <subject>"

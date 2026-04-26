@@ -154,7 +154,7 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 1. Install Claude Code CLI (and Codex CLI if dual-tool setup).
 2. Add the marketplaces listed above (`/plugin marketplace add <repo>`).
 3. Install plugins from each marketplace.
-4. Restore vendored skills:
+4. Restore vendored skills (run from the cloned repo root):
 
    ```bash
    # Ensure target dirs exist (fresh installs may not have them).

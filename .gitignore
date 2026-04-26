@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+
+# Per-clone Claude state (not shared)
+.claude/worktrees/
+.claude/*.local.md
+.claude/*.local.json

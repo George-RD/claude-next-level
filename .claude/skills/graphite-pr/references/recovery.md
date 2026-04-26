@@ -86,7 +86,7 @@ This mirrors the forward path (commit atomically as units land) rather than resc
 
 - Whitespace-only or formatter drift
 - Non-overlapping additions in the same file (both sides added different hunks at different locations)
-- Reordered or added imports — but only after confirming none are **side-effect imports** (e.g. `import './polyfills'`, `import 'reflect-metadata'`, CSS imports, anything imported for its evaluation rather than a binding). Side-effect imports are order-sensitive in every language, including JS/TS/Go/Rust where module-level import order is otherwise inert. If the conflict touches a side-effect import, escalate.
+- Reordered or added imports — but only if none are **side-effect imports** (e.g. `import './polyfills'`, `import 'reflect-metadata'`, CSS imports, anything imported for evaluation rather than a binding). These are order-sensitive even in languages where import order is otherwise inert; if the conflict touches one, escalate.
 
 After any auto-resolve, run the build/test gate before continuing. If it fails, revert and escalate.
 

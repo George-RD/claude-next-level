@@ -5,3 +5,7 @@ __pycache__/
 .claude/worktrees/
 .claude/*.local.md
 .claude/*.local.json
+.claude/scheduled_tasks.lock
+
+# Session-only coordination artifacts
+docs/strongholds/

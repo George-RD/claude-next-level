@@ -2,14 +2,37 @@
 
 Portable reference for George's Claude Code coding setup. Skill folders under this directory are vendored copies of skills authored by me. The rest is a registry of external skills and plugins I use, with install sources so this setup can be reconstructed on a fresh machine.
 
+## Where skills live (cross-tool layout)
+
+Three search roots:
+
+| Tool | Discovery |
+|---|---|
+| **Claude Code** | auto-scans `~/.claude/skills/` (global) and `<project>/.claude/skills/` (project-scoped). |
+| **Codex** | explicit `[[skills.config]]` blocks in `~/.codex/config.toml` — no auto-scan. |
+| **Shared canonical** | `~/.agents/skills/` — single source for skills used by **both** tools. |
+
+For cross-tool skills: canonical lives at `~/.agents/skills/<name>/`; Claude reads it via a symlink at `~/.claude/skills/<name>`, Codex via a `[[skills.config]]` block pointing at the absolute `SKILL.md` path. Edit once, both tools update.
+
+Currently shared: `firecrawl` (+ `firecrawl-*`), `graphite-pr`. Everything else is Claude-only at `~/.claude/skills/`.
+
+Skills I author are vendored into this repo as the versioned source; the runtime canonical is what the tools actually load. See "Rebuilding this setup" below for the wiring steps.
+
 ## Skills authored by me (vendored here)
 
-| Skill | Trigger / Scope | Upstream |
-|---|---|---|
-| [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active in `.graphite_repo_config` repos or on `gt`/stacked-PR cues. Renamed from `graphite-atomic` Apr 2026. | `~/.claude/skills/graphite-pr/` |
-| [`jj-vcs-comprehensive/`](./jj-vcs-comprehensive/) | Jujutsu (jj) VCS — colocated workspaces, bookmarks, GitHub sync, conflict resolution. | `~/.claude/skills/jj-vcs-comprehensive/` |
+| Skill | Trigger / Scope | Runtime canonical | Sharing |
+|---|---|---|---|
+| [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active in `.graphite_repo_config` repos or on `gt`/stacked-PR cues. Renamed from `graphite-atomic` Apr 2026. | `~/.agents/skills/graphite-pr/` | **shared** (Claude via symlink, Codex via `config.toml` entry) |
+| [`jj-vcs-comprehensive/`](./jj-vcs-comprehensive/) | Jujutsu (jj) VCS — colocated workspaces, bookmarks, GitHub sync, conflict resolution. | `~/.claude/skills/jj-vcs-comprehensive/` | Claude only |
 
-These are committed into the repo so the canonical source is versioned. To update, edit in place here and copy out to `~/.claude/skills/<name>/` (or symlink during local dev).
+**Update discipline**: edit the vendored copy here first (so the change is committed), then mirror to the runtime canonical:
+
+```bash
+cp -r .claude/skills/<name>/ ~/.agents/skills/<name>/   # shared skills
+cp -r .claude/skills/<name>/ ~/.claude/skills/<name>/   # Claude-only skills
+```
+
+For shared skills the single mirror reaches both tools.
 
 ## External skills I use
 
@@ -17,7 +40,7 @@ Installed directly under `~/.claude/skills/` (not via a plugin). Source/install 
 
 | Skill | Purpose | Source |
 |---|---|---|
-| `firecrawl`, `firecrawl-scrape`, `firecrawl-search`, `firecrawl-map`, `firecrawl-crawl`, `firecrawl-agent`, `firecrawl-interact`, `firecrawl-download` | Web scraping / search / crawl via Firecrawl CLI | Firecrawl (likely `skills.sh` or Firecrawl docs) |
+| `firecrawl`, `firecrawl-scrape`, `firecrawl-search`, `firecrawl-map`, `firecrawl-crawl`, `firecrawl-agent`, `firecrawl-interact`, `firecrawl-download` | Web scraping / search / crawl via Firecrawl CLI. Shared (canonical at `~/.agents/skills/firecrawl*`). | Firecrawl (likely `skills.sh` or Firecrawl docs) |
 | `nlm-skill` | NotebookLM CLI + MCP (`nlm`) | NotebookLM MCP package |
 | `sketch-implement-design` | Translate Sketch layers → code via Sketch MCP | Sketch MCP server |
 | `cmux-theme` | cmux terminal multiplexer | cmux.app distribution |
@@ -128,17 +151,43 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 
 ## Rebuilding this setup on a fresh machine
 
-1. Install Claude Code CLI.
+1. Install Claude Code CLI (and Codex CLI if dual-tool setup).
 2. Add the marketplaces listed above (`/plugin marketplace add <repo>`).
 3. Install plugins from each marketplace.
-4. Copy the vendored skills here into `~/.claude/skills/`:
+4. Restore vendored skills (run from the cloned repo root):
 
    ```bash
-   cp -r .claude/skills/graphite-pr ~/.claude/skills/
+   # Ensure target dirs exist (fresh installs may not have them).
+   mkdir -p ~/.agents/skills ~/.claude/skills
+
+   # Shared (used by both Claude and Codex) — canonical lives in ~/.agents/skills/.
+   cp -r .claude/skills/graphite-pr ~/.agents/skills/
+   ln -sfn "$HOME/.agents/skills/graphite-pr" "$HOME/.claude/skills/graphite-pr"
+
+   # Claude-only — copy straight into ~/.claude/skills/.
    cp -r .claude/skills/jj-vcs-comprehensive ~/.claude/skills/
    ```
 
-5. Reinstall any standalone `~/.claude/skills/` entries from the External skills table above (most likely via `skills.sh` or their upstream docs).
+5. Wire shared skills into Codex. Back up first, then append (Codex has no auto-scan; every shared skill needs its own block):
+
+   ```bash
+   mkdir -p ~/.codex
+   touch ~/.codex/config.toml
+   cp ~/.codex/config.toml ~/.codex/config.toml.bak.$(date +%s)
+
+   # Idempotent append — only adds the block if this skill's path isn't already registered.
+   SKILL_PATH="$HOME/.agents/skills/graphite-pr/SKILL.md"
+   grep -qF "$SKILL_PATH" ~/.codex/config.toml || cat >> ~/.codex/config.toml <<EOF
+
+   [[skills.config]]
+   path = "$SKILL_PATH"
+   enabled = true
+   EOF
+   ```
+
+   Verify the file still parses: `python3 -c 'import tomllib; tomllib.load(open("'"$HOME"'/.codex/config.toml","rb"))'`.
+
+6. Reinstall standalone entries from the External skills table (mostly via `skills.sh` or upstream docs). Shared external skills install into `~/.agents/skills/` and need both a Claude symlink and a Codex block per skill. For example, the firecrawl set is 8 SKILL.md files (`firecrawl`, `firecrawl-{agent,crawl,download,interact,map,scrape,search}`) — repeat the step-5 append once per skill, swapping the path.
 
 ## Notes
 

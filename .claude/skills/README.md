@@ -162,7 +162,7 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 
    # Shared (used by both Claude and Codex) — canonical lives in ~/.agents/skills/.
    cp -r .claude/skills/graphite-pr ~/.agents/skills/
-   ln -s "$HOME/.agents/skills/graphite-pr" "$HOME/.claude/skills/graphite-pr"
+   ln -sfn "$HOME/.agents/skills/graphite-pr" "$HOME/.claude/skills/graphite-pr"
 
    # Claude-only — copy straight into ~/.claude/skills/.
    cp -r .claude/skills/jj-vcs-comprehensive ~/.claude/skills/
@@ -171,12 +171,16 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 5. Wire shared skills into Codex. Back up first, then append (Codex has no auto-scan; every shared skill needs its own block):
 
    ```bash
-   touch ~/.codex/config.toml   # in case Codex has never been launched
+   mkdir -p ~/.codex
+   touch ~/.codex/config.toml
    cp ~/.codex/config.toml ~/.codex/config.toml.bak.$(date +%s)
-   cat >> ~/.codex/config.toml <<EOF
+
+   # Idempotent append — only adds the block if this skill's path isn't already registered.
+   SKILL_PATH="$HOME/.agents/skills/graphite-pr/SKILL.md"
+   grep -qF "$SKILL_PATH" ~/.codex/config.toml || cat >> ~/.codex/config.toml <<EOF
 
    [[skills.config]]
-   path = "$HOME/.agents/skills/graphite-pr/SKILL.md"
+   path = "$SKILL_PATH"
    enabled = true
    EOF
    ```

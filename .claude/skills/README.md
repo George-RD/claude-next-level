@@ -6,7 +6,7 @@ Portable reference for George's Claude Code coding setup. Skill folders under th
 
 | Skill | Trigger / Scope | Upstream |
 |---|---|---|
-| [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active only in repos with `.graphite_repo_config`. Renamed from `graphite-atomic` Apr 2026. | `~/.claude/skills/graphite-pr/` |
+| [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active in `.graphite_repo_config` repos or on `gt`/stacked-PR cues. Renamed from `graphite-atomic` Apr 2026. | `~/.claude/skills/graphite-pr/` |
 | [`jj-vcs-comprehensive/`](./jj-vcs-comprehensive/) | Jujutsu (jj) VCS — colocated workspaces, bookmarks, GitHub sync, conflict resolution. | `~/.claude/skills/jj-vcs-comprehensive/` |
 
 These are committed into the repo so the canonical source is versioned. To update, edit in place here and copy out to `~/.claude/skills/<name>/` (or symlink during local dev).

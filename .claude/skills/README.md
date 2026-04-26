@@ -4,19 +4,19 @@ Portable reference for George's Claude Code coding setup. Skill folders under th
 
 ## Where skills live (cross-tool layout)
 
-Three search roots in play across the tools I use:
+Three search roots:
 
 | Tool | Discovery |
 |---|---|
-| **Claude Code** | auto-scans `~/.claude/skills/` (global) and `<project>/.claude/skills/` (project-scoped, e.g. this repo). |
-| **Codex** | explicit `[[skills.config]]` blocks in `~/.codex/config.toml` — one per skill, no auto-scan. |
-| **Shared canonical** | `~/.agents/skills/` — single source-of-truth for skills used by **both** tools. |
+| **Claude Code** | auto-scans `~/.claude/skills/` (global) and `<project>/.claude/skills/` (project-scoped). |
+| **Codex** | explicit `[[skills.config]]` blocks in `~/.codex/config.toml` — no auto-scan. |
+| **Shared canonical** | `~/.agents/skills/` — single source for skills used by **both** tools. |
 
-**Convention for cross-tool skills**: canonical lives at `~/.agents/skills/<name>/`. Claude picks it up via a symlink at `~/.claude/skills/<name> → ../../.agents/skills/<name>`. Codex picks it up via a `[[skills.config]]` block pointing at the absolute `~/.agents/skills/<name>/SKILL.md` path. Edit the canonical once, both tools see the change.
+For cross-tool skills: canonical lives at `~/.agents/skills/<name>/`; Claude reads it via a symlink at `~/.claude/skills/<name>`, Codex via a `[[skills.config]]` block pointing at the absolute `SKILL.md` path. Edit once, both tools update.
 
-**Currently shared via this pattern**: `firecrawl` (+ `firecrawl-*` sub-skills), `graphite-pr`. Everything else is single-tool (mostly Claude-only at `~/.claude/skills/`).
+Currently shared: `firecrawl` (+ `firecrawl-*`), `graphite-pr`. Everything else is Claude-only at `~/.claude/skills/`.
 
-**Vendoring rule**: skills I author are vendored into this repo (`./graphite-pr/`, `./jj-vcs-comprehensive/`) as the version-controlled source. The runtime canonical (e.g. `~/.agents/skills/graphite-pr/`) is what Claude/Codex actually load. Rebuild flow on a fresh machine: clone repo → copy vendored dir to runtime canonical → wire up Claude symlink and Codex `[[skills.config]]` block.
+Skills I author are vendored into this repo as the versioned source; the runtime canonical is what the tools actually load. See "Rebuilding this setup" below for the wiring steps.
 
 ## Skills authored by me (vendored here)
 
@@ -25,7 +25,14 @@ Three search roots in play across the tools I use:
 | [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active in `.graphite_repo_config` repos or on `gt`/stacked-PR cues. Renamed from `graphite-atomic` Apr 2026. | `~/.agents/skills/graphite-pr/` | **shared** (Claude via symlink, Codex via `config.toml` entry) |
 | [`jj-vcs-comprehensive/`](./jj-vcs-comprehensive/) | Jujutsu (jj) VCS — colocated workspaces, bookmarks, GitHub sync, conflict resolution. | `~/.claude/skills/jj-vcs-comprehensive/` | Claude only |
 
-These are committed into the repo so the canonical source is versioned. To update: edit in place here, then mirror to the runtime canonical above. For shared skills, that's the single shared dir — both tools pick up the change.
+**Update discipline**: edit the vendored copy here first (so the change is committed), then mirror to the runtime canonical:
+
+```bash
+cp -r .claude/skills/<name>/ ~/.agents/skills/<name>/   # shared skills
+cp -r .claude/skills/<name>/ ~/.claude/skills/<name>/   # Claude-only skills
+```
+
+For shared skills the single mirror reaches both tools.
 
 ## External skills I use
 
@@ -33,7 +40,7 @@ Installed directly under `~/.claude/skills/` (not via a plugin). Source/install 
 
 | Skill | Purpose | Source |
 |---|---|---|
-| `firecrawl`, `firecrawl-scrape`, `firecrawl-search`, `firecrawl-map`, `firecrawl-crawl`, `firecrawl-agent`, `firecrawl-interact`, `firecrawl-download` | Web scraping / search / crawl via Firecrawl CLI. **Shared** — canonical at `~/.agents/skills/firecrawl*`, Claude via symlinks, Codex via `config.toml`. | Firecrawl (likely `skills.sh` or Firecrawl docs) |
+| `firecrawl`, `firecrawl-scrape`, `firecrawl-search`, `firecrawl-map`, `firecrawl-crawl`, `firecrawl-agent`, `firecrawl-interact`, `firecrawl-download` | Web scraping / search / crawl via Firecrawl CLI. Shared (canonical at `~/.agents/skills/firecrawl*`). | Firecrawl (likely `skills.sh` or Firecrawl docs) |
 | `nlm-skill` | NotebookLM CLI + MCP (`nlm`) | NotebookLM MCP package |
 | `sketch-implement-design` | Translate Sketch layers → code via Sketch MCP | Sketch MCP server |
 | `cmux-theme` | cmux terminal multiplexer | cmux.app distribution |
@@ -150,23 +157,33 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 4. Restore vendored skills:
 
    ```bash
-   # Shared (used by both Claude and Codex) — canonical lives in ~/.agents/skills/
-   mkdir -p ~/.agents/skills
-   cp -r .claude/skills/graphite-pr ~/.agents/skills/
-   ln -s ../../.agents/skills/graphite-pr ~/.claude/skills/graphite-pr
+   # Ensure target dirs exist (fresh installs may not have them).
+   mkdir -p ~/.agents/skills ~/.claude/skills
 
-   # Claude-only — copy straight into ~/.claude/skills/
+   # Shared (used by both Claude and Codex) — canonical lives in ~/.agents/skills/.
+   cp -r .claude/skills/graphite-pr ~/.agents/skills/
+   ln -s "$HOME/.agents/skills/graphite-pr" "$HOME/.claude/skills/graphite-pr"
+
+   # Claude-only — copy straight into ~/.claude/skills/.
    cp -r .claude/skills/jj-vcs-comprehensive ~/.claude/skills/
    ```
 
-5. Wire shared skills into Codex by appending to `~/.codex/config.toml`:
+5. Wire shared skills into Codex. Back up first, then append (Codex has no auto-scan; every shared skill needs its own block):
 
-   ```toml
+   ```bash
+   touch ~/.codex/config.toml   # in case Codex has never been launched
+   cp ~/.codex/config.toml ~/.codex/config.toml.bak.$(date +%s)
+   cat >> ~/.codex/config.toml <<EOF
+
    [[skills.config]]
-   path = "/Users/<you>/.agents/skills/graphite-pr/SKILL.md"
+   path = "$HOME/.agents/skills/graphite-pr/SKILL.md"
+   enabled = true
+   EOF
    ```
 
-6. Reinstall any standalone `~/.claude/skills/` entries from the External skills table above (most likely via `skills.sh` or their upstream docs). For shared external skills (firecrawl), install once into `~/.agents/skills/` and wire both tools the same way as above.
+   Verify the file still parses: `python3 -c 'import tomllib; tomllib.load(open("'"$HOME"'/.codex/config.toml","rb"))'`.
+
+6. Reinstall standalone entries from the External skills table (mostly via `skills.sh` or upstream docs). Shared external skills install into `~/.agents/skills/` and need both a Claude symlink and a Codex block per skill. For example, the firecrawl set is 8 SKILL.md files (`firecrawl`, `firecrawl-{agent,crawl,download,interact,map,scrape,search}`) — repeat the step-5 append once per skill, swapping the path.
 
 ## Notes
 

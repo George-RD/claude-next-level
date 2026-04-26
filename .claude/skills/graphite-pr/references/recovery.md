@@ -31,7 +31,7 @@ gt submit --publish --no-interactive
 
 **Prevention.** For multi-PR stacks under the `gh pr merge` path, either:
 
-- Submit every PR with `--base main` (parallel, not stacked), or
+- Submit every PR with `--base "$(gt trunk)"` (parallel, not stacked), or
 - Use the Graphite merge queue (preferred — handles cascade automatically).
 
 ## `gt sync --force` reaped a branch you needed
@@ -86,7 +86,7 @@ This mirrors the forward path (commit atomically as units land) rather than resc
 
 - Whitespace-only or formatter drift
 - Non-overlapping additions in the same file (both sides added different hunks at different locations)
-- Reordered or added imports **in languages where import order is semantically inert** (JS, TS, Go, most Rust). Skip auto-resolve for Python (`__init__` side effects), Ruby (`require` side effects), or any language with load-time import behaviour.
+- Reordered or added imports — but only after confirming none are **side-effect imports** (e.g. `import './polyfills'`, `import 'reflect-metadata'`, CSS imports, anything imported for its evaluation rather than a binding). Side-effect imports are order-sensitive in every language, including JS/TS/Go/Rust where module-level import order is otherwise inert. If the conflict touches a side-effect import, escalate.
 
 After any auto-resolve, run the build/test gate before continuing. If it fails, revert and escalate.
 

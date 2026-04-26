@@ -134,7 +134,7 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 4. Copy the vendored skills here into `~/.claude/skills/`:
 
    ```bash
-   cp -r .claude/skills/graphite-atomic ~/.claude/skills/
+   cp -r .claude/skills/graphite-pr ~/.claude/skills/
    cp -r .claude/skills/jj-vcs-comprehensive ~/.claude/skills/
    ```
 

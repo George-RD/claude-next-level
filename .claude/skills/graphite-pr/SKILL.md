@@ -24,6 +24,10 @@ Otherwise use plain `git`. New repo? See `references/setup.md`.
 
 What never works: two actors on the same stack in the same worktree.
 
+## Default to serial PRs
+
+Open one PR, merge, open the next. Stack only when rung B genuinely can't land without rung A. Independent units don't share a stack just because you're working on them in the same session.
+
 ## The 90% loop
 
 ```bash
@@ -71,6 +75,8 @@ gt submit --publish --no-interactive  # force-push via gt; review re-runs
 
 Batch all review fixes into one `gt modify -a` + `gt submit` to avoid multiple round-trips through the pre-push gate.
 
+Amend (`gt modify -a`) for fixes to *this* PR. If the reviewer asks for new scope, that's a new commit on top: `git add <files>; gt create -m "<subject>"`.
+
 ## After submit: poll, then merge
 
 The merge gate is `Graphite / AI Reviews`. Poll:
@@ -89,11 +95,13 @@ Once green, merge by one of:
 
 1. **Graphite merge queue** (preferred for stacks) — toggle "merge when ready" on each PR at app.graphite.dev. Merges bottom-up and auto-restacks. Requires the Graphite GitHub App.
 2. **Bottom-up `gh pr merge`**:
+
    ```bash
    gh pr merge <bottom-PR> --squash --delete-branch
    gt sync --no-interactive --force
    # repeat for the next bottom
    ```
+
    `--delete-branch` cascade-closes any PR stacked on top. To avoid: submit every PR with `--base $(gt trunk)` instead. To recover after cascade: `references/recovery.md`.
 3. **Single PR**: `gh pr merge <N> --squash --delete-branch`.
 
@@ -105,6 +113,7 @@ Before `gt sync --force` after a closed PR, record any branch SHA you might stil
 |---|---|
 | New branch + commit (selective stage) | `git add <files>; gt create -m "<subject>"` |
 | Amend the current PR | `git add <files>; gt modify -a` |
+| Reviewer asks for new scope (not a fix to this PR) | `git add <files>; gt create -m "<subject>"` |
 | Publish whole stack as non-draft PRs | `gt submit --stack --publish --no-interactive` |
 | Pull trunk and restack | `gt sync --no-interactive --force` |
 | Show the stack | `gt log` |

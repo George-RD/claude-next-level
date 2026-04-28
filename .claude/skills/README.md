@@ -55,6 +55,7 @@ Installed directly under `~/.claude/skills/` (not via a plugin). Source/install 
 | `find-skills` | Skill discovery/install | Anthropic built-in |
 | `graphify` | Knowledge-graph builder (`/graphify`) | External (referenced in global `CLAUDE.md`) |
 | `dg` | Dinesh vs Gilfoyle adversarial review (`/dg`) | External |
+| `skill-creator` | Author / improve / eval skills. **Project-scoped here** (vendored under `.claude/skills/skill-creator/` instead of enabled globally) so it activates only when working in this repo. | Anthropic — `skill-creator@claude-plugins-official`, copied from `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/` |
 
 > **TODO**: backfill exact install command / source URL for each row. Some likely came from `skills.sh` — if I can find the install command history, I'll pin it here.
 

@@ -12,16 +12,19 @@
 
 set -eu
 
-POLL_INTERVAL="${1:-30}"
-TIMEOUT_MINUTES="${2:-30}"
-TIMEOUT_SECONDS=$((TIMEOUT_MINUTES * 60))
-
 json_str() { jq -Rs . <<<"$1"; }
 
 fail() {
     printf '{"result":"failed","reason":%s,"detail":%s}\n' "$(json_str "$1")" "$(json_str "${2:-}")"
     exit 1
 }
+
+# Validate CLI inputs before arithmetic / sleep so failures preserve the JSON contract.
+POLL_INTERVAL="${1:-30}"
+TIMEOUT_MINUTES="${2:-30}"
+[[ "$POLL_INTERVAL"   =~ ^[1-9][0-9]*$ ]] || fail "invalid-poll-interval"   "must be a positive integer; got: $POLL_INTERVAL"
+[[ "$TIMEOUT_MINUTES" =~ ^[1-9][0-9]*$ ]] || fail "invalid-timeout-minutes" "must be a positive integer; got: $TIMEOUT_MINUTES"
+TIMEOUT_SECONDS=$((TIMEOUT_MINUTES * 60))
 
 # 1. Validate stack is ready
 DRY_RUN="$(gt merge --dry-run 2>&1)" || fail "dry-run-error" "$DRY_RUN"

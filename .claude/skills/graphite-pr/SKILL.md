@@ -86,12 +86,12 @@ For a single PR: never `gh pr merge` blind. Pre-flight first (GraphQL — `gh pr
 ```bash
 NWO=$(gh repo view --json nameWithOwner -q .nameWithOwner); O=${NWO%/*}; R=${NWO#*/}
 gh api graphql \
-  -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewDecision reviewThreads(first:50){nodes{isResolved isOutdated}}}}}' \
+  -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewDecision reviewThreads(first:100){pageInfo{hasNextPage} nodes{isResolved isOutdated}}}}}' \
   -F o="$O" -F r="$R" -F n=<N> \
-  --jq '{decision: .data.repository.pullRequest.reviewDecision, unresolved: ([.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false and .isOutdated==false)] | length)}'
+  --jq '{decision: .data.repository.pullRequest.reviewDecision, unresolved: ([.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false and .isOutdated==false)] | length), truncated: .data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage}'
 ```
 
-Merge only when `unresolved == 0` and `decision != "CHANGES_REQUESTED"` (a `null` decision is fine; it means no formal review yet). Then `gh pr merge <N> --squash --delete-branch`. `gt merge` ignores comment state by default; this gate is the safety net.
+Merge only when the JSON printed above has `unresolved == 0`, `decision != "CHANGES_REQUESTED"`, and `truncated == false` (a `null` decision is fine; it means no formal review yet). Then `gh pr merge <N> --squash --delete-branch`. `gt merge` ignores comment state by default; this gate is the safety net. If `truncated` is true the PR has >100 review threads — paginate via `endCursor` or treat as unsafe to auto-merge.
 
 If the `Graphite / AI Reviews` check hasn't appeared a few minutes after a non-draft PR, surface this before continuing to wait:
 

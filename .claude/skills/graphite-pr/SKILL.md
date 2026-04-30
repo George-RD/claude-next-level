@@ -111,7 +111,7 @@ gt sync --no-interactive --force
 
 Before `gt sync --force` after a closed PR, record any branch SHA you might still need (`git rev-parse <branch>~`) — sync deletes local tracking for closed branches.
 
-If anything goes sideways, load `references/troubleshooting.md`.
+If anything goes sideways, load `references/recovery.md`.
 
 ## Quick reference
 

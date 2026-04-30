@@ -31,28 +31,44 @@ grep -q "Your stack is ready to merge" <<<"$DRY_RUN" || fail "stack-not-ready" "
 BRANCHES=$(awk '/Preparing to merge:/{f=1; next} /Dry run complete/{f=0} f && /^▸/ {print $2}' <<<"$DRY_RUN")
 [ -n "$BRANCHES" ] || fail "no-branches-found" "could not parse dry-run output"
 
-# 3. Map each branch to its PR number
+# 3. Map each branch to its PR number. Whitespace/glob-safe; loud on missing PRs.
 PR_LIST=()
-for branch in $BRANCHES; do
+MISSING_PRS=()
+while IFS= read -r branch; do
+    [ -z "$branch" ] && continue
     pr=$(gh pr list --head "$branch" --state open --json number -q '.[0].number' 2>/dev/null || true)
-    [ -n "$pr" ] && PR_LIST+=("$pr")
-done
+    if [ -n "$pr" ]; then
+        PR_LIST+=("$pr")
+    else
+        MISSING_PRS+=("$branch")
+    fi
+done <<<"$BRANCHES"
+[ "${#MISSING_PRS[@]}" -eq 0 ] || fail "stack-branch-without-pr" "no open PR for branches: ${MISSING_PRS[*]}"
 [ "${#PR_LIST[@]}" -gt 0 ] || fail "no-open-prs" "stack branches have no open PRs"
 
-# 3a. Gate on unresolved review threads. `gt merge` ignores them; we don't.
-#     One GraphQL call per PR; returns only an integer count, so context cost is tiny.
+# 3a. Gate on unresolved threads, CHANGES_REQUESTED reviews, and pagination truncation.
+#     `gt merge` ignores all three; we don't. One GraphQL call per PR.
 REPO_NWO=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null) || fail "no-repo" "could not resolve owner/repo"
 REPO_OWNER="${REPO_NWO%/*}"
 REPO_NAME="${REPO_NWO#*/}"
 UNRESOLVED_DETAIL=""
+BLOCKED_DETAIL=""
+TRUNCATED_DETAIL=""
 for pr in "${PR_LIST[@]}"; do
-    n=$(gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:50){nodes{isResolved isOutdated}}}}}' \
+    GATE_JSON=$(gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewDecision reviewThreads(first:100){pageInfo{hasNextPage} nodes{isResolved isOutdated}}}}}' \
         -F o="$REPO_OWNER" -F r="$REPO_NAME" -F n="$pr" \
-        --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false and .isOutdated==false)] | length' 2>/dev/null || echo "ERR")
-    [ "$n" = "ERR" ] && fail "graphql-error" "could not query review threads for PR #$pr"
+        --jq '{decision: .data.repository.pullRequest.reviewDecision, unresolved: ([.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false and .isOutdated==false)] | length), truncated: .data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage}' 2>/dev/null) \
+        || fail "graphql-error" "could not query review state for PR #$pr"
+    n=$(jq -r '.unresolved' <<<"$GATE_JSON")
+    decision=$(jq -r '.decision // ""' <<<"$GATE_JSON")
+    truncated=$(jq -r '.truncated' <<<"$GATE_JSON")
     [ "$n" -gt 0 ] && UNRESOLVED_DETAIL+="#${pr}:${n} "
+    [ "$decision" = "CHANGES_REQUESTED" ] && BLOCKED_DETAIL+="#${pr} "
+    [ "$truncated" = "true" ] && TRUNCATED_DETAIL+="#${pr} "
 done
 [ -z "$UNRESOLVED_DETAIL" ] || fail "unresolved-review-threads" "resolve threads before merging: ${UNRESOLVED_DETAIL}"
+[ -z "$BLOCKED_DETAIL" ]    || fail "changes-requested" "maintainer requested changes on: ${BLOCKED_DETAIL}"
+[ -z "$TRUNCATED_DETAIL" ]  || fail "review-threads-truncated" "PR has >100 threads (paginate via endCursor or treat as unsafe): ${TRUNCATED_DETAIL}"
 
 # 4. Kick off cascade (returns quickly; merge happens server-side)
 START_TIME=$(date +%s)

@@ -77,35 +77,41 @@ Batch all review fixes into one `gt modify -a` + `gt submit` to avoid multiple r
 
 Amend (`gt modify -a`) for fixes to *this* PR. If the reviewer asks for new scope, that's a new commit on top: `git add <files>; gt create -m "<subject>"`.
 
-## After submit: poll, then merge
+## After submit: merge
 
-The merge gate is `Graphite / AI Reviews`. Poll:
+For a stack, run `scripts/gt-merge-cascade.sh`. It dry-runs to validate, **blocks on unresolved review threads** (one GraphQL count per PR, no comment bodies fetched, low context), runs `gt merge`, polls every 30s, and returns JSON when done. Fails fast on stuck/closed PRs or unresolved threads. Stdout-only, won't bloat your context.
+
+For a single PR: never `gh pr merge` blind. Pre-flight first (GraphQL — `gh pr view` does not expose `reviewThreads`):
 
 ```bash
-gh pr view <N> --json statusCheckRollup
+NWO=$(gh repo view --json nameWithOwner -q .nameWithOwner); O=${NWO%/*}; R=${NWO#*/}
+gh api graphql \
+  -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewDecision reviewThreads(first:100){pageInfo{hasNextPage} nodes{isResolved isOutdated}}}}}' \
+  -F o="$O" -F r="$R" -F n=<N> \
+  --jq '{decision: .data.repository.pullRequest.reviewDecision, unresolved: ([.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved==false and .isOutdated==false)] | length), truncated: .data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage}'
 ```
 
-`/loop 1m` or `/loop 3m` works for cadence — query `statusCheckRollup` and act when the check goes SUCCESS.
+Merge only when the JSON printed above has `unresolved == 0`, `decision != "CHANGES_REQUESTED"`, and `truncated == false` (a `null` decision is fine; it means no formal review yet). Then `gh pr merge <N> --squash --delete-branch`. `gt merge` ignores comment state by default; this gate is the safety net. If `truncated` is true the PR has >100 review threads — paginate via `endCursor` or treat as unsafe to auto-merge.
 
-If the check hasn't appeared a few minutes after a non-draft PR, surface this before continuing to wait:
+If the `Graphite / AI Reviews` check hasn't appeared a few minutes after a non-draft PR, surface this before continuing to wait:
 
 > Graphite auto-review isn't running on PR #N. Likely cause: (1) PR is still draft → `gh pr ready <N>`. (2) Graphite GitHub App not installed in the org. (3) PR exceeds size threshold (~1500+ lines, SIZE_GATED). (4) Repo opted out at app.graphite.dev. Pick one before I keep polling.
 
-Once green, merge by one of:
+Alternative for stacks: use the **Graphite merge queue** — toggle "merge when ready" on each PR at app.graphite.dev. Merges bottom-up and auto-restacks. Requires the Graphite GitHub App.
 
-1. **Graphite merge queue** (preferred for stacks) — toggle "merge when ready" on each PR at app.graphite.dev. Merges bottom-up and auto-restacks. Requires the Graphite GitHub App.
-2. **Bottom-up `gh pr merge`**:
+For bottom-up `gh pr merge` instead of the cascade script:
 
-   ```bash
-   gh pr merge <bottom-PR> --squash --delete-branch
-   gt sync --no-interactive --force
-   # repeat for the next bottom
-   ```
+```bash
+gh pr merge <bottom-PR> --squash --delete-branch
+gt sync --no-interactive --force
+# repeat for the next bottom
+```
 
-   `--delete-branch` cascade-closes any PR stacked on top. To avoid: submit every PR with `--base $(gt trunk)` instead. To recover after cascade: `references/recovery.md`.
-3. **Single PR**: `gh pr merge <N> --squash --delete-branch`.
+`--delete-branch` cascade-closes any PR stacked on top. To avoid: submit every PR with `--base $(gt trunk)` instead. To recover after cascade: `references/recovery.md`.
 
 Before `gt sync --force` after a closed PR, record any branch SHA you might still need (`git rev-parse <branch>~`) — sync deletes local tracking for closed branches.
+
+If anything goes sideways, load `references/recovery.md`.
 
 ## Quick reference
 
@@ -118,7 +124,8 @@ Before `gt sync --force` after a closed PR, record any branch SHA you might stil
 | Pull trunk and restack | `gt sync --no-interactive --force` |
 | Show the stack | `gt log` |
 | Trunk name (use, don't assume) | `gt trunk` |
-| Track an untracked branch | `gt track --parent "$(gt trunk)"` |
+| Track an untracked branch (first one in repo) | `gt track --parent <trunk-name>` — `gt trunk` errors when HEAD itself is untracked, so pass the trunk literally (`main`/`dev`/etc.) the first time |
+| Track an untracked branch (stack already exists) | `gt track --parent "$(gt trunk)"` |
 | Continue after conflict resolution | `gt continue` |
 | Abort an in-flight restack | `gt abort` |
 

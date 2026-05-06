@@ -1,0 +1,246 @@
+[
+  {
+    "id": "plan_review_before_code",
+    "description": "OpenSpec/cflx or non-obvious scope gets plan review before coding.",
+    "files": [
+      "swarm-improve/references/development-checkpoints.md",
+      "request-code-review/SKILL.md"
+    ],
+    "must": [
+      "review the plan before implementation",
+      "plan/spec",
+      "before coding",
+      "Planning fixes are cheaper than code fixes"
+    ]
+  },
+  {
+    "id": "follow_up_out_of_scope",
+    "description": "Valid out-of-scope review findings become follow-ups, not silent PR expansion.",
+    "files": [
+      "swarm-improve/references/development-checkpoints.md",
+      "request-code-review/SKILL.md"
+    ],
+    "must": [
+      "do not silently expand the PR",
+      "outside current scope",
+      "evidence",
+      "acceptance criteria",
+      "priority"
+    ]
+  },
+  {
+    "id": "scaled_review_modes",
+    "description": "Request-code-review is the main review workflow with quick, standard, and deep modes.",
+    "files": [
+      "request-code-review/SKILL.md",
+      "deep-review/SKILL.md"
+    ],
+    "must": [
+      "main code review entrypoint",
+      "quick",
+      "standard",
+      "deep",
+      "deep mode",
+      "called by `request-code-review`"
+    ]
+  },
+  {
+    "id": "simplify_repeats_by_delta_scale",
+    "description": "Tiny/small feedback fixes skip simplify; medium/large fixes allow another simplify pass.",
+    "files": [
+      "simplify/SKILL.md",
+      "simplify/references/fix-policy.md",
+      "swarm-improve/references/review-budget.md"
+    ],
+    "must": [
+      "Tiny or small feedback fixes",
+      "skip another simplify pass",
+      "Medium or large feedback fixes",
+      "one more simplify pass",
+      "medium or large code changes"
+    ]
+  },
+  {
+    "id": "parallel_wave_safety",
+    "description": "Parallel work requires file ownership, dependency ordering, worker cap, and overlap serialization.",
+    "files": [
+      "swarm-improve/SKILL.md",
+      "swarm-improve/references/planner-led-loop.md"
+    ],
+    "must": [
+      "file ownership map",
+      "dependency",
+      "cap at 4 workers",
+      "Serialize tasks with overlapping file claims"
+    ]
+  },
+  {
+    "id": "worker_scope_escape",
+    "description": "Worker prompts require HEAD checks, bounded helper search, diff scale report, and scope-escape behavior.",
+    "files": [
+      "swarm-improve/references/subagent-prompt-template.md"
+    ],
+    "must": [
+      "Verify manifest files",
+      "bounded search",
+      "scope-escape",
+      "Diff scale"
+    ]
+  },
+  {
+    "id": "review_arbitration_burden",
+    "description": "Reviewer findings require evidence, impact, and in-scope remedy before code changes.",
+    "files": [
+      "request-code-review/SKILL.md",
+      "deep-review/SKILL.md",
+      "swarm-improve/references/review-budget.md"
+    ],
+    "must": [
+      "concrete evidence",
+      "plausible impact",
+      "in-scope remedy",
+      "project conventions"
+    ]
+  },
+  {
+    "id": "skill_change_governance",
+    "description": "Skill changes require static validation, behavioral eval, GPT 5.5 and Opus 4.7 adversarial review, and evidence packet.",
+    "files": [
+      ".workflow-evals/GOVERNANCE.md"
+    ],
+    "must": [
+      "Static validation",
+      "Behavioral eval",
+      "GPT 5.5",
+      "Opus 4.7",
+      "Evidence packet",
+      "workflow learning"
+    ]
+  },
+  {
+    "id": "closeout_learning_loop",
+    "description": "Workflow closeout classifies PR/CodeRabbit/human/CI findings as learning signals and prefers narrow changes.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/learning-loop.md"
+    ],
+    "must": [
+      "GitHub/CodeRabbit/human",
+      "false positive",
+      "preference",
+      "repeated pattern",
+      "Prefer trim",
+      "deterministic eval"
+    ]
+  },
+  {
+    "id": "skill_maturity_thresholds",
+    "description": "Stable/high-success skills require stronger evidence than draft/recent skills.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/maturity-model.md"
+    ],
+    "must": [
+      "Draft",
+      "Recent",
+      "Stable",
+      "High-success",
+      "Needs-repair",
+      "stronger evidence"
+    ]
+  },
+  {
+    "id": "persona_creation_threshold",
+    "description": "New reviewer personas require repeated evidenced misses that existing lenses cannot cover.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/maturity-model.md"
+    ],
+    "must": [
+      "new targeted persona",
+      "repeated evidenced misses",
+      "existing lenses cannot cover"
+    ]
+  },
+  {
+    "id": "evidence_maturity_validation",
+    "description": "Governance requires evidence/maturity validation and maturity metrics.",
+    "files": [
+      ".workflow-evals/GOVERNANCE.md",
+      ".workflow-evals/maturity.json"
+    ],
+    "must": [
+      "Evidence and maturity validation",
+      "success_count",
+      "miss_count",
+      "friction_count",
+      "regression_count",
+      "high-success"
+    ]
+  },
+  {
+    "id": "cross_repo_skill_state_storage",
+    "description": "Runtime skill telemetry and learnings are stored cross-repo outside skill definitions.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/storage-and-usage.md",
+      ".workflow-evals/scripts/validate-evidence.py"
+    ],
+    "must": [
+      "~/.jcode/skill-state",
+      "skill-usage.jsonl",
+      "workflow-learnings.jsonl",
+      "evidence-packets",
+      "cross-repo"
+    ]
+  },
+  {
+    "id": "skill_usage_and_missed_use_tracking",
+    "description": "Closeout tracks used skills, missed skills, and repeated work that may become a skill.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/storage-and-usage.md",
+      "workflow-closeout/scripts/log-usage.py"
+    ],
+    "must": [
+      "intentionally used",
+      "probably should have been used",
+      "repeated manual work",
+      "candidate",
+      "event_type"
+    ]
+  },
+  {
+    "id": "not_everything_becomes_skill",
+    "description": "Workflow discourages turning everything into skills and requires repeated/non-obvious/high-value/safety-critical evidence.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/storage-and-usage.md"
+    ],
+    "must": [
+      "Do not turn everything into a skill",
+      "repeated",
+      "non-obvious",
+      "high-value",
+      "safety-critical"
+    ]
+  },
+  {
+    "id": "global_project_eval_scope_split",
+    "description": "Closeout distinguishes global reusable evals from project-local evals/raw artifacts and aggregates only safe summaries.",
+    "files": [
+      "workflow-closeout/SKILL.md",
+      "workflow-closeout/references/storage-and-usage.md",
+      ".workflow-evals/scripts/validate-evidence.py"
+    ],
+    "must": [
+      "global versus project-local storage",
+      "Project-specific skill or eval definitions",
+      "<repo>/.jcode/skill-evals/",
+      "Repo-specific raw artifacts",
+      "~/.jcode/skill-state/eval-runs.jsonl",
+      "scope: global|project",
+      "Higher-level analysis should compare summaries"
+    ]
+  }
+]

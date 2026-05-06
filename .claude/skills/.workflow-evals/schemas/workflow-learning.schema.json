@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow Learning",
+  "type": "object",
+  "required": ["date", "source", "symptom", "impact", "status"],
+  "properties": {
+    "date": {"type": "string"},
+    "source": {"type": "string"},
+    "symptom": {"type": "string"},
+    "impact": {"type": "string"},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "status": {"enum": ["new", "eval-added", "doc-updated", "validator-rule", "rejected", "deferred"]},
+    "next_action": {"type": "string"},
+    "related_eval": {"type": "string"}
+  }
+}

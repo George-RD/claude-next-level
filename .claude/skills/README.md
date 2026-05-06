@@ -24,15 +24,26 @@ Skills I author are vendored into this repo as the versioned source; the runtime
 |---|---|---|---|
 | [`graphite-pr/`](./graphite-pr/) | Stacked PRs via `gt` — daily commit→submit→review→merge loop. Active in `.graphite_repo_config` repos or on `gt`/stacked-PR cues. Renamed from `graphite-atomic` Apr 2026. | `~/.agents/skills/graphite-pr/` | **shared** (Claude via symlink, Codex via `config.toml` entry) |
 | [`jj-vcs-comprehensive/`](./jj-vcs-comprehensive/) | Jujutsu (jj) VCS — colocated workspaces, bookmarks, GitHub sync, conflict resolution. | `~/.claude/skills/jj-vcs-comprehensive/` | Claude only |
+| [`swarm-improve/`](./swarm-improve/) | Planner-led repo improvement loop with subagents, review gates, simplify passes, and diminishing-return stop points. | `~/.jcode/skills/swarm-improve/` | Jcode primary, portable with harness adapters |
+| [`request-code-review/`](./request-code-review/) | Primary review entrypoint for plans, diffs, commits, stacks, and pre-submit checks. Selects quick, standard, or deep mode by scale and risk. | `~/.jcode/skills/request-code-review/` | Jcode primary, portable with harness adapters |
+| [`deep-review/`](./deep-review/) | Heavy constructive/adversarial review mode for risky checkpoints, audits, red-team requests, and pre-submit stacks. | `~/.jcode/skills/deep-review/` | Jcode primary, portable with harness adapters |
+| [`simplify/`](./simplify/) | Cleanup and pre-review hardening pass for recent implementation, with scale-based reviewer budgets. | `~/.jcode/skills/simplify/` | Jcode primary, portable with harness adapters |
+| [`apply-review-feedback/`](./apply-review-feedback/) | Triage and apply human, CI, or model review feedback with evidence and gates. | `~/.jcode/skills/apply-review-feedback/` | Jcode primary, portable with harness adapters |
+| [`workflow-closeout/`](./workflow-closeout/) | End-of-workflow learning loop for CI/reviewer/user-friction signals and skill improvement governance. | `~/.jcode/skills/workflow-closeout/` | Jcode primary, portable with harness adapters |
 
 **Update discipline**: edit the vendored copy here first (so the change is committed), then mirror to the runtime canonical:
 
 ```bash
 cp -r .claude/skills/<name>/ ~/.agents/skills/<name>/   # shared skills
 cp -r .claude/skills/<name>/ ~/.claude/skills/<name>/   # Claude-only skills
+cp -r .claude/skills/<name>/ ~/.jcode/skills/<name>/     # Jcode workflow skills
+cp -r .claude/skills/.workflow-evals/ ~/.jcode/skills/.workflow-evals/
+cp .claude/skills/.validate-*.sh ~/.jcode/skills/
 ```
 
 For shared skills the single mirror reaches both tools.
+
+The Jcode workflow skills are written as portable process guidance. Their `x-compatibility` frontmatter is advisory metadata, not a loader guarantee. Claude Code, Opencode-style harnesses, or other agents can use the same instructions when they provide equivalent concepts for subagents, review workers, todos, validation gates, memory, and skill activation. Wire them according to that harness's own skill/plugin mechanism.
 
 ## External skills I use
 

@@ -1,0 +1,14 @@
+flowchart TD
+  D[Recent diff] --> G[Baseline gates]
+  G --> R1[Reuse reviewer]
+  G --> R2[Quality reviewer]
+  G --> R3[Efficiency reviewer]
+  R1 --> A[Aggregate findings]
+  R2 --> A
+  R3 --> A
+  A --> F{High-signal fixes?}
+  F -- yes --> P[Apply small patch]
+  P --> G2[Rerun gates]
+  G2 -- fail --> P
+  G2 -- pass --> C[Continue to code review or commit]
+  F -- no --> C

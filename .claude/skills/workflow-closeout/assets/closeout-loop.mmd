@@ -1,0 +1,14 @@
+flowchart TD
+  A[Collect PR, CI, human, CodeRabbit, user friction signals] --> B{Real evidenced miss?}
+  B -- no: false positive or preference --> C[Log if useful, no skill change]
+  B -- yes --> D{Repeated, high severity, or eval failure?}
+  D -- no --> E[Log signal, defer skill change]
+  D -- yes --> F{Smallest intervention}
+  F --> G[Trim/delete/clarify or edit diagram]
+  F --> H[Add deterministic eval]
+  F --> I[Update existing lens]
+  I --> J{Repeated gap not covered?}
+  J -- yes --> K[Consider new targeted persona]
+  G --> L[Static + behavior eval + GPT 5.5 + Opus 4.7 review]
+  H --> L
+  K --> L

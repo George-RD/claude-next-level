@@ -1,0 +1,56 @@
+{
+  "swarm-improve": {
+    "state": "recent",
+    "last_changed": "2026-05-06",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "Recently changed with RPI-style loop, review budgets, and checkpoints. Monitor for over-process and branch/workflow confusion."
+  },
+  "simplify": {
+    "state": "recent",
+    "last_changed": "2026-05-06",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "Recently changed to scale simplify passes by diff size. Monitor repeat-simplify decisions."
+  },
+  "request-code-review": {
+    "state": "recent",
+    "last_changed": "2026-05-06",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "Recently changed to become main review entrypoint with quick/standard/deep modes."
+  },
+  "deep-review": {
+    "state": "recent",
+    "last_changed": "2026-05-06",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "Recently reframed as deep mode for request-code-review. Monitor double-review behavior."
+  },
+  "apply-review-feedback": {
+    "state": "stable",
+    "last_changed": "2026-05-04",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "Mostly unchanged. Higher evidence threshold before edits."
+  },
+  "workflow-closeout": {
+    "state": "draft",
+    "last_changed": "2026-05-06",
+    "success_count": 0,
+    "miss_count": 0,
+    "friction_count": 0,
+    "regression_count": 0,
+    "notes": "New closeout learning skill. Lower threshold for clarifications, but still requires eval/review before skill-suite edits."
+  }
+}

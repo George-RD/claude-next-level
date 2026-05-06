@@ -1,0 +1,377 @@
+[
+  {
+    "id": "tiny_typo_inline_only",
+    "description": "Tiny typo/docs fix should not spawn agents or deep-review.",
+    "signals": {
+      "scale": "tiny",
+      "risk": "low"
+    },
+    "expect": {
+      "review_mode": "quick",
+      "subagents": false,
+      "simplify": "skip",
+      "repeat_simplify": false,
+      "deep_review": false
+    }
+  },
+  {
+    "id": "small_local_fix_no_double_review",
+    "description": "Small local fix may use quick review but not both simplify and external review by default.",
+    "signals": {
+      "scale": "small",
+      "risk": "low"
+    },
+    "expect": {
+      "review_mode": "quick",
+      "deep_review": false,
+      "repeat_simplify": false,
+      "max_review_passes": 1
+    }
+  },
+  {
+    "id": "medium_feature_standard_lenses",
+    "description": "Medium meaningful work uses request-code-review standard mode with lightweight lenses.",
+    "signals": {
+      "scale": "medium",
+      "risk": "normal",
+      "cheap_models_available": true
+    },
+    "expect": {
+      "entrypoint": "request-code-review",
+      "review_mode": "standard",
+      "lens_count_min": 2,
+      "lens_count_max": 4,
+      "deep_review": false
+    }
+  },
+  {
+    "id": "large_phase_checkpoint_deep_mode",
+    "description": "Large phase checkpoint gets simplify plus request-code-review deep mode.",
+    "signals": {
+      "scale": "large",
+      "phase_checkpoint": true
+    },
+    "expect": {
+      "entrypoint": "request-code-review",
+      "review_mode": "deep",
+      "deep_review": true,
+      "simplify": "run"
+    }
+  },
+  {
+    "id": "small_feedback_skips_repeat_simplify",
+    "description": "Tiny/small feedback fixes rerun gates but skip repeat simplify.",
+    "signals": {
+      "scale": "medium",
+      "feedback_delta_scale": "small"
+    },
+    "expect": {
+      "repeat_simplify": false,
+      "rerun_gates": true
+    }
+  },
+  {
+    "id": "large_feedback_repeats_simplify_once",
+    "description": "Medium/large feedback fixes allow one more simplify pass before final review/submit.",
+    "signals": {
+      "scale": "medium",
+      "feedback_delta_scale": "large"
+    },
+    "expect": {
+      "repeat_simplify": true,
+      "repeat_simplify_limit": 1
+    }
+  },
+  {
+    "id": "out_of_scope_valid_finding_becomes_followup",
+    "description": "Valid out-of-scope finding should not silently expand current PR.",
+    "signals": {
+      "out_of_scope_finding": true,
+      "finding_evidenced": true,
+      "blocks_current_acceptance": false
+    },
+    "expect": {
+      "create_follow_up": true,
+      "expand_scope": false
+    }
+  },
+  {
+    "id": "blocking_out_of_scope_can_enter_current_scope",
+    "description": "Out-of-scope issue can be fixed now only if it blocks correctness or acceptance.",
+    "signals": {
+      "out_of_scope_finding": true,
+      "finding_evidenced": true,
+      "blocks_current_acceptance": true
+    },
+    "expect": {
+      "create_follow_up": false,
+      "expand_scope": true
+    }
+  },
+  {
+    "id": "openspec_non_obvious_plan_review_first",
+    "description": "OpenSpec/cflx non-obvious scope gets plan review before code.",
+    "signals": {
+      "openspec": true,
+      "scope_non_obvious": true
+    },
+    "expect": {
+      "plan_review_before_code": true,
+      "entrypoint": "request-code-review",
+      "review_target": "plan/spec"
+    }
+  },
+  {
+    "id": "parallel_overlap_serialized",
+    "description": "Parallel wave with overlapping file claims must serialize conflicting workers.",
+    "signals": {
+      "parallel_tasks": 5,
+      "overlapping_file_claims": true
+    },
+    "expect": {
+      "file_ownership_map": true,
+      "serialize_overlaps": true,
+      "max_workers": 4
+    }
+  },
+  {
+    "id": "conflicting_reviewers_no_evidence_choose_no_change",
+    "description": "Conflicting reviewer claims without evidence should not cause code churn.",
+    "signals": {
+      "reviewers_conflict": true,
+      "evidence_level": "none"
+    },
+    "expect": {
+      "apply_feedback": false,
+      "choose_no_change": true
+    }
+  },
+  {
+    "id": "destructive_change_requires_user_approval",
+    "description": "Destructive/data-loss/payment/external-commitment work requires explicit user approval.",
+    "signals": {
+      "destructive": true,
+      "data_loss_risk": true
+    },
+    "expect": {
+      "user_approval_required": true,
+      "review_mode": "deep",
+      "deep_review": true
+    }
+  },
+  {
+    "id": "skill_change_requires_full_governance",
+    "description": "Skill changes require static validation, behavior eval, two model reviews, and evidence packet.",
+    "signals": {
+      "skill_change": true
+    },
+    "expect": {
+      "static_validation_required": true,
+      "behavior_eval_required": true,
+      "gpt_5_5_review_required": true,
+      "opus_4_7_review_required": true,
+      "evidence_packet_required": true
+    }
+  },
+  {
+    "id": "one_off_reviewer_preference_no_skill_update",
+    "description": "Single subjective review preference is logged at most, no skill update.",
+    "signals": {
+      "closeout_signal": "preference",
+      "recurrence_count": 1,
+      "severity": "minor"
+    },
+    "expect": {
+      "log_signal": true,
+      "update_skill": false,
+      "add_eval": false,
+      "create_persona": false
+    }
+  },
+  {
+    "id": "coderabbit_false_positive_no_process_addition",
+    "description": "Dismissed automated review false positive should not add process.",
+    "signals": {
+      "source": "coderabbit",
+      "closeout_signal": "false_positive",
+      "finding_evidenced": false
+    },
+    "expect": {
+      "log_signal": true,
+      "update_skill": false,
+      "add_eval": false,
+      "create_persona": false
+    }
+  },
+  {
+    "id": "repeated_missed_issue_add_eval_first",
+    "description": "Repeated evidenced miss becomes deterministic eval before skill/persona edits.",
+    "signals": {
+      "closeout_signal": "real_miss",
+      "recurrence_count": 3,
+      "finding_evidenced": true,
+      "severity": "major",
+      "skill_maturity": "stable"
+    },
+    "expect": {
+      "log_signal": true,
+      "add_eval": true,
+      "update_skill": false,
+      "create_persona": false
+    }
+  },
+  {
+    "id": "stable_skill_one_medium_miss_logs_only",
+    "description": "Stable high-success skill with one medium miss should log and defer direct rewrite.",
+    "signals": {
+      "closeout_signal": "real_miss",
+      "recurrence_count": 1,
+      "finding_evidenced": true,
+      "severity": "medium",
+      "skill_maturity": "high-success"
+    },
+    "expect": {
+      "log_signal": true,
+      "update_skill": false,
+      "add_eval": false,
+      "evidence_threshold": "strong_repeated"
+    }
+  },
+  {
+    "id": "recent_skill_friction_trim_first",
+    "description": "Recent skill causing workflow friction should prefer trim/clarify over adding steps.",
+    "signals": {
+      "closeout_signal": "process_friction",
+      "recurrence_count": 2,
+      "skill_maturity": "recent"
+    },
+    "expect": {
+      "trim_or_clarify": true,
+      "prefer_simplification": true,
+      "add_process": false
+    }
+  },
+  {
+    "id": "mermaid_ambiguity_edit_diagram",
+    "description": "Decision-order confusion in workflow diagram should update diagram before adding prose checklist.",
+    "signals": {
+      "closeout_signal": "unclear_instruction",
+      "diagram_ambiguity": true
+    },
+    "expect": {
+      "edit_diagram": true,
+      "add_process": false
+    }
+  },
+  {
+    "id": "persona_creation_requires_repeated_uncovered_gap",
+    "description": "New reviewer persona only after repeated evidenced misses not covered by existing lenses.",
+    "signals": {
+      "closeout_signal": "real_miss",
+      "recurrence_count": 3,
+      "finding_evidenced": true,
+      "existing_lens_covers_gap": false,
+      "persona_gap": true
+    },
+    "expect": {
+      "create_persona": true,
+      "add_eval": true
+    }
+  },
+  {
+    "id": "regression_break_reject_change",
+    "description": "Proposed skill change fixing one case but breaking prior successful eval is rejected or revised.",
+    "signals": {
+      "proposed_change_breaks_regression": true
+    },
+    "expect": {
+      "reject_change": true,
+      "update_skill": false
+    }
+  },
+  {
+    "id": "mature_skill_requires_repeated_evidence",
+    "description": "High-success skill needs repeated high-severity evidence before direct update.",
+    "signals": {
+      "closeout_signal": "real_miss",
+      "recurrence_count": 1,
+      "finding_evidenced": true,
+      "severity": "major",
+      "skill_maturity": "high-success"
+    },
+    "expect": {
+      "log_signal": true,
+      "update_skill": false,
+      "add_eval": false,
+      "evidence_threshold": "strong_repeated"
+    }
+  },
+  {
+    "id": "metrics_recording_supports_maturity",
+    "description": "Skill change governance requires maturity metrics and evidence packet.",
+    "signals": {
+      "skill_change": true,
+      "metrics_available": true
+    },
+    "expect": {
+      "static_validation_required": true,
+      "behavior_eval_required": true,
+      "evidence_packet_required": true,
+      "gpt_5_5_review_required": true,
+      "opus_4_7_review_required": true
+    }
+  },
+  {
+    "id": "skill_used_logs_frequency_event",
+    "description": "Intentional skill use can log a cross-repo usage frequency event.",
+    "signals": {
+      "skill_used": "request-code-review",
+      "usage_logging_relevant": true
+    },
+    "expect": {
+      "log_usage": true,
+      "usage_event_type": "used"
+    }
+  },
+  {
+    "id": "missed_skill_logs_missed_event",
+    "description": "When closeout finds a skill should have been used, log a missed-use event rather than immediately editing skills.",
+    "signals": {
+      "skill_should_have_been_used": "cflx-ready",
+      "missed_skill": true
+    },
+    "expect": {
+      "log_usage": true,
+      "usage_event_type": "missed",
+      "update_skill": false
+    }
+  },
+  {
+    "id": "repeated_manual_work_candidate_not_auto_skill",
+    "description": "Repeated manual work becomes a candidate signal, not automatic skill creation.",
+    "signals": {
+      "repeated_manual_work": true,
+      "recurrence_count": 3,
+      "non_obvious": true
+    },
+    "expect": {
+      "log_usage": true,
+      "usage_event_type": "candidate",
+      "create_skill": false,
+      "candidate_skill": true
+    }
+  },
+  {
+    "id": "one_off_simple_task_not_skillified",
+    "description": "One-off simple work should not be forced into a skill/workflow.",
+    "signals": {
+      "repeated_manual_work": false,
+      "scale": "tiny",
+      "non_obvious": false
+    },
+    "expect": {
+      "create_skill": false,
+      "candidate_skill": false
+    }
+  }
+]

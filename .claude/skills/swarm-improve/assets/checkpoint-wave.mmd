@@ -1,0 +1,8 @@
+flowchart TD
+  W[Wave complete] --> B[Batch summary]
+  B --> R[Refactor pass]
+  R --> T[Extended tests and integration gates]
+  T --> A[Adversarial process review]
+  A --> D{Continue swarm?}
+  D -- yes --> N[Plan next wave]
+  D -- no --> S[Stop, submit, or ask user]

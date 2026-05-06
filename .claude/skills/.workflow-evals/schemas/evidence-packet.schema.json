@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow Skill Change Evidence Packet",
+  "type": "object",
+  "required": ["date", "changed_files", "static_validation", "behavior_eval", "adversarial_reviews", "findings", "follow_ups"],
+  "properties": {
+    "date": {"type": "string"},
+    "changed_files": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "static_validation": {"type": "object", "required": ["command", "status"], "properties": {"command": {"type": "string"}, "status": {"enum": ["pass", "warn", "fail"]}, "output_ref": {"type": "string"}}},
+    "behavior_eval": {"type": "object", "required": ["command", "status"], "properties": {"command": {"type": "string"}, "status": {"enum": ["pass", "warn", "fail"]}, "output_ref": {"type": "string"}}},
+    "adversarial_reviews": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["model", "verdict", "summary"],
+        "properties": {
+          "model": {"type": "string"},
+          "verdict": {"enum": ["PASS", "WARN", "FAIL", "UNAVAILABLE"]},
+          "summary": {"type": "string"},
+          "prompt_ref": {"type": "string"},
+          "output_ref": {"type": "string"}
+        }
+      }
+    },
+    "findings": {"type": "array", "items": {"type": "object", "required": ["severity", "status", "summary"], "properties": {"severity": {"enum": ["critical", "major", "minor"]}, "status": {"enum": ["accepted", "rejected", "deferred", "follow-up"]}, "summary": {"type": "string"}, "rationale": {"type": "string"}}}},
+    "follow_ups": {"type": "array", "items": {"type": "string"}}
+  }
+}

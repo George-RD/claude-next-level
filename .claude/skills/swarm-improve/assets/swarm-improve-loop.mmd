@@ -1,0 +1,21 @@
+flowchart TD
+  P[Plan ranked tasks] --> I[Implementer subagent wave]
+  I --> G[Local gates]
+  G --> S[Simplify: reuse quality efficiency]
+  S --> R[Code review fanout]
+  R --> R1[Correctness reviewer]
+  R --> R2[Maintainability reviewer]
+  R --> R3[Test coverage reviewer]
+  R --> R4[Adversarial reviewer]
+  R1 --> J[Coordinator synthesis]
+  R2 --> J
+  R3 --> J
+  R4 --> J
+  J --> V{Pass?}
+  V -- no --> F[Fix issues]
+  F --> G
+  V -- yes --> C[Commit or submit]
+  C --> K{Checkpoint?}
+  K -- yes --> Q[Refactor and extended tests]
+  Q --> P
+  K -- no --> P

@@ -242,5 +242,34 @@
       "scope: global|project",
       "Higher-level analysis should compare summaries"
     ]
+  },
+  {
+    "id": "progressive_domain_skill_loading",
+    "description": "Request-code-review borrows progressive skill loading by considering relevant repo/domain skills without loading irrelevant bodies.",
+    "files": [
+      "request-code-review/SKILL.md",
+      "request-code-review/assets/evidence-packet.md"
+    ],
+    "must": [
+      "relevant repo/domain skills",
+      "Load only the skill bodies",
+      "record which were considered",
+      "Relevant skills/instructions considered"
+    ]
+  },
+  {
+    "id": "review_output_context_discipline",
+    "description": "Reviewers give concise evidenced findings instead of pasting full diffs or logs.",
+    "files": [
+      "request-code-review/SKILL.md",
+      "request-code-review/references/review-rubric.md",
+      "request-code-review/references/reviewer-json-schema.md"
+    ],
+    "must": [
+      "summarize large logs or diffs",
+      "Do not paste full diffs or logs",
+      "why",
+      "concrete fix"
+    ]
   }
 ]

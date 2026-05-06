@@ -6,10 +6,10 @@ Use this shape when the coordinator needs a programmatic verdict.
 {
   "verdict": "pass" | "concerns" | "block",
   "blocking": [
-    {"file": "path:line", "issue": "...", "fix": "..."}
+    {"file": "path:line", "issue": "...", "why": "...", "fix": "..."}
   ],
   "important": [
-    {"file": "path:line", "issue": "...", "fix": "..."}
+    {"file": "path:line", "issue": "...", "why": "...", "fix": "..."}
   ],
   "minor": [
     {"file": "path:line", "note": "..."}

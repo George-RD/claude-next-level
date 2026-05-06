@@ -20,7 +20,7 @@ Core principle: small ranked tasks, independent workers, explicit evidence, revi
 4. If 3+ tasks have non-obvious dependencies, put a small Mermaid DAG in the visible progress update or swarm shared context.
 5. Dispatch implementer subagents with `subagent` for bounded tasks, or `swarm spawn/assign_task` only for persistent multi-agent coordination.
 6. Before parallel workers, map intended files to owners, order dependencies, cap at 4 workers per wave by default, and serialize overlapping file claims.
-7. Run repo gates after each meaningful diff or wave.
+7. Choose and run validation gates by change type after each meaningful diff or wave. When behavior, UI/UX, CLI/TUI, docs/config, or refactor risk is in scope, use `references/change-type-validation.md` to confirm the gate.
 8. Use `simplify` based on change scale: inline/skip for tiny fixes, normal pass after medium or large implementation, repeat only if review feedback causes medium or large code changes.
 9. Use `request-code-review` as the main review entrypoint. Use quick/standard/deep mode based on risk; deep mode calls `deep-review` for milestone, risky, process-sensitive, high-impact, or pre-submit diffs.
 10. If simplify, review, or gates fail, loop back within the caps in `references/review-budget.md`. If clean, commit with the repo's native workflow.
@@ -34,6 +34,7 @@ Keep this skill light. Read references only when needed:
 - `references/planner-led-loop.md`: task DAGs, waves, claims, checkpoints, and dead-letter handling.
 - `references/review-budget.md`: task-size budgets, scale-based simplify repeats, loop caps, and reviewer arbitration.
 - `references/development-checkpoints.md`: planning review, milestone simplify/review, and out-of-scope follow-up rules.
+- `references/change-type-validation.md`: route backend, UI/UX, CLI/TUI, docs/config, and refactor work to appropriate validation gates.
 - `references/model-routing.md`: choose kimi, minimax, Claude, or inline work when dispatching non-trivial subagents or adversarial review.
 - `references/mermaid-patterns.md`: compact workflow diagrams for plans, simplify, reviews, loopbacks, and checkpoints.
 - `references/repo-workflow-adapters.md`: Graphite, OpenSpec/cflx, and generic repo workflow checks.

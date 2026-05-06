@@ -21,13 +21,13 @@ Default path: identify the target, load only relevant repo/domain skills or inst
    - single commit: `HEAD~1..HEAD`
    - stack: `base..HEAD`, often `dev..HEAD`, `main..HEAD`, or upstream branch
    - uncommitted diff: current working tree
-2. Summarize what changed or is planned, requirements, non-goals, gates, and known risks.
+2. Summarize what changed or is planned, requirements, non-goals, change type, expected validation gates, and known risks.
 3. Discover relevant repo/domain skills or instructions from project-local skills, repo docs, and available skill descriptions. Load only the skill bodies or references that match the target, and record which were considered.
 4. Choose review mode:
    - quick = tiny/small low-risk: inline structured review or one reviewer
    - standard = medium ordinary work: 2-4 lightweight lenses when cheap models are available
    - deep = large/risky/checkpoint/pre-submit/security/process-sensitive/disputed: call `deep-review`
-5. Choose lenses based on likely failure modes: spec/plan correctness, implementation correctness, maintainability/simplify, tests/gates, UX/docs, workflow/process, adversarial.
+5. Choose lenses based on likely failure modes: spec/plan correctness, implementation correctness, maintainability/simplify, tests/gates, UX/docs, workflow/process, adversarial. For runnable user-facing UI/UX changes, treat unexplained missing browser or visual evidence as a review finding unless clearly not runnable.
 6. Dispatch reviewers with `subagent` when bounded and cheap. Use `swarm` only when persistent coordination is needed.
 7. Require structured output. Prefer JSON when the coordinator must act programmatically. Ask reviewers to summarize large logs or diffs instead of pasting them in full.
 8. Treat Critical as blocking. Treat Important as fix-before-proceed only when supported by evidence, plausible impact, and an in-scope remedy. Track Minor or create follow-ups opportunistically.
@@ -48,6 +48,7 @@ Read references only when needed:
 - repo path and branch
 - base and head refs or statement that diff is uncommitted
 - what was implemented
+- change type and expected validation gates
 - requirements or acceptance criteria
 - gates already run
 - known risks or process constraints

@@ -9,7 +9,8 @@ For OpenSpec/cflx or large project work, review the plan before implementation. 
 - target change ids or phases
 - task boundaries and non-goals
 - dependency order
-- validation gates and e2e/smoke coverage
+- validation gates and e2e/smoke coverage chosen by change type
+- UI/UX browser evidence when user-facing frontend flows are in scope
 - what counts as follow-up rather than current scope
 
 Planning fixes are cheaper than code fixes. Use `request-code-review` in plan mode when scope or sequencing is non-obvious.

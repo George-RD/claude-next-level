@@ -271,5 +271,35 @@
       "why",
       "concrete fix"
     ]
+  },
+  {
+    "id": "change_type_validation_routing",
+    "description": "Swarm-improve routes validation by change type instead of requiring every prompt to restate UI/browser checks.",
+    "files": [
+      "swarm-improve/SKILL.md",
+      "swarm-improve/references/change-type-validation.md",
+      "swarm-improve/references/development-checkpoints.md"
+    ],
+    "must": [
+      "validation gates by change type",
+      "Frontend/UI/UX changes",
+      "Code-only review is usually insufficient",
+      "UI/UX browser evidence"
+    ]
+  },
+  {
+    "id": "review_ui_browser_evidence_gate",
+    "description": "Code review treats missing browser/visual evidence as a finding for runnable user-facing UI changes.",
+    "files": [
+      "request-code-review/SKILL.md",
+      "request-code-review/references/review-rubric.md",
+      "request-code-review/assets/evidence-packet.md"
+    ],
+    "must": [
+      "user-facing UI/UX changes",
+      "missing browser or visual evidence",
+      "UX evidence",
+      "UI/browser artifacts"
+    ]
   }
 ]

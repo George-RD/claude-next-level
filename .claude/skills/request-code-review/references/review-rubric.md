@@ -20,8 +20,10 @@ Minor:
 - Requirements: did it satisfy only the intended scope?
 - Tests: are success and failure paths covered where meaningful?
 - Gates: did fmt, build, lint, tests, docs, or domain checks pass?
+- Validation fit: do the gates match the change type, not just the repo default?
 - Maintainability: are names, seams, visibility, and abstractions appropriate?
 - Safety: any destructive behavior, secrets, auth, migration, or concurrency risk?
+- UX evidence: for runnable user-facing UI changes, did someone exercise the changed flow in a real browser or Playwright-style tool, inspect screenshots/console/layout, and record artifacts?
 - Process: did the work respect repo workflow, branch tooling, specs, and ownership?
 - Diff hygiene: are unrelated changes excluded?
 

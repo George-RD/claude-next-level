@@ -18,10 +18,7 @@ Business strategy workshops, PR automation, spec-driven development loops, and m
 
 ### Business
 
-| Plugin | Status | What it does |
-|--------|--------|-------------|
-| **Grandslam Offer** | Stable | Walks you through Alex Hormozi's *$100M Offers* methodology. Adversarial agent teams (marketer, strategist, customer personas) stress-test your offer at every step. You end up with a Grand Slam Offer — not a first draft. |
-| **Hundred Million Leads** | Early | Same adversarial approach, applied to Hormozi's *$100M Leads*. Builds your lead magnet, Core Four channel strategy, outreach scripts, and Rule of 100 execution plan. Not fully road-tested yet — feedback welcome. |
+The Hormozi plugins (**Grandslam Offer**, **Hundred Million Leads**) moved to their own repo, along with a new plain-language/de-AI copy skill: [George-RD/growth-arsenal](https://github.com/George-RD/growth-arsenal).
 
 ### Development  (WARNING - There are issues in the flow, use with Brain for now)
 
@@ -71,19 +68,6 @@ https://github.com/George-RD/claude-next-level
 **Step 4.** You'll see all available plugins. Click **Install** on the ones you want.
 
 ![Browse plugins](docs/assets/cowork-browse-plugins.png)
-
----
-
-## Using the Hormozi plugins
-
-Once installed, just tell Claude what you need:
-
-- *"I want to build an offer for my coaching business"* — Grandslam Offer takes over
-- *"Help me figure out lead gen for my SaaS"* — Hundred Million Leads kicks in
-
-Or use the slash commands directly: `/grandslam-offer`, `/hundred-million-leads`, or type `/` to browse.
-
-The agent teams push back on weak ideas, ask hard questions, and force you to think through the value equation, pricing, guarantees, and bonuses properly. That's the point — you want the stress test before you go to market, not after.
 
 ---
 

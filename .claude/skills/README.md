@@ -103,8 +103,6 @@ Grouped by source marketplace. Scope is `user` unless noted. Install via `/plugi
 
 ### From `claude-next-level` (mine, this repo)
 
-- `grandslam-offer@claude-next-level` v1.0.0
-- `hundred-million-leads@claude-next-level` v1.0.0
 - `cycle@claude-next-level` v2.0.0
 - `jj-commands@claude-next-level` v1.0.0
 - `ralph-wiggum-toolkit@claude-next-level` v2.0.0

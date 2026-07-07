@@ -122,4 +122,3 @@ Print a summary of all created files and directories, then suggest next steps:
 - `jj-commands/` — minimal plugin with one skill and references
 - `ralph-wiggum/` — full plugin with commands, hooks, scripts, and references
 - `cycle/` — PR review plugin with commands
-- `grandslam-offer/` — business workshop plugin

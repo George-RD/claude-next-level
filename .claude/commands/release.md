@@ -5,7 +5,7 @@ argument-hint: "[plugin-name] [--dry-run]"
 
 # Release Workflow
 
-You are automating a release for the **claude-next-level** plugin marketplace. This repo contains 7 plugins, each with its own directory and `plugin.json`, plus a central registry at `.claude-plugin/marketplace.json`.
+You are automating a release for the **claude-next-level** plugin marketplace. This repo contains 5 plugins, each with its own directory and `plugin.json`, plus a central registry at `.claude-plugin/marketplace.json`.
 
 Parse the argument `$ARGUMENTS` for:
 
@@ -24,8 +24,6 @@ The plugins and their directories are:
 | Plugin | Directory | plugin.json path |
 |--------|-----------|-----------------|
 | next-level | `next-level/` | `next-level/plugin.json` |
-| grandslam-offer | `grandslam-offer/` | `grandslam-offer/plugin.json` |
-| hundred-million-leads | `hundred-million-leads/` | `hundred-million-leads/plugin.json` |
 | cycle | `cycle/` | `cycle/plugin.json` |
 | ralph-wiggum-toolkit | `ralph-wiggum-toolkit/` | `ralph-wiggum-toolkit/plugin.json` |
 | nest-test | `nest-test/` | `nest-test/.claude-plugin/plugin.json` |
